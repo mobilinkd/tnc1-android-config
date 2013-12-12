@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mobilinkd TNC</string>
+    <string name="action_bluetooth_settings">Bluetooth Settings</string>
+    <string name="action_update_firmware">Update Firmware</string>
+    <string name="action_about">About</string>
+    <string name="mark_button">1200Hz</string>
+    <string name="space_button">2200Hz</string>
+    <string name="output_volume_label">Output Volume</string>
+    <string name="connect_button">Connect</string>
+    <string name="disconnect_button">Disconnect</string>
+    <string name="input_volume_label">Input Volume</string>
+    <string name="bt_not_enabled_leaving">Bluetooth not enabled. Exiting.</string>
+    <string name="title_connecting">Connecting&#8230;</string>
+    <string name="title_connected_to">Connected to: </string>
+    <string name="title_not_connected">Not connected</string>
+
+    <!-- DeviceListActivity -->
+    <string name="none_paired">No devices have been paired</string>
+    <string name="title_paired_devices">Paired Devices</string>
+    <string name="title_other_devices">Other Available Devices</string>
+    <string name="ptt_button">PTT</string>
+    <string name="title_activity_device_list">DeviceListActivity</string>
+    <string name="label_tx_delay">TX Delay</string>
+    <string name="label_persistence">Persistence</string>
+    <string name="label_slot_time">Slot Time</string>
+    <string name="label_tx_tail">TX Tail</string>
+    <string name="label_10ms">x 10ms</string>
+    <string name="label_kiss_parameters">KISS Parameters</string>
+    <string name="label_0_255">0&#8211;255</string>
+    <string name="dcd_button">DCD</string>
+    <string name="duplex_button">Duplex</string>
+    <string name="title_activity_firmware_update">FirmwareUpdateActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_about">About</string>
+    <string name="about_close_button">Close</string>
+    <string name="about_content">
+        Mobilinkd TNC1 Configuration Utility\n
+        Version 0.8.3 &#8211; 2013-12-09\n\n
+        Copyright &#169; 2013 Mobilinkd LLC.\n
+        Chicago, Illinois, USA\n\n
+        This software is released under the Apache Software License 2.0\n\n
+        Credit to:\n
+        Simon Vig Therkildsen (SimonVT) for the NumberPicker backport.\n
+        
+        
+    </string>
+    <string name="conn_track_button">BT Conn</string>
+    <string name="info_toggle_button">Info</string>
+    <string name="input_atten_button">Atten</string>
+    <string name="output_volume_default">128</string>
+
+</resources>

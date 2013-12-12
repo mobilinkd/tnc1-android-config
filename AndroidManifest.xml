@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mobilinkd.tncconfig"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="7"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.mobilinkd.tncconfig.TncConfig"
+            android:theme="@style/SampleTheme.Light"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.mobilinkd.tncconfig.DeviceListActivity"
+            android:label="@string/title_activity_device_list"
+            android:parentActivityName="com.mobilinkd.tncconfig.TncConfig" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mobilinkd.tncconfig.TncConfig" />
+        </activity>
+        <activity
+            android:name="com.mobilinkd.tncconfig.FirmwareUpdateActivity"
+            android:label="@string/title_activity_firmware_update"
+            android:parentActivityName="com.mobilinkd.tncconfig.TncConfig"
+            android:theme="@style/FullscreenTheme" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mobilinkd.tncconfig.TncConfig" />
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="*" android:pathPattern=".*\\.hex"/>
+                <data android:scheme="https" android:host="*" android:pathPattern=".*\\.hex"/>
+                <data android:scheme="content" android:host="*" android:pathPattern=".*\\.hex"/>
+                <data android:scheme="file" android:host="*" android:pathPattern=".*\\.hex"/>
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.mobilinkd.tncconfig.AboutActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_about"
+            android:parentActivityName="com.mobilinkd.tncconfig.TncConfig"
+            android:theme="@style/FullscreenTheme" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.mobilinkd.tncconfig.TncConfig" />
+        </activity>
+    </application>
+
+</manifest>
