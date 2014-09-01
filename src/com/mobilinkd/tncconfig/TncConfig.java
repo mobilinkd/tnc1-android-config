@@ -414,8 +414,14 @@ public class TncConfig extends Activity {
             startActivity(bluetoothSettingsIntent);
             return true;
         case R.id.action_firmware_update:
-            // Launch the FirmwareUpdateActivity to upload new firmware.
-        	Uri uri = Uri.parse(getString(R.string.firmware_url));
+        	// Stop the TNC service so the firmware service can connect.
+            if (mTncService != null) {
+            	mTncService.stop();
+            	mTncService = null;
+            }
+            
+            // Launch the browser.
+            Uri uri = Uri.parse(getString(R.string.firmware_url));
         	startActivity(new Intent(Intent.ACTION_VIEW, uri));  
             return true;
         case R.id.action_about:
