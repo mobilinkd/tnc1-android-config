@@ -19,8 +19,8 @@ package com.mobilinkd.tncconfig;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.UUID;
+
 
 // import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -58,6 +58,11 @@ public class BluetoothTncService {
     public static final int STATE_CONNECTING = 1; // now initiating an outgoing connection
     public static final int STATE_CONNECTED = 2;  // now connected to a remote device
 
+    public static final int STATE_CONFIG = 4;	  // running config
+    public static final int STATE_DOWNLOAD = 8;   // running firmware download
+    public static final int STATE_UPLOAD = 16;	  // running firmware upload
+    
+    
     public static final int SEND_SPACE = 1;
     public static final int SEND_MARK = 2;
     public static final int SEND_BOTH = 3;
@@ -528,6 +533,7 @@ public class BluetoothTncService {
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
+    
     /**
      * This thread runs while attempting to make an outgoing connection
      * with a device. It runs straight through; the connection either

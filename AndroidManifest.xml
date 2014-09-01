@@ -10,7 +10,9 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -37,7 +39,6 @@
         <activity
             android:name="com.mobilinkd.tncconfig.FirmwareUpdateActivity"
             android:label="@string/title_activity_firmware_update"
-            android:parentActivityName="com.mobilinkd.tncconfig.TncConfig"
             android:theme="@style/FullscreenTheme" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -45,13 +46,19 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="*" android:pathPattern=".*\\.hex"/>
-                <data android:scheme="https" android:host="*" android:pathPattern=".*\\.hex"/>
-                <data android:scheme="content" android:host="*" android:pathPattern=".*\\.hex"/>
-                <data android:scheme="file" android:host="*" android:pathPattern=".*\\.hex"/>
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" />
+                <data android:host="www.mobilinkd.com" />
+                <data android:mimeType="application/x-intel-hex" />
             </intent-filter>
-        </activity>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:mimeType="*/*" />
+                <data android:pathPattern=".*\\.hex" />
+            </intent-filter>
+            </activity>
         <activity
             android:name="com.mobilinkd.tncconfig.AboutActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -63,5 +70,4 @@
                 android:value="com.mobilinkd.tncconfig.TncConfig" />
         </activity>
     </application>
-
 </manifest>

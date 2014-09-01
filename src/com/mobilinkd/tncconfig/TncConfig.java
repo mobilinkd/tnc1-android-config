@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -84,7 +85,6 @@ public class TncConfig extends Activity {
 
     // Name of the connected device
     private String mConnectedDeviceName = null;
-    // String buffer for outgoing messages
     // Local Bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the chat services
@@ -108,8 +108,10 @@ public class TncConfig extends Activity {
     private ToggleButton mInfoButton;
     private ToggleButton mInputAttenButton;
     private int mTone = 0;
-    private String fwVersion = "282";
-    private String hwVersion = "1.12";
+    @SuppressWarnings("unused")
+	private String fwVersion = "282";
+    @SuppressWarnings("unused")
+	private String hwVersion = "1.12";
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -413,8 +415,8 @@ public class TncConfig extends Activity {
             return true;
         case R.id.action_firmware_update:
             // Launch the FirmwareUpdateActivity to upload new firmware.
-            Intent updateFirmwareIntent = new Intent(this, FirmwareUpdateActivity.class);
-            startActivity(updateFirmwareIntent);
+        	Uri uri = Uri.parse(getString(R.string.firmware_url));
+        	startActivity(new Intent(Intent.ACTION_VIEW, uri));  
             return true;
         case R.id.action_about:
             // Launch the AboutActivity to learn about the program.

@@ -31,14 +31,13 @@
     <string name="label_0_255">0&#8211;255</string>
     <string name="dcd_button">DCD</string>
     <string name="duplex_button">Duplex</string>
-    <string name="title_activity_firmware_update">FirmwareUpdateActivity</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_firmware_update">Mobilinkd Firmware Update</string>
     <string name="title_activity_about">About</string>
     <string name="about_close_button">Close</string>
     <string name="about_content">
         Mobilinkd TNC1 Configuration Utility\n
-        Version 0.8.3 &#8211; 2013-12-09\n\n
-        Copyright &#169; 2013 Mobilinkd LLC.\n
+        Version 0.9.0 &#8211; 2014-09-01\n\n
+        Copyright &#169; 2014 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
         Credit to:\n
@@ -50,5 +49,28 @@
     <string name="info_toggle_button">Info</string>
     <string name="input_atten_button">Atten</string>
     <string name="output_volume_default">128</string>
-
+    <string name="firmware_update">Firmware Update\n</string>
+    <string name="firmware_upload_notification">
+        You have selected a Mobilinkd firmware image.\n\nWould you
+        like to upload this file to your Mobilinkd TNC?
+    </string>
+    <string name="select_device_notification">
+        You will next be asked to select a Bluetooth device.
+        Choose the one labeled "Mobilinkd TNC1".
+    </string>
+    <string name="firmware_upload_warning">
+        You are about to upload new firmware to the TNC.  This may
+        take a few minutes to complete.  If you
+        navigate away from the screen while the firmware upload and
+        verification is in progress, the TNC firmware will be erased.\n\n
+        Are you sure you wish to continue?
+    </string>
+    
+    <string name="reading_firmware">Reading firmware&#8230;</string>
+    <string name="initializing_firmware">Initializing&#8230;</string>
+    <string name="writing_firmware">Writing firmware&#8230;</string>
+    <string name="verifying_firmware">Verifying firmware&#8230;</string>
+    
+    <string name="firmware_url">http://www.mobilinkd.com/downloads/?dl_cat=4</string>
+    
 </resources>

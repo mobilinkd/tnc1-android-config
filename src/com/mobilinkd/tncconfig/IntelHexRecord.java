@@ -16,6 +16,8 @@
 
 package com.mobilinkd.tncconfig;
 
+import android.util.Log;
+
 public class IntelHexRecord {
 
 	private String record = null;
@@ -24,6 +26,11 @@ public class IntelHexRecord {
 	private int type = 0;
 	private int checksum = 0;
 	private byte[] data = null;
+	
+	// Debugging
+	private static final String TAG = "IntelHexRecord";
+	private static final boolean D = false;
+
 	
 	private char parseStartCode() {
 		return record.charAt(0);
@@ -34,7 +41,7 @@ public class IntelHexRecord {
 	}
 	
 	private int parseAddress() {
-		return Integer.parseInt(record.substring(4, 7), 16);
+		return Integer.parseInt(record.substring(3, 7), 16);
 	}
 	
 	private int parseType() {
@@ -52,6 +59,7 @@ public class IntelHexRecord {
 			result[i] = (byte) Integer.parseInt(
 					record.substring(pos, pos + 2), 16);
 		}
+		assert(result.length == size);
 		return result;
 	}
 	
@@ -75,12 +83,16 @@ public class IntelHexRecord {
 		type = parseType();
 		data = parseData(length);
 		checksum = parseChecksum();
+		
+		if (D) Log.i(TAG, "address: " + Integer.toHexString(address));
+		if (D) Log.i(TAG, "length: " + Integer.toString(length));
+
 		return checksum == computeChecksum();
 	}
 	
 	public IntelHexRecord(String line) throws IllegalArgumentException {
 		record = line;
-		if (!parse()) throw new IllegalArgumentException();
+		if (!parse()) throw new IllegalArgumentException(line);
 	}
 	
 	public int length() {

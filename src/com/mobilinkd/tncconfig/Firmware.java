@@ -17,32 +17,40 @@
 package com.mobilinkd.tncconfig;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
+
+import android.util.Log;
 
 public class Firmware {
 
-	private class Segment {
-		@SuppressWarnings("unused")
+	// Debugging
+	private static final String TAG = "Firmware";
+	private static final boolean D = false;
+
+
+	public class Segment {
 		public char memoryType;
-		@SuppressWarnings("unused")
 		public int address;
-		@SuppressWarnings("unused")
 		public byte[] data;
 		
 		public Segment(char type, int addr, byte[] d) {
 			memoryType = type;
 			address = addr;
 			data = d;
+			if (D) Log.i(TAG, "segment address: " + Integer.toHexString(address));
 		}
 	}
 	
 	private List<Segment> segments;
 	
-	Firmware(String urlPath) {
+	Firmware(String urlPath) throws IOException, IllegalArgumentException {
+		segments = new ArrayList<Segment>();
 		InputStream stream = null;
 		int address = 0;
 		try {
@@ -51,28 +59,50 @@ public class Firmware {
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(stream));
 		    String line = null;
-		    StringBuilder sb = new StringBuilder(65536);
+		    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		    while ((line = reader.readLine()) != null) {
 		    	IntelHexRecord record = new IntelHexRecord(line);
+		    	
 		    	if (record.type() == 1) break;
+		    	
+		    	// Append all adjoining records into one.
 		    	if (record.address() != address) {
-		    		int len = sb.length();
-		    		if (len != 0) {
+					if (D) Log.i(TAG, "expected address: " + Integer.toHexString(address));
+					if (D) Log.i(TAG, "record address: " + Integer.toHexString(record.address()));
+		    		
+					byte[] segmentData = buffer.toByteArray();
+					
+		    		if (segmentData.length != 0) {
+		    			if (segmentData.length % 2 != 0)
+		    			{
+		    				throw new IllegalArgumentException("bad segment alignment");
+		    			}
 		    			Segment segment = new Segment(
-		    					'F', address - len, sb.toString().getBytes());
+		    					'F', address - segmentData.length, segmentData);
 		    			segments.add(segment);
-		    			sb.setLength(0);
 		    			address = record.address();
 		    		}
-		    		sb.append(record.data());
+	    			buffer.reset();
 		    	}
+	    		buffer.write(record.data());
+	    		address += record.length();
 		    }
-    		int len = sb.length();
-			Segment segment = new Segment(
-					'F', address - len, sb.toString().getBytes());
+		    
+			byte[] segmentData = buffer.toByteArray();
+ 			Segment segment = new Segment(
+					'F', address - segmentData.length, segmentData);
 			segments.add(segment);
+			
 		} catch (IOException x) {
 		    System.err.format("IOException: %s%n", x);
+		    throw(x);
+		} catch (IllegalArgumentException x) {
+			System.err.format("IllegalArgumentException: %s%n", x);
+			throw(x);
 		}
+	}
+	
+	List<Segment> getSegments() {
+		return segments;
 	}
 }
