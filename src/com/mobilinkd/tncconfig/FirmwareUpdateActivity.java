@@ -381,6 +381,8 @@ public class FirmwareUpdateActivity extends Activity {
 				mLog.append(msg.getData().getString(TOAST));
 				break;
 			case MESSAGE_TOAST:
+				FirmwareUpdateActivity.this.mProgressBar.setVisibility(View.INVISIBLE);
+				mLog.append("failed\n");
 				Toast.makeText(getApplicationContext(),
 						msg.getData().getString(TOAST), Toast.LENGTH_SHORT)
 						.show();
@@ -589,17 +591,17 @@ public class FirmwareUpdateActivity extends Activity {
 				if (D)
 					Log.e(TAG, "Firmware URI: " + mUri);
 				mFirmware = new Firmware(mUri.toString());
+
+				synchronized (FirmwareUpdateActivity.this) {
+					mFirmwareDownloadThread = null;
+				}
+
+				downloaded(mFirmware);
 			} catch (IOException e) {
 				firmwareDownloadFailed(mUri);
 			} catch (IllegalArgumentException e) {
 				firmwareDownloadFailed(mUri);
 			}
-
-			synchronized (FirmwareUpdateActivity.this) {
-				mFirmwareDownloadThread = null;
-			}
-
-			downloaded(mFirmware);
 		}
 	}
 
