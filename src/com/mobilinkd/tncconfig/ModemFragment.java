@@ -13,7 +13,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckedTextView;
-import android.widget.LinearLayout;
 
 public class ModemFragment extends DialogFragment {
 	
@@ -39,8 +38,6 @@ public class ModemFragment extends DialogFragment {
     private CheckedTextView mDcdView;
     private CheckedTextView mConnTrackView;
     private CheckedTextView mVerboseView;
-    
-    private LinearLayout mPttLayout;
 	
 	private Listener mListener = null;
 

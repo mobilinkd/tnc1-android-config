@@ -113,6 +113,7 @@
     <string name="audio_settings">Audio Settings&#8230;</string>
     <string name="modem_settings">Modem Settings&#8230;</string>
     <string name="kiss_settings">KISS Parameters&#8230;</string>
+    <string name="save_settings">Save Settings&#8230;</string>
     <string name="firmware_settings">Firmware&#8230;</string>
     
     <string name="battery_level">Battery Level</string>

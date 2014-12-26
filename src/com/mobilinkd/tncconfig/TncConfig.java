@@ -69,6 +69,7 @@ public class TncConfig extends FragmentActivity
     public static final int MESSAGE_USB_POWER_ON = 19;
     public static final int MESSAGE_USB_POWER_OFF = 20;
     public static final int MESSAGE_PTT_STYLE = 21;
+    public static final int MESSAGE_CAPABILITIES = 22;
     
     
     // Key names received from the BluetoothTncService Handler
@@ -130,6 +131,10 @@ public class TncConfig extends FragmentActivity
     private boolean mHasConnTrack = false;
     private boolean mConnTrack = false;
     private boolean mVerbose = false;
+    
+    private Button mSaveButton = null;
+    private boolean mHasEeprom = false;
+    private boolean mNeedsSave = false;
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
@@ -170,6 +175,8 @@ public class TncConfig extends FragmentActivity
         mHasInputAtten = false;
         mHasPttStyle = false;
         mPowerControl = false;
+        mSaveButton.setVisibility(Button.GONE);
+        mHasEeprom = false;
 	}
 	
 	private void onBluetoothDisconnected() {
@@ -187,6 +194,15 @@ public class TncConfig extends FragmentActivity
         mHasInputAtten = false;
         mHasPttStyle = false;
         mPowerControl = false;
+        mSaveButton.setVisibility(Button.GONE);
+        mHasEeprom = false;
+	}
+	
+	private void settingsUpdated() {
+		if (mHasEeprom && mNeedsSave == false) {
+			mNeedsSave = true;
+			mSaveButton.setEnabled(mNeedsSave);
+		}
 	}
 	
 	private void createHandler() {
@@ -302,6 +318,14 @@ public class TncConfig extends FragmentActivity
 	            	TncConfig.this.mPttStyle = msg.arg1;
 	                if(D) Log.d(TAG, "ptt style: " + TncConfig.this.mPttStyle);
 	            	break;
+	            case MESSAGE_CAPABILITIES:
+	            	buffer = (byte[]) msg.obj;
+	            	if (buffer.length > 1) {
+		            	TncConfig.this.mHasEeprom = ((buffer[1] & 0x02) == 0x02);
+		            	TncConfig.this.mSaveButton.setVisibility(TncConfig.this.mHasEeprom ? Button.VISIBLE : Button.GONE);
+		                if(D) Log.d(TAG, "eeprom save:" + TncConfig.this.mHasEeprom);
+	            	}
+	            	break;
 	            case MESSAGE_TOAST:
 	                Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
 	                               Toast.LENGTH_SHORT).show();
@@ -309,8 +333,6 @@ public class TncConfig extends FragmentActivity
 	            }
 	        }
 	    };
-		
-	    
 	}
 
 
@@ -488,6 +510,16 @@ public class TncConfig extends FragmentActivity
         		mTncService.getAllValues();
         	}
         }
+        
+        mSaveButton = (Button) findViewById(R.id.saveButton);
+        mSaveButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+            	mTncService.saveEeprom();
+            	mNeedsSave = false;
+            	mSaveButton.setEnabled(mNeedsSave);
+            }
+        });
+        
     }
 
 
@@ -547,12 +579,14 @@ public class TncConfig extends FragmentActivity
 	public void onAudioOutputDialogPttStyleChanged(AudioOutputFragment dialog) {
 		mPttStyle = dialog.getPttStyle();
 		mTncService.setPttChannel(mPttStyle);
+		settingsUpdated();
 	}
 
 	@Override
 	public void onAudioOutputDialogLevelChanged(AudioOutputFragment dialog) {
 		mOutputVolume = dialog.getVolume();
 		mTncService.volume(mOutputVolume);
+		settingsUpdated();
 	}
 
 	@Override
@@ -584,6 +618,7 @@ public class TncConfig extends FragmentActivity
     	if (mInputAtten != dialog.getInputAtten()) {
     		mInputAtten = dialog.getInputAtten();
     		mTncService.setInputAtten(mInputAtten);
+    		settingsUpdated();
     	}
     }
     
@@ -592,10 +627,12 @@ public class TncConfig extends FragmentActivity
     	if (mPowerOn != dialog.getPowerOn()) {
     		mPowerOn = dialog.getPowerOn();
     		mTncService.setUsbPowerOn(mPowerOn);
+    		settingsUpdated();
     	}
     	if (mPowerOff != dialog.getPowerOff()) {
     		mPowerOff = dialog.getPowerOff();
     		mTncService.setUsbPowerOff(mPowerOff);
+    		settingsUpdated();
     	}
     }
     
@@ -611,22 +648,27 @@ public class TncConfig extends FragmentActivity
         if (mTxDelay != dialog.getTxDelay()) {
     		mTxDelay = dialog.getTxDelay();
     		mTncService.setTxDelay(mTxDelay);
+    		settingsUpdated();
     	}
     	if (mPersistence != dialog.getPersistence()) {
     		mPersistence = dialog.getPersistence();
     		mTncService.setPersistence(mPersistence);
+    		settingsUpdated();
     	}
     	if (mSlotTime != dialog.getSlotTime()) {
     		mSlotTime = dialog.getSlotTime();
     		mTncService.setSlotTime(mSlotTime);
+    		settingsUpdated();
     	}
     	if (mTxTail != dialog.getTxTail()) {
     		mTxTail = dialog.getTxTail();
     		mTncService.setSlotTime(mTxTail);
+    		settingsUpdated();
     	}
     	if (mDuplex != dialog.getDuplex()) {
     		mDuplex = dialog.getDuplex();
     		mTncService.setDuplex(mDuplex);
+    		settingsUpdated();
     	}
     }
     
@@ -641,16 +683,19 @@ public class TncConfig extends FragmentActivity
         if (mDcd != dialog.getDcd()) {
         	mDcd = dialog.getDcd();
         	mTncService.setDcd(mDcd);
+    		settingsUpdated();
         }
         
         if (mHasConnTrack && (mConnTrack != dialog.getConnTrack())) {
         	mConnTrack = dialog.getConnTrack();
         	mTncService.setConnTrack(mConnTrack);
+    		settingsUpdated();
         }
         
         if (mVerbose != dialog.getVerbose()) {
         	mVerbose = dialog.getVerbose();
         	mTncService.setVerbosity(mVerbose);
+    		settingsUpdated();
         }
     }
     

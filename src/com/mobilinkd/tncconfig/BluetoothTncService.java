@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 
+
 // import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -107,8 +108,11 @@ public class BluetoothTncService {
     		new byte[] { (byte)0xc0, 0x06, 0x4b, 0, (byte)0xC0 };
     private static final byte[] TNC_SET_PTT_CHANNEL = 
     		new byte[] { (byte)0xc0, 0x06, 0x4f, 0, (byte)0xC0 };
-    private static final byte[] TNC_GET_PTT_CHANNEL = 
+    @SuppressWarnings("unused")
+	private static final byte[] TNC_GET_PTT_CHANNEL = 
     		new byte[] { (byte)0xc0, 0x06, 0x50, (byte)0xC0 };
+	private static final byte[] TNC_SAVE_EEPROM = 
+    		new byte[] { (byte)0xc0, 0x06, 0x2a, (byte)0xC0 };
 
     /**
      * Constructor. Prepares a new Bluetooth session.
@@ -513,6 +517,21 @@ public class BluetoothTncService {
     	r.write(c);
     }
 
+    public void saveEeprom()
+    {
+        if (D) Log.d(TAG, "saveEeprom");
+    	
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+        
+    	r.write(TNC_SAVE_EEPROM);
+    }
+
     public void setInputAtten(boolean on)
     {
         if (D) Log.d(TAG, "setInputAtten()");
@@ -718,6 +737,7 @@ public class BluetoothTncService {
         	public static final int TNC_GET_USB_POWER_ON = 74;
         	public static final int TNC_GET_USB_POWER_OFF = 76;
         	public static final int TNC_GET_PTT_CHANNEL = 80;
+        	public static final int TNC_GET_CAPABILITIES = 126;
         	
         	boolean mAvailable = false;
         	byte[] mBuffer = new byte[BUFFER_SIZE];
@@ -927,6 +947,12 @@ public class BluetoothTncService {
                             		TncConfig.MESSAGE_PTT_STYLE, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
+                    	case HdlcDecoder.TNC_GET_CAPABILITIES:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                            		TncConfig.MESSAGE_CAPABILITIES, (int) mHdlc.getValue(),
+                            		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
                     	default:
                             // Send the obtained bytes to the UI Activity
                             mHandler.obtainMessage(
@@ -937,7 +963,7 @@ public class BluetoothTncService {
                     }
 
                 } catch (IOException e) {
-                    Log.e(TAG, "disconnected", e);
+                    Log.i(TAG, "disconnected");
                     connectionLost();
                     return;
                 }
