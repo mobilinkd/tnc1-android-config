@@ -618,7 +618,9 @@ public class TncConfig extends FragmentActivity
     	if (mInputAtten != dialog.getInputAtten()) {
     		mInputAtten = dialog.getInputAtten();
     		mTncService.setInputAtten(mInputAtten);
+    		mTncService.listen();
     		settingsUpdated();
+    		mTncService.listen();
     	}
     }
     
