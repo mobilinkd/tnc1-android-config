@@ -5,8 +5,6 @@
     <string name="action_bluetooth_settings">Bluetooth Settings</string>
     <string name="action_update_firmware">Update Firmware</string>
     <string name="action_about">About</string>
-    <string name="mark_button">1200Hz</string>
-    <string name="space_button">2200Hz</string>
     <string name="output_volume_label">Output Volume</string>
     <string name="connect_button">Connect</string>
     <string name="disconnect_button">Disconnect</string>
@@ -15,28 +13,66 @@
     <string name="title_connecting">Connecting&#8230;</string>
     <string name="title_connected_to">Connected to: </string>
     <string name="title_not_connected">Not connected</string>
+    <string name="label_firmware_version">Firmware Version: </string>
 
     <!-- DeviceListActivity -->
     <string name="none_paired">No devices have been paired</string>
     <string name="title_paired_devices">Paired Devices</string>
     <string name="title_other_devices">Other Available Devices</string>
     <string name="ptt_button">PTT</string>
-    <string name="title_activity_device_list">DeviceListActivity</string>
+    <string name="title_activity_device_list">Choose Bluetooth Device</string>
     <string name="label_tx_delay">TX Delay</string>
+    <string name="label_tx_delay_hint">Preamble time (in 10ms increments)</string>
     <string name="label_persistence">Persistence</string>
+    <string name="label_persistence_hint">P-persistent probability (n/255)</string>
     <string name="label_slot_time">Slot Time</string>
+    <string name="label_slot_time_hint">CSMA wait (in 10ms increcments)</string>
     <string name="label_tx_tail">TX Tail</string>
+    <string name="label_tx_tail_hint">Ignored (always set to 2)</string>
+    <string name="duplex_button">Duplex</string>
     <string name="label_10ms">x 10ms</string>
     <string name="label_kiss_parameters">KISS Parameters</string>
     <string name="label_0_255">0&#8211;255</string>
-    <string name="dcd_button">DCD</string>
-    <string name="duplex_button">Duplex</string>
+    
+    <string name="label_dcd">DCD</string>
+    <string name="label_dcd_hint">Enable DCD when using an open squelch</string>
+    <string name="label_conn_track">BT Connection Tracking</string>
+    <string name="label_conn_track_hint">Enable when TNC is used for digipeating</string>
+    <string name="label_verbose">Verbose Output</string>
+    <string name="label_verbose_hint">Enable only when troubleshooting</string>
+    
+    <string name="audio_output_settings">Audio Output Settings&#8230;</string>
+    <string name="label_audio_output_settings">Audio Output Settings</string>
+    <string name="label_ptt_style">PTT Style</string>
+    <string name="label_ptt_style_simplex">Simplex</string>
+    <string name="label_ptt_style_multiplex">Multiplex</string>
+    <string name="label_ptt_icon">PTT Style Help</string>
+    <string name="label_ptt_hint">Select whether the radio has a dedicated PTT
+        signal (Simplex) or multiplexes the PTT signal on Mic+ (Multiplex).
+        Kenwood HTs (and all Chinese HTs that use the same connector) and
+        MiniDIN-6 data ports use Simplex.  Most other HTs use Multiplex.</string>
+    
+    <string name="label_audio_output_tone">Output Tone</string>
+    <string name="mark_button">1200Hz</string>
+    <string name="space_button">2200Hz</string>
+    <string name="both_button">Both</string>
+    <string name="label_transmit_button">Transmit</string>
+    <string name="label_audio_output_min">0</string>
+    <string name="label_audio_output_max">255</string>
+    
+    <string name="audio_input_settings">Audio Input Settings&#8230;</string>
+    <string name="label_audio_input_settings">Audio Input Settings</string>
+    <string name="label_input_volume_level">Input Volume Level</string>
+    <string name="label_audio_input_hint">Open squelch and set radio volume to flicker first red element.</string>
+    <string name="label_input_atten">Attenuate Input</string>
+    <string name="label_input_atten_hint">Disable only if the fixed volume level is too low.</string>
+    
     <string name="title_activity_firmware_update">Mobilinkd Firmware Update</string>
     <string name="title_activity_about">About</string>
     <string name="about_close_button">Close</string>
     <string name="about_content">
         Mobilinkd TNC1 Configuration Utility\n
-        Version 0.9.4 &#8211; 2014-11-03\n\n
+        Version 1.0.0 &#8211; 2014-12-25\n\n
         Copyright &#169; 2014 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
@@ -45,8 +81,6 @@
         
         
     </string>
-    <string name="conn_track_button">BT Conn</string>
-    <string name="info_toggle_button">Info</string>
     <string name="input_atten_button">Atten</string>
     <string name="output_volume_default">128</string>
     <string name="firmware_update">Firmware Update\n</string>
@@ -72,5 +106,27 @@
     <string name="verifying_firmware">Verifying firmware&#8230;</string>
     
     <string name="firmware_url">http://www.mobilinkd.com/downloads/?dl_cat=4</string>
+    
+    <string name="connect_ellipsis_button">Connect&#8230;</string>
+    <string name="configure_label">Configure</string>
+    <string name="power_settings">Power Settings&#8230;</string>
+    <string name="audio_settings">Audio Settings&#8230;</string>
+    <string name="modem_settings">Modem Settings&#8230;</string>
+    <string name="kiss_settings">KISS Parameters&#8230;</string>
+    <string name="firmware_settings">Firmware&#8230;</string>
+    
+    <string name="battery_level">Battery Level</string>
+    <string name="power_on_usb">Power on with USB Power</string>
+    <string name="power_off_usb">Power off with USB Power</string>
+
+    <string name="input_volume_level">Input Volume Level</string>
+    
+    <string name="kiss_parameters_label">KISS Parameters</string>
+    <string name="full_duplex_setting">Full DUplex (normally off)</string>
+    
+    <string name="ok">OK</string>
+    <string name="set">Set</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
     
 </resources>

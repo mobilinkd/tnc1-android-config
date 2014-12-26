@@ -47,11 +47,11 @@ public class BluetoothTncService {
     		UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     // Member fields
-    // private final BluetoothAdapter mAdapter;
-    private final Handler mHandler;
+    private Handler mHandler;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mState;
+    private String mDeviceName = null;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -101,9 +101,17 @@ public class BluetoothTncService {
     		new byte[] { (byte)0xc0, 0x06, 0x03, 0, (byte)0xC0 };
     private static final byte[] TNC_GET_ALL_VALUES = 
     		new byte[] { (byte)0xc0, 0x06, 0x7F, (byte)0xC0 };
+    private static final byte[] TNC_SET_USB_POWER_ON = 
+    		new byte[] { (byte)0xc0, 0x06, 0x49, 0, (byte)0xC0 };
+    private static final byte[] TNC_SET_USB_POWER_OFF = 
+    		new byte[] { (byte)0xc0, 0x06, 0x4b, 0, (byte)0xC0 };
+    private static final byte[] TNC_SET_PTT_CHANNEL = 
+    		new byte[] { (byte)0xc0, 0x06, 0x4f, 0, (byte)0xC0 };
+    private static final byte[] TNC_GET_PTT_CHANNEL = 
+    		new byte[] { (byte)0xc0, 0x06, 0x50, (byte)0xC0 };
 
     /**
-     * Constructor. Prepares a new BluetoothChat session.
+     * Constructor. Prepares a new Bluetooth session.
      * @param context  The UI Activity Context
      * @param handler  A Handler to send messages back to the UI Activity
      */
@@ -111,6 +119,18 @@ public class BluetoothTncService {
         // mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mHandler = handler;
+    }
+    
+    public void resetHandler() {
+    	mHandler = null;
+    }
+    
+    public boolean setHandler(Handler handler) {
+    	if (mHandler != null) {
+    		return false;
+    	}
+    	mHandler = handler;
+    	return true;
     }
 
     /**
@@ -184,10 +204,12 @@ public class BluetoothTncService {
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
 
+        mDeviceName = device.getName();
+        
         // Send the name of the connected device back to the UI Activity
         Message msg = mHandler.obtainMessage(TncConfig.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(TncConfig.DEVICE_NAME, device.getName());
+        bundle.putString(TncConfig.DEVICE_NAME, mDeviceName);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
 
@@ -222,6 +244,14 @@ public class BluetoothTncService {
         }
 
         r.write(TNC_GET_ALL_VALUES);
+    }
+    
+    public boolean isConnected() {
+    	return mState == STATE_CONNECTED;
+    }
+    
+    public String getDeviceName() {
+    	return mDeviceName;
     }
 
     public void getOutputVolume()
@@ -432,6 +462,57 @@ public class BluetoothTncService {
     	r.write(c);
     }
     
+    public void setUsbPowerOn(boolean value)
+    {
+        if (D) Log.d(TAG, "setUsbPowerOn(" + value + ")");
+    	
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+        
+        byte c[] = TNC_SET_USB_POWER_ON;
+        c[3] = (byte) (value ? 1 : 0);
+    	r.write(c);
+    }
+
+    public void setUsbPowerOff(boolean value)
+    {
+        if (D) Log.d(TAG, "setUsbPowerOff(" + value + ")");
+    	
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+        
+        byte c[] = TNC_SET_USB_POWER_OFF;
+        c[3] = (byte) (value ? 1 : 0);
+    	r.write(c);
+    }
+
+    public void setPttChannel(int channel)
+    {
+        if (D) Log.d(TAG, "setPttChannel(" + channel + ")");
+    	
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+        
+        byte c[] = TNC_SET_PTT_CHANNEL;
+        c[3] = (byte) channel;
+    	r.write(c);
+    }
+
     public void setInputAtten(boolean on)
     {
         if (D) Log.d(TAG, "setInputAtten()");
@@ -634,6 +715,9 @@ public class BluetoothTncService {
         	public static final int TNC_GET_BATTERY_LEVEL = 6;
         	public static final int TNC_GET_INPUT_ATTEN = 13;
         	public static final int TNC_GET_BT_CONN_TRACK = 70;
+        	public static final int TNC_GET_USB_POWER_ON = 74;
+        	public static final int TNC_GET_USB_POWER_OFF = 76;
+        	public static final int TNC_GET_PTT_CHANNEL = 80;
         	
         	boolean mAvailable = false;
         	byte[] mBuffer = new byte[BUFFER_SIZE];
@@ -706,7 +790,7 @@ public class BluetoothTncService {
         	}
         }
         
-        private final HdlcDecoder mHdlc;
+		private final HdlcDecoder mHdlc;
 
         public ConnectedThread(BluetoothSocket socket) {
             Log.d(TAG, "create ConnectedThread");
@@ -736,6 +820,9 @@ public class BluetoothTncService {
                     // Read from the InputStream
                     byte c = (byte) mmInStream.read();
                     mHdlc.process(c);
+                    if (mHandler == null) {
+                    	continue;
+                    }
                     if (mHdlc.available()) {
                     	switch (mHdlc.getType()) {
                     	case HdlcDecoder.TNC_INPUT_VOLUME:
@@ -795,7 +882,7 @@ public class BluetoothTncService {
                     	case HdlcDecoder.TNC_GET_FW_VERSION:
                             // Send the obtained bytes to the UI Activity
                             mHandler.obtainMessage(
-                            		TncConfig.MESSAGE_HW_VERSION, (int) mHdlc.getValue(),
+                            		TncConfig.MESSAGE_FW_VERSION, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
                     	case HdlcDecoder.TNC_GET_BATTERY_LEVEL:
@@ -822,6 +909,24 @@ public class BluetoothTncService {
                             		TncConfig.MESSAGE_INPUT_ATTEN, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
+                    	case HdlcDecoder.TNC_GET_USB_POWER_ON:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                            		TncConfig.MESSAGE_USB_POWER_ON, (int) mHdlc.getValue(),
+                            		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                    	case HdlcDecoder.TNC_GET_USB_POWER_OFF:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                            		TncConfig.MESSAGE_USB_POWER_OFF, (int) mHdlc.getValue(),
+                            		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                    	case HdlcDecoder.TNC_GET_PTT_CHANNEL:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                            		TncConfig.MESSAGE_PTT_STYLE, (int) mHdlc.getValue(),
+                            		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
                     	default:
                             // Send the obtained bytes to the UI Activity
                             mHandler.obtainMessage(
@@ -834,7 +939,7 @@ public class BluetoothTncService {
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
-                    break;
+                    return;
                 }
             }
         }

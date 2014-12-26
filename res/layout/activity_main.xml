@@ -2,321 +2,117 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollViewMain"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="#0099cc" >
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <LinearLayout
+        <ToggleButton
+            android:id="@+id/toggleButtonConnect"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                android:id="@+id/title_right_text"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|fill_horizontal"
-                android:gravity="left"
-                android:text="@string/title_not_connected"
-                android:textSize="20sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-
-            <ToggleButton
-                android:id="@+id/toggleButtonConnect"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/connect_button"
-                android:textOff="@string/connect_button"
-                android:textOn="@string/disconnect_button" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonMark"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/mark_button"
-                android:textOff="@string/mark_button"
-                android:textOn="@string/mark_button" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonSpace"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/space_button"
-                android:textOff="@string/space_button"
-                android:textOn="@string/space_button" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonPTT"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="false"
-                android:enabled="false"
-                android:text="@string/ptt_button"
-                android:textOff="@string/ptt_button"
-                android:textOn="@string/ptt_button" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/output_volume_label"
+            android:gravity="center_vertical|center_horizontal"
+            android:text="@string/connect_button"
+            android:textOff="@string/connect_button"
+            android:textOn="@string/disconnect_button"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
+            android:id="@+id/bluetooth_device_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+	        android:paddingLeft="12dp"
+	        android:paddingRight="12dp"
+            android:paddingBottom="6dp"
+            android:layout_gravity="fill_horizontal|center_vertical"
+            android:text="@string/title_not_connected"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <LinearLayout
+        <FrameLayout 
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <SeekBar
-                android:id="@+id/outputVolumeLevel"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight=".85"
-                android:max="@integer/volume_max" />
-
-            <TextView
-                android:id="@+id/outputVolumeText"
-                android:layout_width="64dip"
-                android:layout_height="match_parent"
-                android:layout_weight=".15"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="@string/output_volume_default" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/input_volume_label"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <view
-                android:id="@+id/bar_level_drawable_view"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_weight=".85"
-                class="com.google.speech.levelmeter.BarLevelDrawable"
-                android:gravity="center_vertical" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonInputAtten"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:text="@string/input_atten_button"
-                android:textOff="@string/input_atten_button"
-                android:textOn="@string/input_atten_button" />
-
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_kiss_parameters"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/TextView01"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_tx_delay" />
-
-                <net.simonvt.numberpicker.NumberPicker
-                    android:id="@+id/numberPickerTxDelay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_10ms" />
-            </LinearLayout>
-
-            <android.support.v7.widget.Space
-                android:id="@+id/space2"
-                android:layout_width="10dip"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/TextView02"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_persistence" />
-
-                <net.simonvt.numberpicker.NumberPicker
-                    android:id="@+id/numberPickerPersistence"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_0_255" />
-            </LinearLayout>
-
-            <android.support.v7.widget.Space
-                android:id="@+id/space3"
-                android:layout_width="10dip"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/TextView03"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_slot_time" />
-
-                <net.simonvt.numberpicker.NumberPicker
-                    android:id="@+id/numberPickerSlotTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/TextView05"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_10ms" />
-            </LinearLayout>
-
-            <android.support.v7.widget.Space
-                android:id="@+id/space4"
-                android:layout_width="10dip"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/textView3"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_tx_tail" />
-
-                <net.simonvt.numberpicker.NumberPicker
-                    android:id="@+id/numberPickerTxTail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:id="@+id/TextView04"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:gravity="center_horizontal"
-                    android:text="@string/label_10ms" />
-            </LinearLayout>
-
-            <android.support.v7.widget.Space
-                android:id="@+id/space5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <ToggleButton
-                android:id="@+id/toggleButtonDuplex"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/duplex_button"
-                android:textOff="@string/duplex_button"
-                android:textOn="@string/duplex_button" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonDCD"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_vertical"
-                android:text="@string/dcd_button"
-                android:textOff="@string/dcd_button"
-                android:textOn="@string/dcd_button" />
-
-            <ToggleButton
-                android:id="@+id/toggleButtonConnTrack"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" 
-                android:text="@string/conn_track_button"
-                android:textOff="@string/conn_track_button"
-                android:textOn="@string/conn_track_button" />
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="6dp" >
             
-            <ToggleButton
-                android:id="@+id/toggleButtonInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/info_toggle_button"
-                android:textOff="@string/info_toggle_button"
-                android:textOn="@string/info_toggle_button" />
-
-        </LinearLayout>
-
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="0dip"
-            android:orientation="horizontal" >
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:text="@string/label_firmware_version"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        <TextView
+            android:id="@+id/firmware_version_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|center_vertical"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        </FrameLayout>
+        <Button
+            android:id="@+id/audioOutputButton"
+            style="@style/ButtonBarButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#0099cc"
+            android:drawableLeft="@drawable/perm_group_audio_settings"
+            android:drawableStart="@drawable/perm_group_audio_settings"
+            android:enabled="false"
+            android:gravity="center_vertical|center_horizontal|start"
+            android:text="@string/audio_output_settings"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+        <Button
+            android:id="@+id/audioInputButton"
+            style="@style/ButtonBarButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#0099cc"
+            android:drawableLeft="@drawable/ic_voice_search"
+            android:drawableStart="@drawable/ic_voice_search"
+            android:enabled="false"
+            android:gravity="center_vertical|center_horizontal|start"
+            android:text="@string/audio_input_settings"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+        
+	    <Button
+	        android:id="@+id/powerButton"
+	        style="@style/ButtonBarButton"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="#0099cc"
+	        android:drawableLeft="@drawable/perm_group_affects_battery"
+	        android:drawableStart="@drawable/perm_group_affects_battery"
+	        android:enabled="false"
+	        android:gravity="center_vertical|center_horizontal|start"
+	        android:text="@string/power_settings"
+	        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <android.support.v7.widget.Space
-                android:id="@+id/space6"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/kissButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#0099cc"
+            android:drawableLeft="@drawable/perm_group_network"
+            android:drawableStart="@drawable/perm_group_network"
+            android:enabled="false"
+            android:gravity="center_vertical|center_horizontal|start"
+            android:text="@string/kiss_settings"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	    <Button
+	        android:id="@+id/modemButton"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:background="#0099cc"
+	        android:drawableLeft="@drawable/perm_group_system_tools"
+	        android:drawableStart="@drawable/perm_group_system_tools"
+	        android:enabled="false"
+	        android:gravity="center_vertical|center_horizontal|start"
+	        android:text="@string/modem_settings"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
     </LinearLayout>
 
 </ScrollView>
