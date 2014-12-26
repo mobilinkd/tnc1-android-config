@@ -52,10 +52,8 @@
         </FrameLayout>
         <Button
             android:id="@+id/audioOutputButton"
-            style="@style/ButtonBarButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#0099cc"
             android:drawableLeft="@drawable/perm_group_audio_settings"
             android:drawableStart="@drawable/perm_group_audio_settings"
             android:enabled="false"
@@ -65,10 +63,8 @@
         
         <Button
             android:id="@+id/audioInputButton"
-            style="@style/ButtonBarButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#0099cc"
             android:drawableLeft="@drawable/ic_voice_search"
             android:drawableStart="@drawable/ic_voice_search"
             android:enabled="false"
@@ -78,10 +74,8 @@
         
 	    <Button
 	        android:id="@+id/powerButton"
-	        style="@style/ButtonBarButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:background="#0099cc"
 	        android:drawableLeft="@drawable/perm_group_affects_battery"
 	        android:drawableStart="@drawable/perm_group_affects_battery"
 	        android:enabled="false"
@@ -93,7 +87,6 @@
             android:id="@+id/kissButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#0099cc"
             android:drawableLeft="@drawable/perm_group_network"
             android:drawableStart="@drawable/perm_group_network"
             android:enabled="false"
@@ -105,7 +98,6 @@
 	        android:id="@+id/modemButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:background="#0099cc"
 	        android:drawableLeft="@drawable/perm_group_system_tools"
 	        android:drawableStart="@drawable/perm_group_system_tools"
 	        android:enabled="false"
@@ -117,7 +109,6 @@
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#0099cc"
             android:drawableLeft="@drawable/perm_group_sync_settings"
             android:drawableStart="@drawable/perm_group_sync_settings"
             android:enabled="false"

@@ -21,7 +21,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
-import android.graphics.PorterDuff;
 
 public class AudioOutputFragment extends DialogFragment {
     // Debugging
@@ -87,24 +86,6 @@ public class AudioOutputFragment extends DialogFragment {
                    }
                });
 
-        mPttStyleLayout = (FrameLayout) mDialogView.findViewById(R.id.pttStyleLayout);
-        if (mHasPttStyle) {
-        	mPttStyleLayout.setVisibility(FrameLayout.VISIBLE);
-    		RadioButton button;
-        	switch (mPttStyle) {
-        	case PTT_STYLE_SIMPLEX:
-        		button = (RadioButton) mDialogView.findViewById(R.id.pttStyleSimplexButton);
-        		button.setSelected(true);
-        		break;
-        	case PTT_STYLE_MULTIPLEX:
-        		button = (RadioButton) mDialogView.findViewById(R.id.pttStyleMultiplexButton);
-        		button.setSelected(true);
-        		break;
-        	}
-        } else {
-        	mPttStyleLayout.setVisibility(FrameLayout.GONE);
-        }
-        
         mPttStyleGroup = (RadioGroup) mDialogView.findViewById(R.id.pttStyleGroup);
         mPttStyleGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
         	@Override
@@ -124,6 +105,22 @@ public class AudioOutputFragment extends DialogFragment {
         	}
         });
         
+        mPttStyleLayout = (FrameLayout) mDialogView.findViewById(R.id.pttStyleLayout);
+        if (mHasPttStyle) {
+        	mPttStyleLayout.setVisibility(FrameLayout.VISIBLE);
+
+        	switch (mPttStyle) {
+        	case PTT_STYLE_SIMPLEX:
+        		mPttStyleGroup.check(R.id.pttStyleSimplexButton);
+        		break;
+        	case PTT_STYLE_MULTIPLEX:
+        		mPttStyleGroup.check(R.id.pttStyleMultiplexButton);
+        		break;
+        	}
+        } else {
+        	mPttStyleLayout.setVisibility(FrameLayout.GONE);
+        }
+        
         mPttStyleHelpButton = (ImageButton) mDialogView.findViewById(R.id.pttStyleHelpButton);
         mPttStyleHelpButton.setOnClickListener(new OnClickListener() {
         	@Override
@@ -139,7 +136,7 @@ public class AudioOutputFragment extends DialogFragment {
 					}).show();
         	}
         });
-        mPttStyleHelpButton.getBackground().setColorFilter(0x0099CC00, PorterDuff.Mode.MULTIPLY);
+        mPttStyleHelpButton.getBackground().setAlpha(64);
         
         mOutputVolumeText = (TextView) mDialogView.findViewById(R.id.outputVolumeText);
     	mOutputVolumeText.setText(Integer.toString(mVolume));
@@ -202,7 +199,8 @@ public class AudioOutputFragment extends DialogFragment {
     			mListener.onAudioOutputDialogToneChanged(AudioOutputFragment.this);
         	}
         });
-        
+        mPttButton.getBackground().setAlpha(64);
+
         
         if(D) Log.e(TAG, "+++ ON CREATE +++");
         

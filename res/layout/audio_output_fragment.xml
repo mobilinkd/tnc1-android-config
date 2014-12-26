@@ -69,12 +69,6 @@
             android:layout_height="wrap_content"
             android:text="@string/output_volume_label"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-        
-        <SeekBar
-            android:id="@+id/outputVolumeLevel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="@integer/volume_max" />
 
         <FrameLayout
             android:layout_width="fill_parent"
@@ -93,7 +87,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/output_volume_default" />
+                android:text="@string/output_volume_default"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#FFFF00" />
 
             <TextView
                 android:id="@+id/textView4"
@@ -103,7 +99,12 @@
                 android:text="@string/label_audio_output_max" />
 
         </FrameLayout>
-            
+        
+        <SeekBar
+            android:id="@+id/outputVolumeLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="@integer/volume_max" />
         
         <TextView
             android:id="@+id/textView2"

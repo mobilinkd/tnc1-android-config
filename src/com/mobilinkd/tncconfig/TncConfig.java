@@ -158,6 +158,7 @@ public class TncConfig extends FragmentActivity
         mTncService.getAllValues();
         mTncService.getOutputVolume();                    
    		invalidateOptionsMenu();
+        mNeedsSave = false;
 	}
 	
 	private void onBluetoothConnecting() {
@@ -177,6 +178,7 @@ public class TncConfig extends FragmentActivity
         mPowerControl = false;
         mSaveButton.setVisibility(Button.GONE);
         mHasEeprom = false;
+        mNeedsSave = false;
 	}
 	
 	private void onBluetoothDisconnected() {
@@ -196,6 +198,7 @@ public class TncConfig extends FragmentActivity
         mPowerControl = false;
         mSaveButton.setVisibility(Button.GONE);
         mHasEeprom = false;
+        mNeedsSave = false;
 	}
 	
 	private void settingsUpdated() {
@@ -425,7 +428,6 @@ public class TncConfig extends FragmentActivity
                 }
             }
         });
-        // mConnectButton.getBackground().setColorFilter(0x0099CC00, PorterDuff.Mode.MULTIPLY);
 
         mAudioOutputButton = (Button) findViewById(R.id.audioOutputButton);
         mAudioOutputButton.setOnClickListener(new OnClickListener() {
@@ -439,7 +441,7 @@ public class TncConfig extends FragmentActivity
             	audioOutputFragment.show(getSupportFragmentManager(), "AudioOutputFragment");
             }
         });
-
+        mAudioOutputButton.getBackground().setAlpha(64);
 
 
         mAudioInputButton = (Button) findViewById(R.id.audioInputButton);
@@ -453,6 +455,7 @@ public class TncConfig extends FragmentActivity
             	mAudioInputFragment.show(getSupportFragmentManager(), "AudioInputFragment");
             }
         });
+        mAudioInputButton.getBackground().setAlpha(64);
 
 
         mPowerButton = (Button) findViewById(R.id.powerButton);
@@ -467,6 +470,7 @@ public class TncConfig extends FragmentActivity
                 powerFragment.show(getSupportFragmentManager(), "PowerFragment");
             }
         });
+        mPowerButton.getBackground().setAlpha(64);
 
 
         mKissButton = (Button) findViewById(R.id.kissButton);
@@ -480,6 +484,7 @@ public class TncConfig extends FragmentActivity
             	kissFragment.show(getSupportFragmentManager(), "KissFragment");
             }
         });
+        mKissButton.getBackground().setAlpha(64);
 
 
         mModemButton = (Button) findViewById(R.id.modemButton);
@@ -494,7 +499,8 @@ public class TncConfig extends FragmentActivity
             	modemFragment.show(getSupportFragmentManager(), "ModemFragment");
             }
         });
-        
+        mModemButton.getBackground().setAlpha(64);
+       
         // Initialize the BluetoothChatService to perform bluetooth connections
         TncConfigApplication app = (TncConfigApplication) getApplication();
         mTncService = app.getBluetoothTncService();
@@ -519,7 +525,8 @@ public class TncConfig extends FragmentActivity
             	mSaveButton.setEnabled(mNeedsSave);
             }
         });
-        
+        mSaveButton.getBackground().setAlpha(64);
+       
     }
 
 
