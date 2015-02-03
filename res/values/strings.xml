@@ -71,9 +71,10 @@
     <string name="title_activity_about">About</string>
     <string name="about_close_button">Close</string>
     <string name="about_content">
-        Mobilinkd TNC1 Configuration Utility\n
-        Version 1.0.1 &#8211; 2014-12-26\n\n
-        Copyright &#169; 2014 Mobilinkd LLC.\n
+        Mobilinkd TNC Configuration Utility\n
+        For Mobilinkd TNC1 and TNC2 devices\n
+        Version 1.1.0 &#8211; 2015-02-02\n\n
+        Copyright &#169; 2015 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
         Credit to:\n
@@ -90,7 +91,7 @@
     </string>
     <string name="select_device_notification">
         You will next be asked to select a Bluetooth device.
-        Choose the one labeled "Mobilinkd TNC1".
+        Choose the one labeled "Mobilinkd TNC1" or "Mobilinkd TNC2".
     </string>
     <string name="firmware_upload_warning">
         You are about to upload new firmware to the TNC.  This may

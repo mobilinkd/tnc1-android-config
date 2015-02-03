@@ -15,7 +15,7 @@
         android:id="@+id/firmware_update_log"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="top|left"
+        android:gravity="top|start"
         android:keepScreenOn="true"
         android:paddingBottom="48dp"
         android:paddingTop="48dp"

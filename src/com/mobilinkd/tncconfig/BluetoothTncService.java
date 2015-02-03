@@ -23,13 +23,21 @@ import java.util.UUID;
 
 
 
+
+
+
+
+
+
 // import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 /**
@@ -218,7 +226,6 @@ public class BluetoothTncService {
         mHandler.sendMessage(msg);
 
         setState(STATE_CONNECTED);
-        listen();
     }
 
     /**
@@ -556,20 +563,42 @@ public class BluetoothTncService {
     	r.write(c);
     }
     
-    public void listen()
-    {
+    @SuppressWarnings("unused")
+	private class ListenTask extends AsyncTask<Integer, Void, Void> {
+        /** The system calls this to perform work in a worker thread and
+          * delivers it the parameters given to AsyncTask.execute() 
+         * @return */
+        protected Void doInBackground(Integer... delays) {
+        	SystemClock.sleep(delays[0].intValue());
+            return null;
+        }
+        
+        /** The system calls this to perform work in the UI thread and delivers
+          * the result from doInBackground() */
+        protected void onPostExecute(Void v) {
+            if (D) Log.d(TAG, "async listen()");
+            ConnectedThread r;
+            // Synchronize a copy of the ConnectedThread
+            synchronized (this) {
+                if (mState != STATE_CONNECTED) return;
+                r = mConnectedThread;
+            }
+           	r.listen();
+        }
+    }
+
+    public void listen() {
         if (D) Log.d(TAG, "listen()");
-    	
-        // Create temporary object
+        
+        // new ListenTask().execute(Integer.valueOf(250));
+
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
         synchronized (this) {
             if (mState != STATE_CONNECTED) return;
             r = mConnectedThread;
         }
-        
-    	r.write(TNC_PTT_OFF);
-    	r.write(TNC_STREAM_VOLUME);
+       	r.listen();
     }
     
     public void volume(int v)
@@ -602,7 +631,6 @@ public class BluetoothTncService {
             if (mState != STATE_CONNECTED) return;
             r = mConnectedThread;
         }
-        // Perform the write unsynchronized
         r.write(out);
     }
 
@@ -810,6 +838,11 @@ public class BluetoothTncService {
         	}
         }
         
+    	public void listen() {
+        	write(TNC_PTT_OFF);
+        	write(TNC_STREAM_VOLUME);
+    	}
+    	
 		private final HdlcDecoder mHdlc;
 
         public ConnectedThread(BluetoothSocket socket) {
@@ -837,7 +870,6 @@ public class BluetoothTncService {
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
-                    // Read from the InputStream
                     byte c = (byte) mmInStream.read();
                     mHdlc.process(c);
                     if (mHandler == null) {

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 
 public class AudioInputFragment extends DialogFragment {
@@ -27,6 +28,8 @@ public class AudioInputFragment extends DialogFragment {
      * */
     public interface Listener {
         public void onAudioInputDialogClose(AudioInputFragment dialog);
+        public void onAudioInputDialogPause(AudioInputFragment dialog);
+        public void onAudioInputDialogResume(AudioInputFragment dialog);
         public void onAudioInputDialogChanged(AudioInputFragment dialog);
     }
 	
@@ -40,10 +43,47 @@ public class AudioInputFragment extends DialogFragment {
 
 	private Listener mListener = null;
 
+	private View configureDialogView(View view) {
+		
+        mInputVolumeLevel = (BarLevelDrawable) view.findViewById(R.id.bar_level_drawable_view);
+        mInputAttenView = (CheckedTextView) view.findViewById(R.id.inputAttenCheckBox);
+
+        mInputAttenView.setChecked(mInputAtten);
+        mInputAttenView.setEnabled(mHasInputAtten);
+
+        mInputAttenView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+            	((CheckedTextView) view).toggle();
+            	mInputAtten = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mInputAtten changed: " + mInputAtten);
+                mListener.onAudioInputDialogChanged(AudioInputFragment.this);
+            }
+        });
+        
+		return view;
+	}	
+    @SuppressLint("InflateParams")
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+    	
+    	
+        if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
+
+        if (getShowsDialog() == true) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+        } else {
+            View view = getActivity().getLayoutInflater().inflate(R.layout.audio_input_fragment, null);    
+            return configureDialogView(view);
+        }
+    }
+
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+    	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -63,23 +103,8 @@ public class AudioInputFragment extends DialogFragment {
                    }
                });
 
-        mInputVolumeLevel = (BarLevelDrawable) mDialogView.findViewById(R.id.bar_level_drawable_view);
-        mInputAttenView = (CheckedTextView) mDialogView.findViewById(R.id.inputAttenCheckBox);
-
-        mInputAttenView.setChecked(mInputAtten);
-        mInputAttenView.setEnabled(mHasInputAtten);
-
-        mInputAttenView.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-            	mInputAtten = ((CheckedTextView) view).isChecked();
-                Log.e(TAG, "mInputAtten changed: " + mInputAtten);
-                mListener.onAudioInputDialogChanged(AudioInputFragment.this);
-            }
-        });
-        
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+        configureDialogView(mDialogView);        
+        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
         
         return builder.create();
     }
@@ -88,7 +113,14 @@ public class AudioInputFragment extends DialogFragment {
     public void onStart() {
     	super.onStart();
 
-        if(D) Log.e(TAG, "++ ON START ++");
+        if(D) Log.d(TAG, "++ ON START ++");
+     }
+
+    @Override
+    public void onStop() {
+    	super.onStop();
+
+        if(D) Log.d(TAG, "++ ON STOP ++");
      }
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
@@ -96,7 +128,7 @@ public class AudioInputFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if(D) Log.e(TAG, "++ ON ATTACH ++");
+        if(D) Log.d(TAG, "++ ON ATTACH ++");
 
         // Verify that the host activity implements the callback interface
         try {
@@ -107,6 +139,22 @@ public class AudioInputFragment extends DialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement AudioInputFragment.Listener");
         }
+    }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+		mListener.onAudioInputDialogPause(AudioInputFragment.this);
+        if(D) Log.d(TAG, "++ ON PAUSE ++");
+    }
+
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	
+		mListener.onAudioInputDialogResume(AudioInputFragment.this);
+        if(D) Log.d(TAG, "++ ON RESUME ++");
     }
 
     public void setInputAtten(boolean value) {

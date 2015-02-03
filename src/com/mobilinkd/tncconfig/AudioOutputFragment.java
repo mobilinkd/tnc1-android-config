@@ -11,6 +11,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -62,31 +63,14 @@ public class AudioOutputFragment extends DialogFragment {
     private ToggleButton mPttButton = null;
 
 	private Listener mListener = null;
-
-    @SuppressLint("InflateParams")
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        
-        // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.audio_output_fragment, null);
-        builder.setView(mDialogView)
-        // Add action buttons
-               .setTitle(R.string.audio_output_settings)
-               .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int id) {
-                       if (mListener != null) {
-                    	   mListener.onAudioOutputDialogClose(AudioOutputFragment.this);
-                       }
-                   }
-               });
-
-        mPttStyleGroup = (RadioGroup) mDialogView.findViewById(R.id.pttStyleGroup);
+	
+	public static AudioOutputFragment newInstance() {
+		return new AudioOutputFragment();
+	}
+	
+	private View configureDialogView(View view)
+	{
+        mPttStyleGroup = (RadioGroup) view.findViewById(R.id.pttStyleGroup);
         mPttStyleGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
         	@Override
         	public void onCheckedChanged(RadioGroup group, int selected) {
@@ -105,7 +89,7 @@ public class AudioOutputFragment extends DialogFragment {
         	}
         });
         
-        mPttStyleLayout = (FrameLayout) mDialogView.findViewById(R.id.pttStyleLayout);
+        mPttStyleLayout = (FrameLayout) view.findViewById(R.id.pttStyleLayout);
         if (mHasPttStyle) {
         	mPttStyleLayout.setVisibility(FrameLayout.VISIBLE);
 
@@ -121,7 +105,7 @@ public class AudioOutputFragment extends DialogFragment {
         	mPttStyleLayout.setVisibility(FrameLayout.GONE);
         }
         
-        mPttStyleHelpButton = (ImageButton) mDialogView.findViewById(R.id.pttStyleHelpButton);
+        mPttStyleHelpButton = (ImageButton) view.findViewById(R.id.pttStyleHelpButton);
         mPttStyleHelpButton.setOnClickListener(new OnClickListener() {
         	@Override
         	public void onClick(View view) {
@@ -138,9 +122,9 @@ public class AudioOutputFragment extends DialogFragment {
         });
         mPttStyleHelpButton.getBackground().setAlpha(64);
         
-        mOutputVolumeText = (TextView) mDialogView.findViewById(R.id.outputVolumeText);
+        mOutputVolumeText = (TextView) view.findViewById(R.id.outputVolumeText);
     	mOutputVolumeText.setText(Integer.toString(mVolume));
-        mOutputVolumeLevel = (SeekBar) mDialogView.findViewById(R.id.outputVolumeLevel);
+        mOutputVolumeLevel = (SeekBar) view.findViewById(R.id.outputVolumeLevel);
         mOutputVolumeLevel.setProgress(mVolume);
         mOutputVolumeLevel.setEnabled(mPtt);
         mOutputVolumeLevel.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -161,7 +145,7 @@ public class AudioOutputFragment extends DialogFragment {
             }
         });
         
-        mToneGroup = (RadioGroup) mDialogView.findViewById(R.id.toneGroup);
+        mToneGroup = (RadioGroup) view.findViewById(R.id.toneGroup);
         mToneGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
         	@Override
         	public void onCheckedChanged(RadioGroup group, int selected) {
@@ -187,7 +171,7 @@ public class AudioOutputFragment extends DialogFragment {
         	}
         });
         
-        mPttButton = (ToggleButton) mDialogView.findViewById(R.id.transmitButton);
+        mPttButton = (ToggleButton) view.findViewById(R.id.transmitButton);
         mPttButton.setOnClickListener(new OnClickListener() {
         	@Override
         	public void onClick(View view) {
@@ -201,8 +185,49 @@ public class AudioOutputFragment extends DialogFragment {
         });
         mPttButton.getBackground().setAlpha(64);
 
+        return view;
+	}
+
+    @SuppressLint("InflateParams")
+	@Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+    	
+        if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
+
+        if (getShowsDialog() == true) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+        } else {
+            View view = getActivity().getLayoutInflater().inflate(R.layout.audio_output_fragment, null);    
+            return configureDialogView(view);
+        }
+    }
+
+    @SuppressLint("InflateParams")
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+        // Get the layout inflater
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        mDialogView = inflater.inflate(R.layout.audio_output_fragment, null);
+        builder.setView(mDialogView)
+        // Add action buttons
+               .setTitle(R.string.audio_output_settings)
+               .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int id) {
+                       if (mListener != null) {
+                    	   mListener.onAudioOutputDialogClose(AudioOutputFragment.this);
+                       }
+                   }
+               });
+
+        configureDialogView(mDialogView);
+        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
         
         return builder.create();
     }
@@ -211,7 +236,7 @@ public class AudioOutputFragment extends DialogFragment {
     public void onStart() {
     	super.onStart();
 
-        if(D) Log.e(TAG, "++ ON START ++");
+        if(D) Log.d(TAG, "++ ON START ++");
      }
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
@@ -219,7 +244,7 @@ public class AudioOutputFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if(D) Log.e(TAG, "++ ON ATTACH ++");
+        if(D) Log.d(TAG, "++ ON ATTACH ++");
 
         // Verify that the host activity implements the callback interface
         try {
@@ -231,6 +256,17 @@ public class AudioOutputFragment extends DialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement AudioOutputFragment.Listener");
         }
+    }
+    
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+    	mPtt = false;
+    	mPttButton.setChecked(false);
+		mOutputVolumeLevel.setEnabled(false);
+		mListener.onAudioOutputDialogToneChanged(AudioOutputFragment.this);
+        if(D) Log.d(TAG, "++ ON PAUSE ++");
     }
 
     public void setPttStyle(int style) {

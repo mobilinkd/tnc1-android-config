@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical|center_horizontal"
     android:background="#0099cc"
     android:orientation="vertical" >
 
@@ -11,6 +12,11 @@
         android:orientation="vertical"
         android:paddingLeft="12dp"
         android:paddingRight="12dp" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <FrameLayout
             android:id="@+id/pttStyleLayout"
@@ -43,13 +49,16 @@
 	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
 	                    android:checked="true"
-	                    android:text="@string/label_ptt_style_simplex" />
-	
+	                    android:text="@string/label_ptt_style_simplex"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 	                <RadioButton
 	                    android:id="@+id/pttStyleMultiplexButton"
 	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
-	                    android:text="@string/label_ptt_style_multiplex" />
+	                    android:text="@string/label_ptt_style_multiplex"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 	            </RadioGroup>
             
             </LinearLayout>
@@ -150,6 +159,6 @@
         android:text="@string/label_transmit_button"
         android:textOff="@string/label_transmit_button"
         android:textOn="@string/label_transmit_button" />
-
+    </LinearLayout>
     
 </LinearLayout>

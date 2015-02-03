@@ -5,7 +5,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
+    <style name="AppBaseTheme" parent="@android:style/Theme">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -37,6 +37,14 @@
 
     <style name="ButtonBarButton" />
 
+    <style name="AlertDialog">
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:paddingBottom">0dp</item>
+    </style>
+
+    
     <style name="SampleTheme" parent="android:Theme">
         <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>
     </style>

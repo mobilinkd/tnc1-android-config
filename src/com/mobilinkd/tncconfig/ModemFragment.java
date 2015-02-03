@@ -11,6 +11,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.CheckedTextView;
 
@@ -25,7 +26,8 @@ public class ModemFragment extends DialogFragment {
      * Each method passes the DialogFragment in case the host needs to query it.
      * */
     public interface Listener {
-        public void onModemDialogClose(ModemFragment dialog);
+        public void onModemDialogResume(ModemFragment dialog);
+        public void onModemDialogUpdate(ModemFragment dialog);
     }
 	
     private View mDialogView = null;
@@ -41,7 +43,78 @@ public class ModemFragment extends DialogFragment {
 	
 	private Listener mListener = null;
 
-    @SuppressLint("InflateParams")
+	private View configureDialogView(View view) {
+		
+        mDcdView = (CheckedTextView) view.findViewById(R.id.dcdCheckBox);
+        mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
+        mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
+
+        mDcdView.setChecked(mDcd);
+        mConnTrackView.setChecked(mConnTrack);
+        mConnTrackView.setEnabled(mHasConnTrack);
+        mVerboseView.setChecked(mVerbose);
+
+        mConnTrackView.setEnabled(mHasConnTrack);
+        mConnTrackView.setClickable(mHasConnTrack);
+
+        mDcdView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+            	((CheckedTextView) view).toggle();
+                mDcd = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mDcd changed: " + mDcd);
+                if (mListener != null) {
+             	   mListener.onModemDialogUpdate(ModemFragment.this);
+                }
+            }
+        });
+        
+        mConnTrackView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+            	((CheckedTextView) view).toggle();
+            	mConnTrack = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mConnTrack changed: " + mConnTrack);
+                if (mListener != null) {
+              	   mListener.onModemDialogUpdate(ModemFragment.this);
+                 }
+            }
+        });
+        
+        mVerboseView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+            	((CheckedTextView) view).toggle();
+            	mVerbose = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mVerbose changed: " + mVerbose);
+                if (mListener != null) {
+              	   mListener.onModemDialogUpdate(ModemFragment.this);
+                 }
+            }
+        });
+
+		return view;
+	}	
+
+	
+	@SuppressLint("InflateParams")
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+    	
+    	
+        if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
+
+        if (getShowsDialog() == true) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+        } else {
+            View view = getActivity().getLayoutInflater().inflate(R.layout.modem_fragment, null);    
+            return configureDialogView(view);
+        }
+    }
+
+	
+	@SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -59,60 +132,24 @@ public class ModemFragment extends DialogFragment {
                    @Override
                    public void onClick(DialogInterface dialog, int id) {
                        if (mListener != null) {
-                    	   mListener.onModemDialogClose(ModemFragment.this);
+                     	   mListener.onModemDialogUpdate(ModemFragment.this);
                        }
                    }
                });
 
-        mDcdView = (CheckedTextView) mDialogView.findViewById(R.id.dcdCheckBox);
-        mConnTrackView = (CheckedTextView) mDialogView.findViewById(R.id.connTrackCheckBox);
-        mVerboseView = (CheckedTextView) mDialogView.findViewById(R.id.verboseCheckBox);
 
-        mDcdView.setChecked(mDcd);
-        mConnTrackView.setChecked(mConnTrack);
-        mConnTrackView.setEnabled(mHasConnTrack);
-        mVerboseView.setChecked(mVerbose);
-
-        mConnTrackView.setEnabled(mHasConnTrack);
-        mConnTrackView.setClickable(mHasConnTrack);
-
-        mDcdView.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-                mDcd = ((CheckedTextView) view).isChecked();
-                Log.e(TAG, "mDcd changed: " + mDcd);
-            }
-        });
-        
-        mConnTrackView.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-            	mConnTrack = ((CheckedTextView) view).isChecked();
-                Log.e(TAG, "mConnTrack changed: " + mConnTrack);
-            }
-        });
-        
-        mVerboseView.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-            	mVerbose = ((CheckedTextView) view).isChecked();
-                Log.e(TAG, "mVerbose changed: " + mVerbose);
-            }
-        });
-        
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+        configureDialogView(mDialogView);        
+        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
         
         return builder.create();
     }
-   
-    @Override
+
+
+	@Override
     public void onStart() {
     	super.onStart();
 
-        if(D) Log.e(TAG, "++ ON START ++");
+        if(D) Log.d(TAG, "++ ON START ++");
      }
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
@@ -120,7 +157,7 @@ public class ModemFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if(D) Log.e(TAG, "++ ON ATTACH ++");
+        if(D) Log.d(TAG, "++ ON ATTACH ++");
 
         // Verify that the host activity implements the callback interface
         try {
@@ -131,6 +168,22 @@ public class ModemFragment extends DialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement ModemFragment.Listener");
         }
+    }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+		mListener.onModemDialogUpdate(ModemFragment.this);
+        if(D) Log.d(TAG, "++ ON PAUSE ++");
+    }
+
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	
+		mListener.onModemDialogResume(ModemFragment.this);
+        if(D) Log.d(TAG, "++ ON RESUME ++");
     }
 
     public void setDcd(boolean value) {

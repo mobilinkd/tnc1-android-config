@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,13 +48,10 @@ public class Firmware {
 	
 	private List<Segment> segments;
 	
-	Firmware(String urlPath) throws IOException, IllegalArgumentException {
+	Firmware(InputStream stream) throws IOException, IllegalArgumentException {
 		segments = new ArrayList<Segment>();
-		InputStream stream = null;
 		int address = 0;
 		try {
-			URL url = new URL(urlPath);
-			stream = url.openConnection().getInputStream();
 			BufferedReader reader = new BufferedReader(
 					new InputStreamReader(stream));
 		    String line = null;

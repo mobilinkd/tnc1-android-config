@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
@@ -26,7 +27,8 @@ public class KissFragment extends DialogFragment {
      * Each method passes the DialogFragment in case the host needs to query it.
      * */
     public interface Listener {
-        public void onKissDialogClose(KissFragment dialog);
+        public void onKissDialogUpdate(KissFragment dialog);
+        public void onKissDialogResume(KissFragment dialog);
     }
 
     abstract private class NumberPickerListener implements NumberPickerFragment.Listener {
@@ -56,38 +58,17 @@ public class KissFragment extends DialogFragment {
 	
 	private Listener mListener = null;
 
-    @SuppressLint("InflateParams")
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        
-        // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+	private View configureDialogView(View view) {
+		
+        mTxDelayText = (TextView) view.findViewById(R.id.txDelayText);
+        mPersistenceText = (TextView) view.findViewById(R.id.persistenceText);
+        mSlotTimeText = (TextView) view.findViewById(R.id.slotTimeText);
+        mTxTailText = (TextView) view.findViewById(R.id.txTailText);
+        mDuplexView = (CheckedTextView) view.findViewById(R.id.duplexCheckBox);
 
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.kiss_fragment, null);
-        builder.setView(mDialogView)
-        // Add action buttons
-               .setTitle(R.string.kiss_parameters_label)
-               .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int id) {
-                       if (mListener != null) {
-                    	   mListener.onKissDialogClose(KissFragment.this);
-                       }
-                   }
-               });
-
-        mTxDelayText = (TextView) mDialogView.findViewById(R.id.txDelayText);
-        mPersistenceText = (TextView) mDialogView.findViewById(R.id.persistenceText);
-        mSlotTimeText = (TextView) mDialogView.findViewById(R.id.slotTimeText);
-        mTxTailText = (TextView) mDialogView.findViewById(R.id.txTailText);
-        mDuplexView = (CheckedTextView) mDialogView.findViewById(R.id.duplexCheckBox);
-
-        mTxDelayView = (LinearLayout) mDialogView.findViewById(R.id.txDelayView);
-        mPersistenceView = (LinearLayout) mDialogView.findViewById(R.id.persistenceView);
-        mSlotTimeView = (LinearLayout) mDialogView.findViewById(R.id.slotTimeView);
+        mTxDelayView = (LinearLayout) view.findViewById(R.id.txDelayView);
+        mPersistenceView = (LinearLayout) view.findViewById(R.id.persistenceView);
+        mSlotTimeView = (LinearLayout) view.findViewById(R.id.slotTimeView);
 
         mTxDelayView.setOnClickListener(new OnClickListener() {
         	@Override
@@ -103,6 +84,9 @@ public class KissFragment extends DialogFragment {
                     public void onDialogPositiveClick(NumberPickerFragment dialog) {
                        mTxDelay = dialog.getValue();
                        mTxDelayText.setText(Integer.toString(mTxDelay));
+                       if (mListener != null) {
+                    	   mListener.onKissDialogUpdate(KissFragment.this);
+                       }
                     }
                 	@Override
                 	public void onDialogNegativeClick(NumberPickerFragment dialog) {
@@ -127,6 +111,9 @@ public class KissFragment extends DialogFragment {
                     public void onDialogPositiveClick(NumberPickerFragment dialog) {
                 		mPersistence = dialog.getValue();
                         mPersistenceText.setText(Integer.toString(mPersistence));
+                        if (mListener != null) {
+                     	   mListener.onKissDialogUpdate(KissFragment.this);
+                        }
                     }
                 	@Override
                 	public void onDialogNegativeClick(NumberPickerFragment dialog) {
@@ -151,6 +138,9 @@ public class KissFragment extends DialogFragment {
                     public void onDialogPositiveClick(NumberPickerFragment dialog) {
                 		mSlotTime = dialog.getValue();
                         mSlotTimeText.setText(Integer.toString(mSlotTime));
+                        if (mListener != null) {
+                     	   mListener.onKissDialogUpdate(KissFragment.this);
+                        }
                     }
                 	@Override
                 	public void onDialogNegativeClick(NumberPickerFragment dialog) {
@@ -174,21 +164,84 @@ public class KissFragment extends DialogFragment {
                 // Is the toggle on?
             	((CheckedTextView) view).toggle();
                 mDuplex = ((CheckedTextView) view).isChecked();
-                Log.e(TAG, "mDuplex changed: " + mDuplex);
+                Log.i(TAG, "mDuplex changed: " + mDuplex);
+                if (mListener != null) {
+             	   mListener.onKissDialogUpdate(KissFragment.this);
+                }
             }
         });
         
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+		return view;
+	}	
+
+	
+	@SuppressLint("InflateParams")
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+    	
+    	
+        if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
+
+        if (getShowsDialog() == true) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+        } else {
+            View view = getActivity().getLayoutInflater().inflate(R.layout.kiss_fragment, null);    
+            return configureDialogView(view);
+        }
+    }
+
+    
+	@SuppressLint("InflateParams")
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        
+        // Get the layout inflater
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        mDialogView = inflater.inflate(R.layout.kiss_fragment, null);
+        builder.setView(mDialogView)
+        // Add action buttons
+               .setTitle(R.string.kiss_parameters_label)
+               .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
+                   @Override
+                   public void onClick(DialogInterface dialog, int id) {
+                       if (mListener != null) {
+                    	   mListener.onKissDialogUpdate(KissFragment.this);
+                       }
+                   }
+               });
+
+        configureDialogView(mDialogView);        
+        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
         
         return builder.create();
     }
+	   
+    @Override
+    public void onStart() {
+    	super.onStart();
 
+
+        if(D) Log.d(TAG, "++ ON START ++");
+     }
+
+    @Override
+    public void onStop() {
+    	super.onStop();
+
+        if(D) Log.d(TAG, "++ ON STOP ++");
+     }
+    
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if(D) Log.e(TAG, "++ ON ATTACH ++");
+        if(D) Log.d(TAG, "++ ON ATTACH ++");
 
         // Verify that the host activity implements the callback interface
         try {
@@ -199,6 +252,22 @@ public class KissFragment extends DialogFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement KissParametersFragment.Listener");
         }
+    }
+
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+		mListener.onKissDialogUpdate(KissFragment.this);
+        if(D) Log.d(TAG, "++ ON PAUSE ++");
+    }
+
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	
+		mListener.onKissDialogResume(KissFragment.this);
+        if(D) Log.d(TAG, "++ ON RESUME ++");
     }
 
     public void setTxDelay(int value) {

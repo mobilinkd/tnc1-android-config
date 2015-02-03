@@ -16,7 +16,11 @@
 
 package com.mobilinkd.tncconfig;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.UUID;
 
 import android.annotation.SuppressLint;
@@ -29,6 +33,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -137,6 +142,15 @@ public class FirmwareUpdateActivity extends Activity {
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		if(getResources().getBoolean(R.bool.portrait_only)){
+	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+	    }
+		
+		if(getResources().getBoolean(R.bool.landscape_only)){
+	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+	    }
+		
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 		}
@@ -581,6 +595,24 @@ public class FirmwareUpdateActivity extends Activity {
 			mFirmware = null;
 		}
 
+		private InputStream getInputStream(Uri uri) throws IOException {
+			String scheme = mUri.getScheme();
+			try {
+				if ("content".equals(scheme)) {
+					return FirmwareUpdateActivity.this.getContentResolver().openInputStream(mUri);
+				} else if ("file".equals(scheme)) {
+					File file = new File(mUri.toString());
+					return new FileInputStream(file);
+				} else {
+					URL url = new URL(mUri.toString());
+					return url.openConnection().getInputStream();
+				}
+			} catch (IOException x) {
+			    System.err.format("IOException: %s%n", x);
+				throw(x);
+			}
+		}
+		
 		public void run() {
 			Log.i(TAG, "BEGIN FirmwareDownloadThread");
 			setName("FirmwareDownloadThread");
@@ -588,9 +620,10 @@ public class FirmwareUpdateActivity extends Activity {
 			send(FirmwareUpdateActivity.MESSAGE_INFO, "Downloading firmware...");
 
 			try {
-				if (D)
-					Log.e(TAG, "Firmware URI: " + mUri);
-				mFirmware = new Firmware(mUri.toString());
+				if (D) Log.e(TAG, "Firmware URI: " + mUri);
+				
+				InputStream inputStream = getInputStream(mUri);
+				mFirmware = new Firmware(inputStream);
 
 				synchronized (FirmwareUpdateActivity.this) {
 					mFirmwareDownloadThread = null;

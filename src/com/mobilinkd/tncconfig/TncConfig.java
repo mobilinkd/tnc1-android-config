@@ -33,10 +33,14 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 
 public class TncConfig extends FragmentActivity
 	implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
@@ -96,7 +100,6 @@ public class TncConfig extends FragmentActivity
     private ToggleButton mConnectButton;
     private TextView mBluetoothDeviceView;
     private TextView mFirmwareVersionView;
-    private MenuItem mPowerMenuItem;
 	private String mFirmwareVersion = "282";
     @SuppressWarnings("unused")
 	private String hwVersion = "1.12";
@@ -113,12 +116,14 @@ public class TncConfig extends FragmentActivity
     private boolean mHasInputAtten = false;
     private boolean mInputAtten = true;
     
+    private PowerFragment mPowerFragment = null;
     private Button mPowerButton = null;
     private int mBatteryLevel = 0;
     private boolean mPowerControl = false;
     private boolean mPowerOn = false;
     private boolean mPowerOff = false;
     
+    private KissFragment mKissFragment = null;
     private Button mKissButton = null;
     private int mTxDelay = 0;
     private int mPersistence = 0;
@@ -126,6 +131,7 @@ public class TncConfig extends FragmentActivity
     private int mTxTail = 0;
     private boolean mDuplex = false;
 
+    private ModemFragment mModemFragment = null;
     private Button mModemButton = null;
     private boolean mDcd = false;
     private boolean mHasConnTrack = false;
@@ -152,12 +158,9 @@ public class TncConfig extends FragmentActivity
         mConnectButton.setChecked(true);
         mAudioOutputButton.setEnabled(true);
         mAudioInputButton.setEnabled(true);
-        mPowerButton.setEnabled(true);
         mKissButton.setEnabled(true);
         mModemButton.setEnabled(true);
         mTncService.getAllValues();
-        mTncService.getOutputVolume();                    
-   		invalidateOptionsMenu();
         mNeedsSave = false;
 	}
 	
@@ -170,8 +173,6 @@ public class TncConfig extends FragmentActivity
         mPowerButton.setEnabled(false);
         mKissButton.setEnabled(false);
         mModemButton.setEnabled(false);
-        mPowerMenuItem.setEnabled(false);
-        invalidateOptionsMenu();
         mHasConnTrack = false;
         mHasInputAtten = false;
         mHasPttStyle = false;
@@ -190,8 +191,6 @@ public class TncConfig extends FragmentActivity
         mPowerButton.setEnabled(false);
         mKissButton.setEnabled(false);
         mModemButton.setEnabled(false);
-        mPowerMenuItem.setEnabled(false);
-        invalidateOptionsMenu();
         mHasConnTrack = false;
         mHasInputAtten = false;
         mHasPttStyle = false;
@@ -272,7 +271,7 @@ public class TncConfig extends FragmentActivity
 	                if(D) Log.d(TAG, "input atten: " + msg.arg1);
 	                break;
 	            case MESSAGE_BATTERY_LEVEL:
-	            	TncConfig.this.mPowerMenuItem.setEnabled(true);
+	            	TncConfig.this.mPowerButton.setEnabled(true);
 	            	buffer = (byte[]) msg.obj;
 	            	TncConfig.this.mBatteryLevel = buffer[0] * 256 + buffer[1];
 	                if(D) Log.d(TAG, "battery level: " + TncConfig.this.mBatteryLevel + "mV");
@@ -432,13 +431,36 @@ public class TncConfig extends FragmentActivity
         mAudioOutputButton = (Button) findViewById(R.id.audioOutputButton);
         mAudioOutputButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	AudioOutputFragment audioOutputFragment = new AudioOutputFragment();
-            	if (mHasPttStyle) {
+
+        		FragmentManager fragmentManager = getSupportFragmentManager();
+        		AudioOutputFragment audioOutputFragment = (AudioOutputFragment) fragmentManager.findFragmentByTag("AudioOutputFragment");
+        		if (audioOutputFragment == null) {
+        			audioOutputFragment = new AudioOutputFragment();
+        		}
+               	if (mHasPttStyle) {
             		audioOutputFragment.setPttStyle(mPttStyle);
             	}
-            	
+
             	audioOutputFragment.setVolume(mOutputVolume);
-            	audioOutputFragment.show(getSupportFragmentManager(), "AudioOutputFragment");
+
+            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+            	if (fragmentView != null) {
+            		audioOutputFragment.setShowsDialog(false);
+	            	audioOutputFragment.setRetainInstance(false);
+            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+	            	fragmentTransaction.replace(R.id.fragment_view, audioOutputFragment, "AudioOutputFragment");
+                   	fragmentTransaction.commit();
+            	} else {
+            		audioOutputFragment.setShowsDialog(true);
+	            	audioOutputFragment.setRetainInstance(false);
+            		Fragment fragment = fragmentManager.findFragmentByTag("AudioOutputFragment");
+            		if (fragment != null) {
+            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            			fragmentTransaction.remove(fragment);
+            			fragmentTransaction.commit();
+            		}
+	            	audioOutputFragment.show(fragmentManager, "AudioOutputFragment");
+            	}
             }
         });
         mAudioOutputButton.getBackground().setAlpha(64);
@@ -447,12 +469,38 @@ public class TncConfig extends FragmentActivity
         mAudioInputButton = (Button) findViewById(R.id.audioInputButton);
         mAudioInputButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	mAudioInputFragment = new AudioInputFragment();
+            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+
+        		FragmentManager fragmentManager = getSupportFragmentManager();
+        		AudioInputFragment audioInputFragment = (AudioInputFragment) fragmentManager.findFragmentByTag("AudioInputFragment");
+        		if (audioInputFragment == null) {
+        			audioInputFragment = new AudioInputFragment();
+        		}
+        		mAudioInputFragment = audioInputFragment;
+        		
             	if (mHasInputAtten) {
             		mAudioInputFragment.setInputAtten(mInputAtten);
             	}
-           		mTncService.listen();
-            	mAudioInputFragment.show(getSupportFragmentManager(), "AudioInputFragment");
+
+            	if (fragmentView != null) {
+            		mAudioInputFragment.setShowsDialog(false);
+            		mAudioInputFragment.setRetainInstance(false);
+            		
+            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            		fragmentTransaction.replace(R.id.fragment_view, mAudioInputFragment, "AudioInputFragment");
+                   	fragmentTransaction.commit();
+            	} else {
+            		mAudioInputFragment.setShowsDialog(true);
+            		mAudioInputFragment.setRetainInstance(false);
+            		
+            		Fragment fragment = fragmentManager.findFragmentByTag("AudioInputFragment");
+            		if (fragment != null) {
+            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            			fragmentTransaction.remove(fragment);
+            			fragmentTransaction.commit();
+            		}
+	            	mAudioInputFragment.show(fragmentManager, "AudioInputFragment");
+            	}
             }
         });
         mAudioInputButton.getBackground().setAlpha(64);
@@ -461,13 +509,41 @@ public class TncConfig extends FragmentActivity
         mPowerButton = (Button) findViewById(R.id.powerButton);
         mPowerButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	PowerFragment powerFragment = new PowerFragment();
+            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+
+        		FragmentManager fragmentManager = getSupportFragmentManager();
+        		PowerFragment powerFragment = (PowerFragment) fragmentManager.findFragmentByTag("PowerFragment");
+        		if (powerFragment == null) {
+        			powerFragment = new PowerFragment();
+        		}
+        		mPowerFragment = powerFragment;
+        		
             	if (mPowerControl) {
-            		powerFragment.setPowerOn(mPowerOn);
-            		powerFragment.setPowerOff(mPowerOff);
+            		mPowerFragment.setPowerOn(mPowerOn);
+            		mPowerFragment.setPowerOff(mPowerOff);
             	}
-                powerFragment.setBatteryLevel(mBatteryLevel);
-                powerFragment.show(getSupportFragmentManager(), "PowerFragment");
+
+            	mPowerFragment.setBatteryLevel(mBatteryLevel);
+ 
+                if (fragmentView != null) {
+            		mPowerFragment.setShowsDialog(false);
+            		mPowerFragment.setRetainInstance(false);
+            		
+            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            		fragmentTransaction.replace(R.id.fragment_view, mPowerFragment, "PowerFragment");
+                   	fragmentTransaction.commit();
+            	} else {
+            		mPowerFragment.setShowsDialog(true);
+            		mPowerFragment.setRetainInstance(false);
+            		
+            		Fragment fragment = fragmentManager.findFragmentByTag("PowerFragment");
+            		if (fragment != null) {
+            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            			fragmentTransaction.remove(fragment);
+            			fragmentTransaction.commit();
+            		}
+            		mPowerFragment.show(fragmentManager, "PowerFragment");
+            	}
             }
         });
         mPowerButton.getBackground().setAlpha(64);
@@ -476,12 +552,39 @@ public class TncConfig extends FragmentActivity
         mKissButton = (Button) findViewById(R.id.kissButton);
         mKissButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	KissFragment kissFragment = new KissFragment();
-            	kissFragment.setTxDelay(mTxDelay);
-            	kissFragment.setPersistence(mPersistence);
-            	kissFragment.setSlotTime(mSlotTime);
-            	kissFragment.setDuplex(mDuplex);
-            	kissFragment.show(getSupportFragmentManager(), "KissFragment");
+            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+
+        		FragmentManager fragmentManager = getSupportFragmentManager();
+        		KissFragment kissFragment = (KissFragment) fragmentManager.findFragmentByTag("KissFragment");
+        		if (kissFragment == null) {
+        			kissFragment = new KissFragment();
+        		}
+        		mKissFragment = kissFragment;
+        		
+        		mKissFragment.setTxDelay(mTxDelay);
+        		mKissFragment.setPersistence(mPersistence);
+        		mKissFragment.setSlotTime(mSlotTime);
+        		mKissFragment.setDuplex(mDuplex);
+
+                if (fragmentView != null) {
+                	mKissFragment.setShowsDialog(false);
+                	mKissFragment.setRetainInstance(false);
+            		
+            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            		fragmentTransaction.replace(R.id.fragment_view, mKissFragment, "KissFragment");
+                   	fragmentTransaction.commit();
+            	} else {
+            		mKissFragment.setShowsDialog(true);
+            		mKissFragment.setRetainInstance(false);
+            		
+            		Fragment fragment = fragmentManager.findFragmentByTag("KissFragment");
+            		if (fragment != null) {
+            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            			fragmentTransaction.remove(fragment);
+            			fragmentTransaction.commit();
+            		}
+            		mKissFragment.show(fragmentManager, "KissFragment");
+            	}
             }
         });
         mKissButton.getBackground().setAlpha(64);
@@ -490,13 +593,40 @@ public class TncConfig extends FragmentActivity
         mModemButton = (Button) findViewById(R.id.modemButton);
         mModemButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	ModemFragment modemFragment = new ModemFragment();
-            	modemFragment.setDcd(mDcd);
+            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+
+        		FragmentManager fragmentManager = getSupportFragmentManager();
+        		ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
+        		if (modemFragment == null) {
+        			modemFragment = new ModemFragment();
+        		}
+        		mModemFragment = modemFragment;
+        		
+        		mModemFragment.setDcd(mDcd);
             	if (mHasConnTrack) {
-            		modemFragment.setConnTrack(mConnTrack);
+            		mModemFragment.setConnTrack(mConnTrack);
             	}
-            	modemFragment.setVerbose(mVerbose);
-            	modemFragment.show(getSupportFragmentManager(), "ModemFragment");
+            	mModemFragment.setVerbose(mVerbose);
+
+                if (fragmentView != null) {
+                	mModemFragment.setShowsDialog(false);
+                	mModemFragment.setRetainInstance(false);
+            		
+            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            		fragmentTransaction.replace(R.id.fragment_view, mModemFragment, "ModemFragment");
+                   	fragmentTransaction.commit();
+            	} else {
+            		mKissFragment.setShowsDialog(true);
+            		mKissFragment.setRetainInstance(false);
+            		
+            		Fragment fragment = fragmentManager.findFragmentByTag("ModemFragment");
+            		if (fragment != null) {
+            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            			fragmentTransaction.remove(fragment);
+            			fragmentTransaction.commit();
+            		}
+            		mModemFragment.show(fragmentManager, "ModemFragment");
+            	}
             }
         });
         mModemButton.getBackground().setAlpha(64);
@@ -533,10 +663,6 @@ public class TncConfig extends FragmentActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
     	super.onPrepareOptionsMenu(menu);
-    	mPowerMenuItem = menu.getItem(1);
-    	if (mPowerMenuItem != null)	{
-    		mPowerMenuItem.setEnabled(mConnectButton.isChecked());
-    	}
     	return true;
     }
     
@@ -616,8 +742,28 @@ public class TncConfig extends FragmentActivity
     	}
     	synchronized (mHandler) {
 	    	mTncService.ptt(TONE_NONE);
-	    	mAudioInputFragment = null;
     	}
+    }
+    
+	@Override
+    public void onAudioInputDialogPause(AudioInputFragment dialog) {
+    	if (mInputAtten != dialog.getInputAtten()) {
+    		mInputAtten = dialog.getInputAtten();
+    		mTncService.setInputAtten(mInputAtten);
+    	}
+    	synchronized (mHandler) {
+	    	mTncService.ptt(TONE_NONE);
+    	}
+    }
+    
+	@Override
+    public void onAudioInputDialogResume(AudioInputFragment dialog) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		AudioInputFragment audioInputFragment = (AudioInputFragment) fragmentManager.findFragmentByTag("AudioInputFragment");
+		if (audioInputFragment != mAudioInputFragment) {
+			mAudioInputFragment = audioInputFragment;
+		}
+		mTncService.listen();
     }
     
     @Override
@@ -627,12 +773,11 @@ public class TncConfig extends FragmentActivity
     		mTncService.setInputAtten(mInputAtten);
     		mTncService.listen();
     		settingsUpdated();
-    		mTncService.listen();
     	}
     }
     
-    @Override
-    public void onPowerDialogClose(PowerFragment dialog) {
+	@Override
+    public void onPowerDialogUpdate(PowerFragment dialog) {
     	if (mPowerOn != dialog.getPowerOn()) {
     		mPowerOn = dialog.getPowerOn();
     		mTncService.setUsbPowerOn(mPowerOn);
@@ -645,10 +790,19 @@ public class TncConfig extends FragmentActivity
     	}
     }
     
+	@Override
+    public void onPowerDialogResume(PowerFragment dialog) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		PowerFragment powerFragment = (PowerFragment) fragmentManager.findFragmentByTag("PowerFragment");
+		if (powerFragment != mPowerFragment) {
+			mPowerFragment = powerFragment;
+		}
+    }
+    
     @Override
-    public void onKissDialogClose(KissFragment dialog) {
+    public void onKissDialogUpdate(KissFragment dialog) {
     	
-        if(D) Log.i(TAG, "onKissDialogClose()");
+        if(D) Log.i(TAG, "onKissDialogPause()");
         if(D) Log.i(TAG, "TxDelay: " + dialog.getTxDelay());
         if(D) Log.i(TAG, "Persistence: " + dialog.getPersistence());
         if(D) Log.i(TAG, "SlotTime: " + dialog.getSlotTime());
@@ -681,9 +835,18 @@ public class TncConfig extends FragmentActivity
     	}
     }
     
+	@Override
+    public void onKissDialogResume(KissFragment dialog) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		KissFragment kissFragment = (KissFragment) fragmentManager.findFragmentByTag("KissFragment");
+		if (kissFragment != mKissFragment) {
+			mKissFragment = kissFragment;
+		}
+    }
+    
     @Override
-    public void onModemDialogClose(ModemFragment dialog) {
-        if(D) Log.i(TAG, "onModemDialogClose()");
+    public void onModemDialogUpdate(ModemFragment dialog) {
+        if(D) Log.i(TAG, "onModemDialogPause()");
         if(D) Log.i(TAG, "DCD: " + dialog.getDcd());
         if(D) Log.i(TAG, "Has ConnTrack" + dialog.hasConnTrack());
         if(D && dialog.hasConnTrack()) Log.i(TAG, "ConnTrack: " + dialog.getConnTrack());
@@ -708,6 +871,14 @@ public class TncConfig extends FragmentActivity
         }
     }
     
+	@Override
+    public void onModemDialogResume(ModemFragment dialog) {
+		FragmentManager fragmentManager = getSupportFragmentManager();
+		ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
+		if (modemFragment != mModemFragment) {
+			mModemFragment = modemFragment;
+		}
+    }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(D) Log.d(TAG, "onActivityResult " + resultCode);

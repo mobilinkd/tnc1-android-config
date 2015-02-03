@@ -10,6 +10,7 @@ import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.CheckedTextView;
 import android.widget.ProgressBar;
@@ -26,7 +27,8 @@ public class PowerFragment extends DialogFragment {
      * Each method passes the DialogFragment in case the host needs to query it.
      * */
     public interface Listener {
-        public void onPowerDialogClose(PowerFragment dialog);
+        public void onPowerDialogUpdate(PowerFragment dialog);
+        public void onPowerDialogResume(PowerFragment dialog);
     }
 	
     private View mDialogView = null;
@@ -43,10 +45,75 @@ public class PowerFragment extends DialogFragment {
 	private Listener mListener = null;
 	private boolean mPowerControl = false;
 	
+	private View configureDialogView(View view) {
+		
+        mVoltageView = (TextView) view.findViewById(R.id.textView2);
+        mVoltageMeter = (ProgressBar) view.findViewById(R.id.battery_meter_bar);
+        mPowerOnView = (CheckedTextView) view.findViewById(R.id.checkBox1);
+        mPowerOffView = (CheckedTextView) view.findViewById(R.id.checkBox2);
+
+        mVoltageView.setText(mBatteryLevel + "mV");
+        mVoltageMeter.setProgress((mBatteryLevel - 3300) / 10);
+        mPowerOnView.setChecked(mPowerOn);
+        mPowerOffView.setChecked(mPowerOff);
+
+    	mPowerOnView.setEnabled(mPowerControl);
+    	mPowerOnView.setClickable(mPowerControl);
+    	mPowerOnView.setVisibility(mPowerControl ?  View.VISIBLE :  View.GONE);
+    	mPowerOffView.setEnabled(mPowerControl);
+    	mPowerOffView.setClickable(mPowerControl);
+    	mPowerOffView.setVisibility(mPowerControl ?  View.VISIBLE :  View.GONE);
+
+    	mPowerOnView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+            	((CheckedTextView) view).toggle();
+                mPowerOn = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mPowerOn changed: " + mPowerOn);
+                if (mListener != null) {
+             	   mListener.onPowerDialogUpdate(PowerFragment.this);
+                }
+            }
+        });
+        
+        mPowerOffView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+            	((CheckedTextView) view).toggle();
+	            mPowerOff = ((CheckedTextView) view).isChecked();
+	            Log.i(TAG, "mPowerOff changed: " + mPowerOff);
+                if (mListener != null) {
+             	   mListener.onPowerDialogUpdate(PowerFragment.this);
+                }
+	        }
+	    });
+        
+		return view;
+	}	
+
+
+	@SuppressLint("InflateParams")
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+    	
+    	
+        if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
+
+        if (getShowsDialog() == true) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+        } else {
+            View view = getActivity().getLayoutInflater().inflate(R.layout.power_fragment, null);    
+            return configureDialogView(view);
+        }
+    }
+
+    
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+
+    	AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         
         // Get the layout inflater
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -61,46 +128,13 @@ public class PowerFragment extends DialogFragment {
                    @Override
                    public void onClick(DialogInterface dialog, int id) {
                        if (mListener != null) {
-                    	   mListener.onPowerDialogClose(PowerFragment.this);
+                    	   mListener.onPowerDialogUpdate(PowerFragment.this);
                        }
                    }
                });
 
-        mVoltageView = (TextView) mDialogView.findViewById(R.id.textView2);
-        mVoltageMeter = (ProgressBar) mDialogView.findViewById(R.id.battery_meter_bar);
-        mPowerOnView = (CheckedTextView) mDialogView.findViewById(R.id.checkBox1);
-        mPowerOffView = (CheckedTextView) mDialogView.findViewById(R.id.checkBox2);
-
-        mVoltageView.setText(mBatteryLevel + "mV");
-        mVoltageMeter.setProgress((mBatteryLevel - 3300) / 10);
-        mPowerOnView.setChecked(mPowerOn);
-        mPowerOffView.setChecked(mPowerOff);
-        
-    	mPowerOnView.setEnabled(mPowerControl);
-    	mPowerOnView.setClickable(mPowerControl);
-    	mPowerOnView.setVisibility(mPowerControl ?  View.VISIBLE :  View.GONE);
-    	mPowerOffView.setEnabled(mPowerControl);
-    	mPowerOffView.setClickable(mPowerControl);
-    	mPowerOffView.setVisibility(mPowerControl ?  View.VISIBLE :  View.GONE);
-        mPowerOnView.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-                mPowerOn = ((CheckedTextView) view).isChecked();
-                Log.e(TAG, "mPowerOn changed: " + mPowerOn);
-            }
-        });
-        
-        mPowerOffView.setOnClickListener(new OnClickListener() {
-            public void onClick(View view) {
-                // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-	            mPowerOff = ((CheckedTextView) view).isChecked();
-	            Log.e(TAG, "mPowerOff changed: " + mPowerOff);
-	        }
-	    });
-
-        if(D) Log.e(TAG, "+++ ON CREATE +++");
+        configureDialogView(mDialogView);        
+        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
         
         return builder.create();
     }
@@ -110,7 +144,14 @@ public class PowerFragment extends DialogFragment {
     	super.onStart();
 
 
-        if(D) Log.e(TAG, "++ ON START ++");
+        if(D) Log.d(TAG, "++ ON START ++");
+     }
+
+    @Override
+    public void onStop() {
+    	super.onStop();
+
+        if(D) Log.d(TAG, "++ ON STOP ++");
      }
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
@@ -118,7 +159,7 @@ public class PowerFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if(D) Log.e(TAG, "++ ON ATTACH ++");
+        if(D) Log.d(TAG, "++ ON ATTACH ++");
 
         // Verify that the host activity implements the callback interface
         try {
@@ -131,6 +172,22 @@ public class PowerFragment extends DialogFragment {
         }
     }
     
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	
+		mListener.onPowerDialogUpdate(PowerFragment.this);
+        if(D) Log.d(TAG, "++ ON PAUSE ++");
+    }
+
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	
+		mListener.onPowerDialogResume(PowerFragment.this);
+        if(D) Log.d(TAG, "++ ON RESUME ++");
+    }
+
     public void setBatteryLevel(int level) {
     	mBatteryLevel = level;
     }
