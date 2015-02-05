@@ -19,6 +19,7 @@ package com.mobilinkd.tncconfig;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class Avr109 extends Thread {
 	private final OutputStream mOutStream;
 
 	private static final int ESCAPE = 27; 			// <esc>
-	private static final int ACKNOWLEDGED = 13; 	// <cr>
+	private static final byte ACKNOWLEDGED = 13; 	// <cr>
 	private static final int GET_BOOTLOADER = 83; 	// 'S'
 	private static final int GET_SW_VERSION = 86; 	// 'V'
 	private static final int GET_PROG_TYPE = 112; 	// 'p'
@@ -143,16 +144,18 @@ public class Avr109 extends Thread {
 
 	private boolean verifyCommand() {
 		byte[] answer = read(1, 10000);
-		return (answer.length == 1 && answer[0] == ACKNOWLEDGED);
+		return ((answer.length == 1) && (answer[0] == ACKNOWLEDGED));
 	}
 
 	private boolean verifyAndLog(String command) {
 		boolean result = verifyCommand();
 
-		if (result)
+		if (result) {
 			if (D) Log.d(TAG, command + " succeeded");
-		else
-			Log.e(TAG, command + " failed");
+		}
+		else {
+			if (D) Log.e(TAG, command + " failed");
+		}
 
 		return result;
 	}
@@ -248,7 +251,8 @@ public class Avr109 extends Thread {
 						", length = " + Integer.toString(blockSize));
 				}
 
-				byte[] segmentData = Arrays.copyOfRange(segment.data, i, i + blockSize);
+				byte[] segmentData = new byte[blockSize];
+				System.arraycopy(segment.data, i, segmentData, 0, blockSize);
 
 				if (!writeBlock(segment.memoryType, segmentData)) {
 					Log.e(TAG, "Write failure at address " + Integer.toHexString(address));
@@ -295,7 +299,8 @@ public class Avr109 extends Thread {
 				}
 				
 				byte[] data = readBlock(segment.memoryType, blockSize);
-				byte[] segmentData = Arrays.copyOfRange(segment.data, i, i + blockSize);
+				byte[] segmentData = new byte[blockSize];
+				System.arraycopy(segment.data, i, segmentData, 0, blockSize);
 				
 				if (!Arrays.equals(data, segmentData)) {
 					Log.e(TAG, "Firmware mismatch at address " + Integer.toHexString(address));
