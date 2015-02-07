@@ -616,8 +616,8 @@ public class TncConfig extends FragmentActivity
             		fragmentTransaction.replace(R.id.fragment_view, mModemFragment, "ModemFragment");
                    	fragmentTransaction.commit();
             	} else {
-            		mKissFragment.setShowsDialog(true);
-            		mKissFragment.setRetainInstance(false);
+            		mModemFragment.setShowsDialog(true);
+            		mModemFragment.setRetainInstance(false);
             		
             		Fragment fragment = fragmentManager.findFragmentByTag("ModemFragment");
             		if (fragment != null) {
