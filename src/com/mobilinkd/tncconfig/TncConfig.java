@@ -509,6 +509,9 @@ public class TncConfig extends FragmentActivity
         mPowerButton = (Button) findViewById(R.id.powerButton);
         mPowerButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
+            	
+            	mTncService.getBatteryLevel();
+            	
             	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
 
         		FragmentManager fragmentManager = getSupportFragmentManager();
@@ -848,7 +851,7 @@ public class TncConfig extends FragmentActivity
     public void onModemDialogUpdate(ModemFragment dialog) {
         if(D) Log.i(TAG, "onModemDialogPause()");
         if(D) Log.i(TAG, "DCD: " + dialog.getDcd());
-        if(D) Log.i(TAG, "Has ConnTrack" + dialog.hasConnTrack());
+        if(D) Log.i(TAG, "Has ConnTrack: " + dialog.hasConnTrack());
         if(D && dialog.hasConnTrack()) Log.i(TAG, "ConnTrack: " + dialog.getConnTrack());
         if(D) Log.i(TAG, "Verbose: " + dialog.getVerbose());
         

@@ -121,6 +121,8 @@ public class BluetoothTncService {
     		new byte[] { (byte)0xc0, 0x06, 0x50, (byte)0xC0 };
 	private static final byte[] TNC_SAVE_EEPROM = 
     		new byte[] { (byte)0xc0, 0x06, 0x2a, (byte)0xC0 };
+    private static final byte[] TNC_GET_BATTERY_LEVEL =
+    		new byte[] { (byte)0xc0, 0x06, 0x06, (byte)0xC0 };
 
     /**
      * Constructor. Prepares a new Bluetooth session.
@@ -154,7 +156,10 @@ public class BluetoothTncService {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        mHandler.obtainMessage(TncConfig.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        Message msg = mHandler.obtainMessage(TncConfig.MESSAGE_STATE_CHANGE, state, -1);
+        // Without a delay, battery level is incorrect on newer devices.
+        // This is due to the electrical characteristics of the TNC2.
+        mHandler.sendMessageDelayed(msg, 20);
     }
 
     /**
@@ -255,6 +260,21 @@ public class BluetoothTncService {
         }
 
         r.write(TNC_GET_ALL_VALUES);
+    }
+    
+    public void getBatteryLevel()
+    {
+        if (D) Log.d(TAG, "getBatteryLevel()");
+        
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        r.write(TNC_GET_BATTERY_LEVEL);
     }
     
     public boolean isConnected() {
