@@ -1,0 +1,22 @@
+#Sat Dec 02 22:08:28 CST 2017
+renamed.6=classes7.dex
+renamed.5=classes5.dex
+renamed.4=classes2.dex
+renamed.3=classes.dex
+renamed.2=classes6.dex
+renamed.1=classes3.dex
+renamed.0=classes4.dex
+base.6=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_8f2a4b3408e7f8e85cf9ead264149415e271d37b
+base.5=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c04f710f6351314cad8c82f7daaa8fc7adc1ccbc
+base.4=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.4.0_6720b510ca05d1ee51f5e1e765eacc11d4d884fd
+base.3=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.4.0_bb94e46d967a07a8023ff644b0aaa9f03054e797
+base.2=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ff364963c98f3628154b011355f80a30aa83bba4
+base.1=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_e3578e0c711f7104aaf59aee47f1411fed997c66
+base.0=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ba97452eaf6508b83648e4a542c3d3a4055abcb4
+file.6=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_8f2a4b3408e7f8e85cf9ead264149415e271d37b/classes.dex
+file.5=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c04f710f6351314cad8c82f7daaa8fc7adc1ccbc/classes.dex
+file.4=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.4.0_6720b510ca05d1ee51f5e1e765eacc11d4d884fd/classes.dex
+file.3=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.4.0_bb94e46d967a07a8023ff644b0aaa9f03054e797/classes.dex
+file.2=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ff364963c98f3628154b011355f80a30aa83bba4/classes.dex
+file.1=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_e3578e0c711f7104aaf59aee47f1411fed997c66/classes.dex
+file.0=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ba97452eaf6508b83648e4a542c3d3a4055abcb4/classes.dex

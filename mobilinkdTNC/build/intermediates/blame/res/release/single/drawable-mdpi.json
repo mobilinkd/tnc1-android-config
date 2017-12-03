@@ -1,0 +1,58 @@
+[
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/ic_voice_search.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/ic_voice_search.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/ic_launcher.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_bluetooth.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_bluetooth.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_affects_battery.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_affects_battery.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/ic_audio_bt.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/ic_audio_bt.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/ic_menu_info_details.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/ic_menu_info_details.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_audio_settings.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_audio_settings.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/stat_sys_tether_bluetooth.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/stat_sys_tether_bluetooth.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/ic_audio_vol.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/ic_audio_vol.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_system_tools.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_system_tools.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_microphone.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_microphone.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_storage.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_storage.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_network.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_network.png"
+    },
+    {
+        "merged": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/res/merged/release/drawable-mdpi/perm_group_sync_settings.png",
+        "source": "/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/src/main/res/drawable-mdpi/perm_group_sync_settings.png"
+    }
+]

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        is-multidex="false"
+        jar="/home/rob/.android/build-cache/296de2ecafe2d9612ad247959d43e54bed73eac1/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/classes_8f2a4b3408e7f8e85cf9ead264149415e271d37b.jar" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/.android/build-cache/e4aabcd7fb006ab40ceb75dc5af9c9ed451ba084/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="7c4c1fcc34aca536e3389c31527fb3c941b80266">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_c04f710f6351314cad8c82f7daaa8fc7adc1ccbc/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/incremental-runtime-classes/debug/instant-run.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="3be78ebc2706b2e1fe2f12d5726887a92d6c183b">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_4e4428c099e8bb92bdfcf10fc101feb1ce16720d/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/.android/build-cache/296de2ecafe2d9612ad247959d43e54bed73eac1/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_8f2a4b3408e7f8e85cf9ead264149415e271d37b/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/incremental-classes/debug/instant-run-bootstrap.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="552c3136531db88dbcaaa2573313b6c03bd8a540">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_613ab65df62230d639b6b3c17cecb993dfb19214/classes.dex" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/rob/StudioProjects/MobilinkdTNC/library/build/intermediates/bundles/default/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="351e9cf5cb758fdde9a76929655b4e64aa53eb15">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/classes_65bf7921c842043a38bfcb238996443a6e581a04.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/rob/.android/build-cache/3d17fea1bee6b6583b1c88fc3d7570a70567d389/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/classes_ba97452eaf6508b83648e4a542c3d3a4055abcb4.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/rob/.android/build-cache/e4aabcd7fb006ab40ceb75dc5af9c9ed451ba084/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="7c4c1fcc34aca536e3389c31527fb3c941b80266">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/classes_c04f710f6351314cad8c82f7daaa8fc7adc1ccbc.jar" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/.android/build-cache/3d17fea1bee6b6583b1c88fc3d7570a70567d389/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ba97452eaf6508b83648e4a542c3d3a4055abcb4/classes.dex" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/opt/android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/support-annotations-23.4.0_6720b510ca05d1ee51f5e1e765eacc11d4d884fd.jar" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/opt/android/sdk/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/support-annotations-23.4.0_6720b510ca05d1ee51f5e1e765eacc11d4d884fd/classes.dex" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/rob/.android/build-cache/78e79dc1d6adcda07c0f0e1e8783c35bc67a5210/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/classes_ff364963c98f3628154b011355f80a30aa83bba4.jar" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/.android/build-cache/442893182ca2005e6f245d11320a4e49f79c4efc/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_e3578e0c711f7104aaf59aee47f1411fed997c66/classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/.android/build-cache/442893182ca2005e6f245d11320a4e49f79c4efc/output/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/internal_impl-23.4.0_bb94e46d967a07a8023ff644b0aaa9f03054e797/classes.dex" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/rob/.android/build-cache/442893182ca2005e6f245d11320a4e49f79c4efc/output/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/internal_impl-23.4.0_bb94e46d967a07a8023ff644b0aaa9f03054e797.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/home/rob/.android/build-cache/442893182ca2005e6f245d11320a4e49f79c4efc/output/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="26.0.1"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/pre-dexed/release/classes_e3578e0c711f7104aaf59aee47f1411fed997c66.jar" />
+    </item>
+    <item
+        is-multidex="true"
+        jar="/home/rob/.android/build-cache/78e79dc1d6adcda07c0f0e1e8783c35bc67a5210/output/jars/classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="26.0.1"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10/classes_ff364963c98f3628154b011355f80a30aa83bba4/classes.dex" />
+    </item>
+
+</items>

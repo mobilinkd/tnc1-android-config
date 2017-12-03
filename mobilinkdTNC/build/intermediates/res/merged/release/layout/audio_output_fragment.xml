@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical|center_horizontal"
+    android:background="#0099cc"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:id="@+id/pttStyleLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+            
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="vertical" >
+	
+	            <TextView
+	                android:id="@+id/textView1"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:text="@string/label_ptt_style"
+	                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+	            <RadioGroup
+	                android:id="@+id/pttStyleGroup"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="start"
+	                android:orientation="horizontal" >
+	
+	                <RadioButton
+	                    android:id="@+id/pttStyleSimplexButton"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:checked="true"
+	                    android:text="@string/label_ptt_style_simplex"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	                <RadioButton
+	                    android:id="@+id/pttStyleMultiplexButton"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="wrap_content"
+	                    android:text="@string/label_ptt_style_multiplex"
+                        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+	            </RadioGroup>
+            
+            </LinearLayout>
+            <ImageButton
+                android:id="@+id/pttStyleHelpButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|bottom"
+                android:contentDescription="@string/label_ptt_icon"
+                android:src="@android:drawable/ic_menu_info_details" />
+
+	        </FrameLayout>
+	        
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/output_volume_label"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"  >
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/label_audio_output_min" />
+
+            <TextView
+                android:id="@+id/outputVolumeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/output_volume_default"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="#FFFF00" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="@string/label_audio_output_max" />
+
+        </FrameLayout>
+        
+        <SeekBar
+            android:id="@+id/outputVolumeLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="@integer/volume_max" />
+        
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_audio_output_tone"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <RadioGroup
+		    android:id="@+id/toneGroup"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+		    android:orientation="horizontal" >
+		
+		    <RadioButton
+		        android:id="@+id/markToneRadioButton"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:checked="true"
+		        android:text="@string/mark_button" />
+		
+		    <RadioButton
+		        android:id="@+id/spaceToneRadioButton"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/space_button" />
+		
+		    <RadioButton
+		        android:id="@+id/bothToneRadioButton"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/both_button" />
+		</RadioGroup>
+        
+        
+    </LinearLayout>
+    
+    <ToggleButton
+        android:id="@+id/transmitButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/label_transmit_button"
+        android:textOff="@string/label_transmit_button"
+        android:textOn="@string/label_transmit_button" />
+    </LinearLayout>
+    
+</LinearLayout>
