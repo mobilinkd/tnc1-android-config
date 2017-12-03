@@ -273,7 +273,7 @@ public class TncConfig extends FragmentActivity
 	            case MESSAGE_BATTERY_LEVEL:
 	            	TncConfig.this.mPowerButton.setEnabled(true);
 	            	buffer = (byte[]) msg.obj;
-	            	TncConfig.this.mBatteryLevel = buffer[0] * 256 + buffer[1];
+	            	TncConfig.this.mBatteryLevel = (0xFF & buffer[0]) * 256 + (0xFF & buffer[1]);
 	                if(D) Log.d(TAG, "battery level: " + TncConfig.this.mBatteryLevel + "mV");
 	                break;
 	            case MESSAGE_HW_VERSION:
