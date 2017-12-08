@@ -1,4 +1,0 @@
-#Sat Dec 02 22:08:28 CST 2017
-base.0=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/5/slice_6
-renamed.0=classes.dex
-file.0=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/5/slice_6/classes.dex

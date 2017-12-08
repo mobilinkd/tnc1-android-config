@@ -155,6 +155,8 @@ public class BluetoothTncService {
         if (D) Log.d(TAG, "setState() " + mState + " -> " + state);
         mState = state;
 
+        if (mHandler == null) return;
+
         // Give the new state to the Handler so the UI Activity can update
         Message msg = mHandler.obtainMessage(TncConfig.MESSAGE_STATE_CHANGE, state, -1);
         // Without a delay, battery level is incorrect on newer devices.

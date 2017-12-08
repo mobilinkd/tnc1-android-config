@@ -1,7 +1,0 @@
-#Sat Dec 02 22:08:28 CST 2017
-base.0=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_613ab65df62230d639b6b3c17cecb993dfb19214
-renamed.1=classes2.dex
-renamed.0=classes.dex
-file.1=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_4e4428c099e8bb92bdfcf10fc101feb1ce16720d/classes.dex
-base.1=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run_4e4428c099e8bb92bdfcf10fc101feb1ce16720d
-file.0=/home/rob/StudioProjects/MobilinkdTNC/mobilinkdTNC/build/intermediates/transforms/dex/debug/folders/1000/10000/instant-run-bootstrap_613ab65df62230d639b6b3c17cecb993dfb19214/classes.dex
