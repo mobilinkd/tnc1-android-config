@@ -9,7 +9,8 @@
     <string name="connect_button">Connect</string>
     <string name="disconnect_button">Disconnect</string>
     <string name="input_volume_label">Input Volume</string>
-    <string name="bt_not_enabled_leaving">Bluetooth not enabled. Exiting.</string>
+    <string name="bt_not_enabled_leaving">Bluetooth is not enabled. Exiting.</string>
+    <string name="msg_bt_not_connected">Bluetooth not connected.</string>
     <string name="title_connecting">Connecting&#8230;</string>
     <string name="title_connected_to">Connected to: </string>
     <string name="title_not_connected">Not connected</string>
@@ -73,8 +74,8 @@
     <string name="about_content">
         Mobilinkd TNC Configuration Utility\n
         For Mobilinkd TNC1 and TNC2 devices\n
-        Version 1.1.5 &#8211; 2017-12-07\n\n
-        Copyright &#169; 2013-2017 Mobilinkd LLC.\n
+        Version 1.1.7 &#8211; 2018-02-13\n\n
+        Copyright &#169; 2013-2018 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
         Credit to:\n
@@ -130,5 +131,10 @@
     <string name="set">Set</string>
     <string name="cancel">Cancel</string>
     <string name="close">Close</string>
-    
+    <string name="msg_connection_lost">Device connection was lost</string>
+    <string name="msg_unable_to_connect">Unable to connect device</string>
+    <string name="msg_connected_to">Connected to</string>
+    <string name="msg_bluetooth_not_present">Bluetooth is not available on this device</string>
+    <string name="battery_level_mv">%04dmV</string>
+
 </resources>

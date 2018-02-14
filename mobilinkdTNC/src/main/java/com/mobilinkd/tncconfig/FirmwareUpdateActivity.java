@@ -39,7 +39,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -187,7 +187,6 @@ public class FirmwareUpdateActivity extends Activity {
 			Toast.makeText(this, "Bluetooth is not available",
 					Toast.LENGTH_LONG).show();
 			finish();
-			return;
 		}
 	}
 
@@ -313,7 +312,6 @@ public class FirmwareUpdateActivity extends Activity {
 
 	private void downloadFirmware() {
 		assert (mUri != null);
-		assert (mHandler != null);
 		assert (mSocket != null);
 
 		FirmwareUpdateActivity.this.mProgressBar.setVisibility(View.VISIBLE);
@@ -482,15 +480,12 @@ public class FirmwareUpdateActivity extends Activity {
 	private void connecting(BluetoothDevice device) {
 		setState(STATE_CONNECTING);
 
-		StringBuilder builder = new StringBuilder();
-		builder.append("Connecting to '");
-		builder.append(device.getName());
-		builder.append("'");
+		String message = "Connecting to '" + device.getName() + "'";
 
 		Message msg = mHandler
 				.obtainMessage(FirmwareUpdateActivity.MESSAGE_CONNECTING);
 		Bundle bundle = new Bundle();
-		bundle.putString(FirmwareUpdateActivity.TOAST, builder.toString());
+		bundle.putString(FirmwareUpdateActivity.TOAST, message);
 		msg.setData(bundle);
 		mHandler.sendMessage(msg);
 	}
@@ -645,7 +640,7 @@ public class FirmwareUpdateActivity extends Activity {
 		switch (requestCode) {
 		case REQUEST_CONNECT_DEVICE:
 			// When DeviceListActivity returns with a device to connect
-			if (resultCode != ActionBarActivity.RESULT_OK) {
+			if (resultCode != AppCompatActivity.RESULT_OK) {
 				mLog.append("No Bluetooth device was selected\n");
 				Log.d(TAG, "BT not selected");
 				Toast.makeText(this, "No Bluetooth device was selected",
@@ -662,7 +657,7 @@ public class FirmwareUpdateActivity extends Activity {
 			break;
 		case REQUEST_ENABLE_BT:
 			// When the request to enable Bluetooth returns
-			if (resultCode != ActionBarActivity.RESULT_OK) {
+			if (resultCode != AppCompatActivity.RESULT_OK) {
 				mLog.append("Bluetooth is not enabled\n");
 				Log.d(TAG, "BT not enabled");
 				Toast.makeText(this, R.string.bt_not_enabled_leaving,

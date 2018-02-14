@@ -52,7 +52,8 @@ public class PowerFragment extends DialogFragment {
         mPowerOnView = (CheckedTextView) view.findViewById(R.id.checkBox1);
         mPowerOffView = (CheckedTextView) view.findViewById(R.id.checkBox2);
 
-        mVoltageView.setText(mBatteryLevel + "mV");
+        String mv = String.format(getString(R.string.battery_level_mv), mBatteryLevel);
+        mVoltageView.setText(mv);
         mVoltageMeter.setProgress((mBatteryLevel - 3300) / 10);
         mPowerOnView.setChecked(mPowerOn);
         mPowerOffView.setChecked(mPowerOff);

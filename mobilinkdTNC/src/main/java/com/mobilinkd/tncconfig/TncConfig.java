@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Mobilinkd LLC
+ * Copyright (C) 2013-2017 Mobilinkd LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -42,6 +41,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+
+import java.lang.ref.WeakReference;
 
 public class TncConfig extends FragmentActivity
 	implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
@@ -96,22 +97,19 @@ public class TncConfig extends FragmentActivity
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the chat services
     private BluetoothTncService mTncService = null;
-    private Handler mHandler = null;
     
     private ToggleButton mConnectButton;
     private TextView mBluetoothDeviceView;
     private TextView mFirmwareVersionView;
-	private String mFirmwareVersion = "282";
+	private String mFirmwareVersion = "UNKNOWN";
     @SuppressWarnings("unused")
 	private String hwVersion = "1.12";
     
     private Button mAudioOutputButton = null;
     private boolean mHasPttStyle = false;
-    private int mPttStyle = AudioOutputFragment.PTT_STYLE_SIMPLEX;;
+    private int mPttStyle = AudioOutputFragment.PTT_STYLE_SIMPLEX;
     private int mOutputVolume = 0;
-    private int mTone = TONE_NONE;
-    private boolean mPtt = false;
-    
+
     private AudioInputFragment mAudioInputFragment = null;
     private Button mAudioInputButton = null;
     private boolean mHasInputAtten = false;
@@ -143,26 +141,20 @@ public class TncConfig extends FragmentActivity
     private boolean mHasEeprom = false;
     private boolean mNeedsSave = false;
 
-	/**
-	 * Set up the {@link android.app.ActionBar}, if the API is available.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
-	}
-	
 	private void onBluetoothConnected() {
-        mBluetoothDeviceView.setText(mConnectedDeviceName);
-        mFirmwareVersionView.setText(mFirmwareVersion);
-        mConnectButton.setChecked(true);
-        mAudioOutputButton.setEnabled(true);
-        mAudioInputButton.setEnabled(true);
-        mKissButton.setEnabled(true);
-        mModemButton.setEnabled(true);
-        mTncService.getAllValues();
-        mNeedsSave = false;
+		if (mTncService != null) {
+			mBluetoothDeviceView.setText(mConnectedDeviceName);
+			mFirmwareVersionView.setText(mFirmwareVersion);
+			mConnectButton.setChecked(true);
+			mAudioOutputButton.setEnabled(true);
+			mAudioInputButton.setEnabled(true);
+			mKissButton.setEnabled(true);
+			mModemButton.setEnabled(true);
+			mTncService.getAllValues();
+			mNeedsSave = false;
+		} else {
+			Toast.makeText(this, R.string.msg_bt_not_connected, Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	private void onBluetoothConnecting() {
@@ -202,141 +194,154 @@ public class TncConfig extends FragmentActivity
 	}
 	
 	private void settingsUpdated() {
-		if (mHasEeprom && mNeedsSave == false) {
+		if (mHasEeprom && !mNeedsSave) {
 			mNeedsSave = true;
-			mSaveButton.setEnabled(mNeedsSave);
+			mSaveButton.setEnabled(true);
 		}
 	}
 	
-	private void createHandler() {
-	    // The Handler that gets information back from the BluetoothTncService
-		mHandler = new Handler() {
-	        @Override
-	        public void handleMessage(Message msg) {
-	        	byte[] buffer = null;
-	            switch (msg.what) {
-	            case MESSAGE_STATE_CHANGE:
-	                if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-	                switch (msg.arg1) {
-	                case BluetoothTncService.STATE_CONNECTED:
-	                    onBluetoothConnected();
-	                    break;
-	                case BluetoothTncService.STATE_CONNECTING:
-	                	onBluetoothConnecting();
-	                    break;
-	                case BluetoothTncService.STATE_NONE:
-	                	onBluetoothDisconnected();
-	                    break;
-	                }
-	                break;
-	            case MESSAGE_OUTPUT_VOLUME:
-	            	mOutputVolume = msg.arg1;
-	                if(D) Log.d(TAG, "output volume: " + mOutputVolume);
-	                break;
-	            case MESSAGE_TX_DELAY:
-	                TncConfig.this.mTxDelay = msg.arg1;
-	                if(D) Log.d(TAG, "tx delay: " + msg.arg1);
-	                break;
-	            case MESSAGE_PERSISTENCE:
-	                TncConfig.this.mPersistence = msg.arg1;
-	                if(D) Log.d(TAG, "persistence: " + msg.arg1);
-	                break;
-	            case MESSAGE_SLOT_TIME:
-	                TncConfig.this.mSlotTime = msg.arg1;
-	                if(D) Log.d(TAG, "slot time: " + msg.arg1);
-	                break;
-	            case MESSAGE_TX_TAIL:
-	                TncConfig.this.mTxTail = msg.arg1;
-	                if(D) Log.d(TAG, "tx tail: " + msg.arg1);
-	                break;
-	            case MESSAGE_DUPLEX:
-	                TncConfig.this.mDuplex = (msg.arg1 != 0);
-	                if(D) Log.d(TAG, "duplex: " + TncConfig.this.mDuplex);
-	                break;
-	            case MESSAGE_SQUELCH_LEVEL:
-	                TncConfig.this.mDcd = (msg.arg1 == 0);
-	                if(D) Log.d(TAG, "DCD: " + TncConfig.this.mDcd);
-	                break;
-	            case MESSAGE_VERBOSITY:
-	            	TncConfig.this.mVerbose = (msg.arg1 != 0);
-	                if(D) Log.d(TAG, "info: " + TncConfig.this.mVerbose);
-	                break;
-	            case MESSAGE_BT_CONN_TRACK:
-	            	TncConfig.this.mHasConnTrack = true;
-	                TncConfig.this.mConnTrack = (msg.arg1 != 0);
-	                if(D) Log.d(TAG, "bt conn track: " + TncConfig.this.mConnTrack);
-	                break;
-	            case MESSAGE_INPUT_ATTEN:
-	            	TncConfig.this.mHasInputAtten = true;
-	                TncConfig.this.mInputAtten = (msg.arg1 != 0);
-	                if(D) Log.d(TAG, "input atten: " + msg.arg1);
-	                break;
-	            case MESSAGE_BATTERY_LEVEL:
-	            	TncConfig.this.mPowerButton.setEnabled(true);
-	            	buffer = (byte[]) msg.obj;
-	            	TncConfig.this.mBatteryLevel = (0xFF & buffer[0]) * 256 + (0xFF & buffer[1]);
-	                if(D) Log.d(TAG, "battery level: " + TncConfig.this.mBatteryLevel + "mV");
-	                break;
-	            case MESSAGE_HW_VERSION:
-	            	buffer = (byte[]) msg.obj;
-	                String hwVersion = new String(buffer);
-	                TncConfig.this.hwVersion = hwVersion;
-	                if(D) Log.d(TAG, "hw version: " + hwVersion);
-	                break;
-	            case MESSAGE_FW_VERSION:
-	            	buffer = (byte[]) msg.obj;
-	                String fwVersion = new String(buffer);
-	                TncConfig.this.mFirmwareVersion = fwVersion;
-	                TncConfig.this.mFirmwareVersionView.setText(TncConfig.this.mFirmwareVersion);
-	                if(D) Log.d(TAG, "fw version: " + fwVersion);
-	                break;
-	            case MESSAGE_INPUT_VOLUME:
-	            	synchronized (this) {
-		            	if (TncConfig.this.mAudioInputFragment != null) {
-			                int inputVolume = msg.arg1;
-			                double level = (Math.log((double)inputVolume) / Math.log(2.0)) / 8.0;
-			                TncConfig.this.mAudioInputFragment.setInputVolume(level);
-			                // if(D) Log.d(TAG, "input volume: " + level);
-		            	}
-	            	}
-	                break;
-	            case MESSAGE_DEVICE_NAME:
-	                // save the connected device's name
-	                mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-	                Toast.makeText(getApplicationContext(), "Connected to "
-	                               + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-	                break;
-	            case MESSAGE_USB_POWER_ON:
-	            	mPowerControl = true;
-	            	TncConfig.this.mPowerOn = (msg.arg1 == 1);
-	                if(D) Log.d(TAG, "power on: " + TncConfig.this.mPowerOn);
-	            	break;
-	            case MESSAGE_USB_POWER_OFF:
-	            	mPowerControl = true;
-	            	TncConfig.this.mPowerOff = (msg.arg1 == 1);
-	                if(D) Log.d(TAG, "power off: " + TncConfig.this.mPowerOff);
-	            	break;
-	            case MESSAGE_PTT_STYLE:
-	            	TncConfig.this.mHasPttStyle = true;
-	            	TncConfig.this.mPttStyle = msg.arg1;
-	                if(D) Log.d(TAG, "ptt style: " + TncConfig.this.mPttStyle);
-	            	break;
-	            case MESSAGE_CAPABILITIES:
-	            	buffer = (byte[]) msg.obj;
-	            	if (buffer.length > 1) {
-		            	TncConfig.this.mHasEeprom = ((buffer[1] & 0x02) == 0x02);
-		            	TncConfig.this.mSaveButton.setVisibility(TncConfig.this.mHasEeprom ? Button.VISIBLE : Button.GONE);
-		                if(D) Log.d(TAG, "eeprom save:" + TncConfig.this.mHasEeprom);
-	            	}
-	            	break;
-	            case MESSAGE_TOAST:
-	                Toast.makeText(getApplicationContext(), msg.getData().getString(TOAST),
-	                               Toast.LENGTH_SHORT).show();
-	                break;
-	            }
-	        }
-	    };
-	}
+    //static inner class doesn't hold an implicit reference to the outer class
+    private static class TncHandler extends Handler {
+        //Using a weak reference means you won't prevent garbage collection
+        private final WeakReference<TncConfig> tncConfigRef;
+
+        TncHandler(TncConfig tncConfig) {
+            tncConfigRef = new WeakReference<>(tncConfig);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            TncConfig tncConfig = tncConfigRef.get();
+            if (tncConfig == null) return;
+
+            byte[] buffer;
+            switch (msg.what) {
+            case MESSAGE_STATE_CHANGE:
+                if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                switch (msg.arg1) {
+                case BluetoothTncService.STATE_CONNECTED:
+                    tncConfig.onBluetoothConnected();
+                    break;
+                case BluetoothTncService.STATE_CONNECTING:
+                    tncConfig.onBluetoothConnecting();
+                    break;
+                case BluetoothTncService.STATE_NONE:
+                    tncConfig.onBluetoothDisconnected();
+                    break;
+                }
+                break;
+            case MESSAGE_OUTPUT_VOLUME:
+                tncConfig.mOutputVolume = msg.arg1;
+                if(D) Log.d(TAG, "output volume: " + tncConfig.mOutputVolume);
+                break;
+            case MESSAGE_TX_DELAY:
+                tncConfig.mTxDelay = msg.arg1;
+                if(D) Log.d(TAG, "tx delay: " + msg.arg1);
+                break;
+            case MESSAGE_PERSISTENCE:
+                tncConfig.mPersistence = msg.arg1;
+                if(D) Log.d(TAG, "persistence: " + msg.arg1);
+                break;
+            case MESSAGE_SLOT_TIME:
+                tncConfig.mSlotTime = msg.arg1;
+                if(D) Log.d(TAG, "slot time: " + msg.arg1);
+                break;
+            case MESSAGE_TX_TAIL:
+                tncConfig.mTxTail = msg.arg1;
+                if(D) Log.d(TAG, "tx tail: " + msg.arg1);
+                break;
+            case MESSAGE_DUPLEX:
+                tncConfig.mDuplex = (msg.arg1 != 0);
+                if(D) Log.d(TAG, "duplex: " + tncConfig.mDuplex);
+                break;
+            case MESSAGE_SQUELCH_LEVEL:
+                tncConfig.mDcd = (msg.arg1 == 0);
+                if(D) Log.d(TAG, "DCD: " + tncConfig.mDcd);
+                break;
+            case MESSAGE_VERBOSITY:
+                tncConfig.mVerbose = (msg.arg1 != 0);
+                if(D) Log.d(TAG, "info: " + tncConfig.mVerbose);
+                break;
+            case MESSAGE_BT_CONN_TRACK:
+                tncConfig.mHasConnTrack = true;
+                tncConfig.mConnTrack = (msg.arg1 != 0);
+                if(D) Log.d(TAG, "bt conn track: " + tncConfig.mConnTrack);
+                break;
+            case MESSAGE_INPUT_ATTEN:
+                tncConfig.mHasInputAtten = true;
+                tncConfig.mInputAtten = (msg.arg1 != 0);
+                if(D) Log.d(TAG, "input atten: " + msg.arg1);
+                break;
+            case MESSAGE_BATTERY_LEVEL:
+                tncConfig.mPowerButton.setEnabled(true);
+                buffer = (byte[]) msg.obj;
+                tncConfig.mBatteryLevel = (0xFF & buffer[0]) * 256 + (0xFF & buffer[1]);
+                if(D) Log.d(TAG, "battery level: " + tncConfig.mBatteryLevel + "mV");
+                break;
+            case MESSAGE_HW_VERSION:
+                buffer = (byte[]) msg.obj;
+                String hwVersion = new String(buffer);
+                tncConfig.hwVersion = hwVersion;
+                if(D) Log.d(TAG, "hw version: " + hwVersion);
+                break;
+            case MESSAGE_FW_VERSION:
+                buffer = (byte[]) msg.obj;
+                String fwVersion = new String(buffer);
+                tncConfig.mFirmwareVersion = fwVersion;
+                tncConfig.mFirmwareVersionView.setText(tncConfig.mFirmwareVersion);
+                if(D) Log.d(TAG, "fw version: " + fwVersion);
+                break;
+            case MESSAGE_INPUT_VOLUME:
+                synchronized (this) {
+                    if (tncConfig.mAudioInputFragment != null) {
+                        int inputVolume = msg.arg1;
+                        double level = (Math.log((double)inputVolume) / Math.log(2.0)) / 8.0;
+                        tncConfig.mAudioInputFragment.setInputVolume(level);
+                        // if(D) Log.d(TAG, "input volume: " + level);
+                    }
+                }
+                break;
+            case MESSAGE_DEVICE_NAME:
+                // save the connected device's name
+                tncConfig.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                Toast.makeText(tncConfig.getApplicationContext(), tncConfig.getString(R.string.msg_connected_to)
+                               + tncConfig.mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                break;
+            case MESSAGE_USB_POWER_ON:
+                tncConfig.mPowerControl = true;
+                tncConfig.mPowerOn = (msg.arg1 == 1);
+                if(D) Log.d(TAG, "power on: " + tncConfig.mPowerOn);
+                break;
+            case MESSAGE_USB_POWER_OFF:
+                tncConfig.mPowerControl = true;
+                tncConfig.mPowerOff = (msg.arg1 == 1);
+                if(D) Log.d(TAG, "power off: " + tncConfig.mPowerOff);
+                break;
+            case MESSAGE_PTT_STYLE:
+                tncConfig.mHasPttStyle = true;
+                tncConfig.mPttStyle = msg.arg1;
+                if(D) Log.d(TAG, "ptt style: " + tncConfig.mPttStyle);
+                break;
+            case MESSAGE_CAPABILITIES:
+                buffer = (byte[]) msg.obj;
+                if (buffer.length > 1) {
+                    tncConfig.mHasEeprom = ((buffer[1] & 0x02) == 0x02);
+                    tncConfig.mSaveButton.setVisibility(tncConfig.mHasEeprom ? Button.VISIBLE : Button.GONE);
+                    if(D) Log.d(TAG, "eeprom save:" + tncConfig.mHasEeprom);
+                }
+                break;
+            case MESSAGE_TOAST:
+                Toast.makeText(tncConfig.getApplicationContext(), msg.getData().getInt(TOAST),
+                               Toast.LENGTH_SHORT).show();
+                break;
+            }
+        }
+    }
+
+    public TncHandler getHandler() {
+        return new TncHandler(this);
+    }
 
 
 	@Override
@@ -355,7 +360,8 @@ public class TncConfig extends FragmentActivity
 
         // If the adapter is null, then Bluetooth is not supported
         if (mBluetoothAdapter == null) {
-            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_bluetooth_not_present,
+                    Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -638,12 +644,12 @@ public class TncConfig extends FragmentActivity
         // Initialize the BluetoothChatService to perform bluetooth connections
         TncConfigApplication app = (TncConfigApplication) getApplication();
         mTncService = app.getBluetoothTncService();
-        createHandler();
+        TncHandler handler = getHandler();
         if (mTncService == null) {
-            mTncService = new BluetoothTncService(this, mHandler);
+            mTncService = new BluetoothTncService(this, handler);
             app.setBluetoothTncService(mTncService);
         } else {
-        	mTncService.setHandler(mHandler);
+        	mTncService.setHandler(handler);
         	if (mTncService.isConnected()) {
             	mConnectedDeviceName = mTncService.getDeviceName();
         		onBluetoothConnected();
@@ -656,7 +662,7 @@ public class TncConfig extends FragmentActivity
             public void onClick(View view) {
             	mTncService.saveEeprom();
             	mNeedsSave = false;
-            	mSaveButton.setEnabled(mNeedsSave);
+            	mSaveButton.setEnabled(false);
             }
         });
         mSaveButton.getBackground().setAlpha(64);
@@ -728,8 +734,8 @@ public class TncConfig extends FragmentActivity
 
 	@Override
 	public void onAudioOutputDialogToneChanged(AudioOutputFragment dialog) {
-		mPtt = dialog.getPtt();
-		mTone = dialog.getTone();
+        boolean mPtt = dialog.getPtt();
+		int mTone = dialog.getTone();
 		if (mPtt) {
 			mTncService.ptt(mTone);
 		} else {
@@ -744,7 +750,7 @@ public class TncConfig extends FragmentActivity
     		mInputAtten = dialog.getInputAtten();
     		mTncService.setInputAtten(mInputAtten);
     	}
-    	synchronized (mHandler) {
+    	synchronized (TAG) {
 	    	mTncService.ptt(TONE_NONE);
     	}
     }
@@ -755,7 +761,7 @@ public class TncConfig extends FragmentActivity
     		mInputAtten = dialog.getInputAtten();
     		mTncService.setInputAtten(mInputAtten);
     	}
-    	synchronized (mHandler) {
+    	synchronized (TAG) {
 	    	mTncService.ptt(TONE_NONE);
     	}
     }
@@ -891,8 +897,7 @@ public class TncConfig extends FragmentActivity
             // When DeviceListActivity returns with a device to connect
             if (resultCode == AppCompatActivity.RESULT_OK) {
                 // Get the device MAC address
-                String address = data.getExtras()
-                                     .getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
                 // Get the BLuetoothDevice object
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
                 // Attempt to connect to the device
@@ -901,7 +906,7 @@ public class TncConfig extends FragmentActivity
             break;
         case REQUEST_ENABLE_BT:
             // When the request to enable Bluetooth returns
-            if (resultCode != ActionBarActivity.RESULT_OK) {
+            if (resultCode != AppCompatActivity.RESULT_OK) {
                 // User did not enable Bluetooth or an error occured
                 Log.d(TAG, "BT not enabled");
                 Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();

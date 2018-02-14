@@ -665,7 +665,7 @@ public class BluetoothTncService {
         // Send a failure message back to the Activity
         Message msg = mHandler.obtainMessage(TncConfig.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(TncConfig.TOAST, "Unable to connect device");
+        bundle.putInt(TncConfig.TOAST, R.string.msg_unable_to_connect);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
@@ -679,7 +679,7 @@ public class BluetoothTncService {
         // Send a failure message back to the Activity
         Message msg = mHandler.obtainMessage(TncConfig.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(TncConfig.TOAST, "Device connection was lost");
+        bundle.putInt(TncConfig.TOAST, R.string.msg_connection_lost);
         msg.setData(bundle);
         mHandler.sendMessage(msg);
     }
