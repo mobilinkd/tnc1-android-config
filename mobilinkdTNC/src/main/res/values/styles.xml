@@ -42,8 +42,28 @@
         <item name="android:paddingTop">5dp</item>
         <item name="android:paddingRight">2dp</item>
         <item name="android:paddingBottom">0dp</item>
+        <item name="buttonBarStyle">@style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
     </style>
 
+
+    <style name="FragmentButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_gravity">center_vertical|fill_horizontal</item>
+    </style>
+
+    <style name="FragmentButtonBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_gravity">center_vertical|fill_horizontal</item>
+    </style>
+
+
+    <style name="FragmentDialog">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_gravity">center_vertical|fill_horizontal</item>
+        <item name="buttonBarStyle">@style/ButtonBar</item>
+        <item name="buttonBarButtonStyle">@style/ButtonBarButton</item>
+    </style>
     
     <style name="SampleTheme" parent="android:Theme">
         <item name="numberPickerStyle">@style/NPWidget.Holo.NumberPicker</item>

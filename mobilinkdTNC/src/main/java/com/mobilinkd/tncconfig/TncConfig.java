@@ -76,8 +76,14 @@ public class TncConfig extends FragmentActivity
     public static final int MESSAGE_USB_POWER_OFF = 20;
     public static final int MESSAGE_PTT_STYLE = 21;
     public static final int MESSAGE_CAPABILITIES = 22;
-    
-    
+    public static final int MESSAGE_INPUT_GAIN = 23;
+    public static final int MESSAGE_INPUT_GAIN_MIN = 24;
+    public static final int MESSAGE_INPUT_GAIN_MAX = 25;
+    public static final int MESSAGE_INPUT_TWIST = 26;
+    public static final int MESSAGE_INPUT_TWIST_MIN = 27;
+    public static final int MESSAGE_INPUT_TWIST_MAX = 28;
+
+
     // Key names received from the BluetoothTncService Handler
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
@@ -114,6 +120,13 @@ public class TncConfig extends FragmentActivity
     private Button mAudioInputButton = null;
     private boolean mHasInputAtten = false;
     private boolean mInputAtten = true;
+    private boolean mHasInputGain = false;
+    private int mInputGain = 0;
+    private int mInputGainMin = 0;
+    private int mInputGainMax = 5;
+    private int mInputTwist = -6;
+    private int mInputTwistMin = -9;
+    private int mInputTwistMax = 3;
     
     private PowerFragment mPowerFragment = null;
     private Button mPowerButton = null;
@@ -150,6 +163,7 @@ public class TncConfig extends FragmentActivity
 			mAudioInputButton.setEnabled(true);
 			mKissButton.setEnabled(true);
 			mModemButton.setEnabled(true);
+			mTncService.setDateTIme();
 			mTncService.getAllValues();
 			mNeedsSave = false;
 		} else {
@@ -277,6 +291,9 @@ public class TncConfig extends FragmentActivity
                 tncConfig.mPowerButton.setEnabled(true);
                 buffer = (byte[]) msg.obj;
                 tncConfig.mBatteryLevel = (0xFF & buffer[0]) * 256 + (0xFF & buffer[1]);
+                if (tncConfig.mPowerFragment != null) {
+                    tncConfig.mPowerFragment.setBatteryLevel(tncConfig.mBatteryLevel);
+                }
                 if(D) Log.d(TAG, "battery level: " + tncConfig.mBatteryLevel + "mV");
                 break;
             case MESSAGE_HW_VERSION:
@@ -329,6 +346,67 @@ public class TncConfig extends FragmentActivity
                     tncConfig.mHasEeprom = ((buffer[1] & 0x02) == 0x02);
                     tncConfig.mSaveButton.setVisibility(tncConfig.mHasEeprom ? Button.VISIBLE : Button.GONE);
                     if(D) Log.d(TAG, "eeprom save:" + tncConfig.mHasEeprom);
+                }
+                break;
+            case MESSAGE_INPUT_GAIN:
+                synchronized (this) {
+                    int level = msg.arg1;
+                    tncConfig.mInputGain = level;
+                    tncConfig.mHasInputGain = true;
+                    if (tncConfig.mAudioInputFragment != null) {
+                        tncConfig.mAudioInputFragment.setInputGain(level);
+                    }
+                    if(D) Log.d(TAG, "input gain: " + level);
+                }
+                break;
+            case MESSAGE_INPUT_GAIN_MIN:
+                synchronized (this) {
+                    int level = msg.arg1;
+                    tncConfig.mInputGainMin = level;
+                    if (tncConfig.mAudioInputFragment != null) {
+                        tncConfig.mAudioInputFragment.setInputGainMin(level);
+                    }
+                    if(D) Log.d(TAG, "input gain min: " + level);
+                }
+                break;
+            case MESSAGE_INPUT_GAIN_MAX:
+                synchronized (this) {
+                    int level = msg.arg1;
+                    tncConfig.mInputGainMax = level;
+                    if (tncConfig.mAudioInputFragment != null) {
+                        tncConfig.mAudioInputFragment.setInputGainMax(level);
+                    }
+                    if(D) Log.d(TAG, "input gain max: " + level);
+                }
+                break;
+            case MESSAGE_INPUT_TWIST:
+                synchronized (this) {
+                    int level = msg.arg1;
+                    tncConfig.mInputTwist = level;
+                    if (tncConfig.mAudioInputFragment != null) {
+                        tncConfig.mAudioInputFragment.setInputTwist(level);
+                    }
+                    if(D) Log.d(TAG, "input twist: " + level);
+                }
+                break;
+            case MESSAGE_INPUT_TWIST_MIN:
+                synchronized (this) {
+                    int level = msg.arg1;
+                    tncConfig.mInputTwistMin = level;
+                    if (tncConfig.mAudioInputFragment != null) {
+                        tncConfig.mAudioInputFragment.setInputTwistMin(level);
+                    }
+                    if(D) Log.d(TAG, "input twist min: " + level);
+                }
+                break;
+            case MESSAGE_INPUT_TWIST_MAX:
+                synchronized (this) {
+                    int level = msg.arg1;
+                    tncConfig.mInputTwistMax = level;
+                    if (tncConfig.mAudioInputFragment != null) {
+                        tncConfig.mAudioInputFragment.setInputTwistMax(level);
+                    }
+                    if(D) Log.d(TAG, "input twist max: " + level);
                 }
                 break;
             case MESSAGE_TOAST:
@@ -488,6 +566,15 @@ public class TncConfig extends FragmentActivity
             	if (mHasInputAtten) {
             		mAudioInputFragment.setInputAtten(mInputAtten);
             	}
+            	
+            	if (mHasInputGain) {
+                    mAudioInputFragment.setInputGain(mInputGain);
+                    mAudioInputFragment.setInputGainMin(mInputGainMin);
+                    mAudioInputFragment.setInputGainMax(mInputGainMax);
+                    mAudioInputFragment.setInputTwist(mInputTwist);
+                    mAudioInputFragment.setInputTwistMin(mInputTwistMin);
+                    mAudioInputFragment.setInputTwistMax(mInputTwistMax);
+                }
 
             	if (fragmentView != null) {
             		mAudioInputFragment.setShowsDialog(false);
@@ -785,8 +872,36 @@ public class TncConfig extends FragmentActivity
     		settingsUpdated();
     	}
     }
-    
-	@Override
+
+    @Override
+    public void onAudioInputDialogGainLevelChanged(AudioInputFragment dialog)
+    {
+        if (mInputGain != dialog.getInputGain()) {
+            mInputGain = dialog.getInputGain();
+            mTncService.setInputGain(mInputGain);
+            mTncService.listen();
+            settingsUpdated();
+        }
+    }
+
+    @Override
+    public void onAudioInputDialogTwistLevelChanged(AudioInputFragment dialog)
+    {
+        if (mInputTwist != dialog.getInputTwist()) {
+            mInputTwist = dialog.getInputTwist();
+            mTncService.setInputTwist(mInputTwist);
+            mTncService.listen();
+            settingsUpdated();
+        }
+    }
+
+    @Override
+    public void onAudioInputAdjustButtonChanged(AudioInputFragment dialog)
+    {
+        mTncService.adjustInputLevels();
+    }
+
+    @Override
     public void onPowerDialogUpdate(PowerFragment dialog) {
     	if (mPowerOn != dialog.getPowerOn()) {
     		mPowerOn = dialog.getPowerOn();

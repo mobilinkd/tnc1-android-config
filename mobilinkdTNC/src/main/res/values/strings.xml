@@ -43,7 +43,7 @@
     <string name="label_verbose_hint">Enable only when troubleshooting</string>
     
     <string name="audio_output_settings">Audio Output Settings&#8230;</string>
-    <string name="label_audio_output_settings">Audio Output Settings</string>
+    <string name="label_audio_output_settings"><font color='white'>Audio Output Settings</font></string>
     <string name="label_ptt_style">PTT Style</string>
     <string name="label_ptt_style_simplex">Simplex</string>
     <string name="label_ptt_style_multiplex">Multiplex</string>
@@ -62,9 +62,9 @@
     <string name="label_audio_output_max">255</string>
     
     <string name="audio_input_settings">Audio Input Settings&#8230;</string>
-    <string name="label_audio_input_settings">Audio Input Settings</string>
+    <string name="label_audio_input_settings"><font color='white'>Audio Input Settings</font></string>
     <string name="label_input_volume_level">Input Volume Level</string>
-    <string name="label_audio_input_hint">Open squelch and set radio volume to flicker first red element.</string>
+    <string name="label_audio_input_hint">Open squelch and set radio volume to flicker right-most red element.</string>
     <string name="label_input_atten">Attenuate Input</string>
     <string name="label_input_atten_hint">Disable only if the fixed volume level is too low.</string>
     
@@ -73,22 +73,20 @@
     <string name="about_close_button">Close</string>
     <string name="about_content">
         Mobilinkd TNC Configuration Utility\n
-        For Mobilinkd TNC1 and TNC2 devices\n
-        Version 1.1.7 &#8211; 2018-02-13\n\n
+        For Mobilinkd TNC1, TNC2 and TNC3 devices\n
+        Version 1.2.1 &#8211; 2018-11-07\n\n
         Copyright &#169; 2013-2018 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
-        Credit to:\n
-        Simon Vig Therkildsen (SimonVT) for the NumberPicker backport.\n
-        
-        
+        https://github.com/mobilinkd/tnc1-android-config
     </string>
     <string name="input_atten_button">Atten</string>
     <string name="output_volume_default">128</string>
     <string name="firmware_update">Firmware Update\n</string>
     <string name="firmware_upload_notification">
         You have selected a Mobilinkd firmware image.\n\nWould you
-        like to upload this file to your Mobilinkd TNC?
+        like to upload this file to your Mobilinkd TNC?\n\n
+        This will not work with a TNC3.
     </string>
     <string name="select_device_notification">
         You will next be asked to select a Bluetooth device.
@@ -117,13 +115,39 @@
     <string name="kiss_settings">KISS Parameters&#8230;</string>
     <string name="save_settings">Save Settings&#8230;</string>
     <string name="firmware_settings">Firmware&#8230;</string>
-    
+
+    <string name="audio_input_title"><font color='white'>Audio Input Settings</font></string>
+    <string name="audio_output_title"><font color='white'>Audio Output Settings</font></string>
+    <string name="power_settings_title"><font color='white'>Power Settings</font></string>
+    <string name="kiss_parameters_title"><font color='white'>KISS Parameters</font></string>
+    <string name="modem_settings_title"><font color='white'>Modem Settings</font></string>
+
+
     <string name="battery_level">Battery Level</string>
     <string name="power_on_usb">Power on with USB Power</string>
     <string name="power_off_usb">Power off with USB Power</string>
 
     <string name="input_volume_level">Input Volume Level</string>
-    
+    <string name="input_gain_label">Input Gain Level</string>
+    <string name="input_gain_min">0</string>
+    <string name="input_gain_level">0</string>
+    <string name="input_gain_max">5</string>
+    <string name="label_input_gain_icon">Input Gain Help</string>
+    <string name="label_input_gain_hint">Select the audio input gain to maximize the dynamic
+        range.  Increase the input gain if the audio levels from the radio are not high enough
+        to acheive the desired levels.  Best results are acheived when the last element in the
+        volume bar above is intermittently lit.</string>
+    <string name="input_twist_label">Input Twist Level</string>
+    <string name="input_twist_min">-3dB</string>
+    <string name="input_twist_level">6dB</string>
+    <string name="input_twist_max">9dB</string>
+    <string name="label_input_adjust_button">Auto-Adjust</string>
+    <string name="label_input_twist_icon">Input Twist Help</string>
+    <string name="label_input_twist_hint">Select the RX twist expected by the receiver.  This is
+        typically 0dB without de-emphasis and 6dB with de-emphasis.  The normal setting for
+        1200 baud is 6dB.</string>
+    <string name="input_twist_db">%ddB</string>
+
     <string name="kiss_parameters_label">KISS Parameters</string>
     <string name="full_duplex_setting">Full DUplex (normally off)</string>
     

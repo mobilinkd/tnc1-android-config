@@ -5,10 +5,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,17 +120,23 @@ public class ModemFragment extends DialogFragment {
 	@SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        
+
         // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            throw new AssertionError();
+        }
+        LayoutInflater inflater = activity.getLayoutInflater();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(activity, R.style.FullscreenTheme));
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
         mDialogView = inflater.inflate(R.layout.modem_fragment, null);
         builder.setView(mDialogView)
         // Add action buttons
-               .setTitle(R.string.modem_settings)
+               .setTitle(R.string.modem_settings_title)
+               .setIcon(R.drawable.perm_group_system_tools)
                .setPositiveButton(R.string.close, new DialogInterface.OnClickListener() {
                    @Override
                    public void onClick(DialogInterface dialog, int id) {
@@ -154,18 +163,18 @@ public class ModemFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");
 
         // Verify that the host activity implements the callback interface
         try {
             // Instantiate the listener so we can send events to the host
-            mListener = (Listener) activity;
+            mListener = (Listener) context;
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement ModemFragment.Listener");
         }
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_vertical|center_horizontal"
@@ -10,9 +10,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:orientation="vertical" >
+        android:paddingRight="12dp">
 
         <TextView
             android:id="@+id/textView1"
@@ -22,53 +22,223 @@
             android:text="@string/label_input_volume_level"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
-	    <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content" >
-	
-	        <ImageView
-	            android:id="@+id/imageView1"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            android:contentDescription="@string/input_volume_level"
-	            android:src="@drawable/ic_voice_search" />
-	
-	        <view
-	            android:id="@+id/bar_level_drawable_view"
-	            android:layout_width="0dp"
-	            android:layout_height="match_parent"
-	            android:layout_gravity="center_vertical"
-	            android:layout_weight=".85"
-	            class="com.google.speech.levelmeter.BarLevelDrawable"
-	            android:gravity="center_vertical" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/input_volume_level"
+                android:src="@drawable/ic_voice_search" />
+
+            <view
+                android:id="@+id/bar_level_drawable_view"
+                class="com.google.speech.levelmeter.BarLevelDrawable"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_weight=".85"
+                android:gravity="center_vertical" />
 
         </LinearLayout>
-        
-	    <TextView
-	        android:id="@+id/textView2"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/label_audio_input_hint"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-        
-	    <CheckedTextView
-	        android:id="@+id/inputAttenCheckBox"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
-	        android:checked="true"
-	        android:gravity="center_vertical"
-	        android:text="@string/label_input_atten"
-	        android:textAppearance="?android:attr/textAppearanceMedium"
-	        android:textColor="#000000" />
-	
-	    <TextView
-	        android:id="@+id/textView3"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:text="@string/label_input_atten_hint"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-	    
-	</LinearLayout>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_audio_input_hint"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/input_atten_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:visibility="visible">
+
+        <CheckedTextView
+            android:id="@+id/inputAttenCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+            android:checked="true"
+            android:gravity="center_vertical"
+            android:text="@string/label_input_atten"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#000000" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_input_atten_hint"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/input_controls_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="vertical"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/input_gain_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView11"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/input_gain_label"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <ImageButton
+                    android:id="@+id/inputGainHelpButton"
+                    style="@android:style/Widget.ImageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:contentDescription="@string/label_input_gain_icon"
+                    android:cropToPadding="false"
+                    android:src="@android:drawable/ic_menu_info_details" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/input_gain_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:text="@string/input_gain_min" />
+
+                <TextView
+                    android:id="@+id/input_gain_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/input_gain_level"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#FFFF00" />
+
+                <TextView
+                    android:id="@+id/input_gain_max"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="@string/input_gain_max" />
+
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/inputGainControl"
+                style="@android:style/Widget.SeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="@integer/input_gain_max" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/input_twist_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textView10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/input_twist_label"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
+
+                <ImageButton
+                    android:id="@+id/inputTwistHelpButton"
+                    style="@android:style/Widget.ImageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|bottom"
+                    android:contentDescription="@string/label_input_twist_icon"
+                    android:src="@android:drawable/ic_menu_info_details" />
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/input_twist_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:text="@string/input_twist_min" />
+
+                <TextView
+                    android:id="@+id/input_twist_level"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/input_twist_level"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="#FFFF00" />
+
+                <TextView
+                    android:id="@+id/input_twist_max"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="@string/input_twist_max" />
+
+            </FrameLayout>
+
+            <SeekBar
+                android:id="@+id/inputTwistControl"
+                style="@android:style/Widget.SeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="12" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/inputAdjustButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/label_input_adjust_button" />
+
+
+    </LinearLayout>
 
 </LinearLayout>

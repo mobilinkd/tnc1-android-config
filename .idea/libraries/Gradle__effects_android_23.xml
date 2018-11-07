@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: effects-android-23">
+    <CLASSES>
+      <root url="jar:///opt/android/sdk/add-ons/addon-google_apis-google-23/libs/effects.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

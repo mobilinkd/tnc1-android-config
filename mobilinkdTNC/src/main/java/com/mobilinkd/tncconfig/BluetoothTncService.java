@@ -19,6 +19,9 @@ package com.mobilinkd.tncconfig;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 
@@ -61,6 +64,7 @@ public class BluetoothTncService {
     private ConnectedThread mConnectedThread;
     private int mState;
     private String mDeviceName = null;
+    private int mApiVersion = 0x0100;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -102,8 +106,11 @@ public class BluetoothTncService {
     		new byte[] { (byte)0xc0, 0x06, 0x09, (byte)0xC0 };
     private static final byte[] TNC_PTT_OFF = 
     		new byte[] { (byte)0xc0, 0x06, 0x0A, (byte)0xC0 };
-    private static final byte[] TNC_SET_OUTPUT_VOLUME = 
-    		new byte[] { (byte)0xc0, 0x06, 0x01, 0, (byte)0xC0 };
+    private static final byte[] TNC_SET_OUTPUT_VOLUME =
+            new byte[] { (byte)0xc0, 0x06, 0x01, 0, (byte)0xC0 };
+    /* 16-bit signed. */
+    private static final byte[] TNC_SET_OUTPUT_GAIN =
+            new byte[] { (byte)0xc0, 0x06, 0x01, 0, 0, (byte)0xC0 };    // API 2.0
     private static final byte[] TNC_GET_OUTPUT_VOLUME =
     		new byte[] { (byte)0xc0, 0x06, 0x0C, (byte)0xC0 };
     private static final byte[] TNC_SET_SQUELCH_LEVEL = 
@@ -123,6 +130,16 @@ public class BluetoothTncService {
     		new byte[] { (byte)0xc0, 0x06, 0x2a, (byte)0xC0 };
     private static final byte[] TNC_GET_BATTERY_LEVEL =
     		new byte[] { (byte)0xc0, 0x06, 0x06, (byte)0xC0 };
+    private static final byte[] TNC_ADJUST_INPUT_LEVELS =
+            new byte[] { (byte)0xc0, 0x06, 0x2b, (byte)0xC0 };
+    /* 16-bit signed. */
+    private static final byte[] TNC_SET_INPUT_GAIN =
+            new byte[] { (byte)0xc0, 0x06, 0x02, 0, 0, (byte)0xC0 };
+    private static final byte[] TNC_SET_INPUT_TWIST =
+            new byte[] { (byte)0xc0, 0x06, 0x18, 0, (byte)0xC0 };
+    /* BCD YYMMDDWWHHMMSS */
+    private static final byte[] TNC_SET_DATETIME =
+            new byte[] { (byte)0xc0, 0x06, 0x32, 0, 0, 0, 0, 0, 0, 0, (byte)0xC0 };
 
     /**
      * Constructor. Prepares a new Bluetooth session.
@@ -584,7 +601,94 @@ public class BluetoothTncService {
         }
     	r.write(c);
     }
-    
+
+    public void setInputGain(int level)
+    {
+        if (D) Log.d(TAG, "setInputGain()");
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        byte c[] = TNC_SET_INPUT_GAIN;
+        c[3] = (byte) ((level >> 8) & 0xFF);
+        c[4] = (byte) (level & 0xFF);
+        r.write(c);
+    }
+
+    public void setInputTwist(int level)
+    {
+        if (D) Log.d(TAG, "setInputTwist()");
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        byte c[] = TNC_SET_INPUT_TWIST;
+        c[3] = (byte) level;
+        r.write(c);
+    }
+
+    public void adjustInputLevels()
+    {
+        if (D) Log.d(TAG, "adjustInputLevels");
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        r.write(TNC_ADJUST_INPUT_LEVELS);
+    }
+
+    private byte bcd(int value)
+    {
+        assert(value < 100);
+
+        return (byte) (((value / 10) * 16) + (value % 10));
+    }
+
+    public void setDateTIme()
+    {
+        if (D) Log.d(TAG, "setDateTIme");
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        byte[] c = TNC_SET_DATETIME;
+
+        Calendar calendar = Calendar.getInstance();
+
+        int year = calendar.get(Calendar.YEAR) - 2000;
+
+        c[3] = bcd(calendar.get(Calendar.YEAR) - 2000);
+        c[4] = bcd(calendar.get(Calendar.MONTH) + 1);
+        c[5] = bcd(calendar.get(Calendar.DAY_OF_MONTH));
+        c[6] = (byte) (calendar.get(Calendar.DAY_OF_WEEK) - 1);
+        c[7] = bcd(calendar.get(Calendar.HOUR));
+        c[8] = bcd(calendar.get(Calendar.MINUTE));
+        c[9] = bcd(calendar.get(Calendar.SECOND));
+
+        r.write(c);
+    }
+
+
     @SuppressWarnings("unused")
 	private class ListenTask extends AsyncTask<Integer, Void, Void> {
         /** The system calls this to perform work in a worker thread and
@@ -634,10 +738,15 @@ public class BluetoothTncService {
             if (mState != STATE_CONNECTED) return;
             r = mConnectedThread;
         }
-        
-        byte c[] = TNC_SET_OUTPUT_VOLUME;
-        c[3] = (byte) v;
-    	r.write(c);
+        if (mApiVersion == 0x100) {
+            byte c[] = TNC_SET_OUTPUT_VOLUME;
+            c[3] = (byte) v;
+            r.write(c);
+        } else {
+            byte c[] = TNC_SET_OUTPUT_GAIN;
+            c[3] = (byte) ((v >> 8) & 0xFF);
+            c[4] = (byte) (v & 0xFF);
+            r.write(c);        }
     }
     
     /**
@@ -772,6 +881,7 @@ public class BluetoothTncService {
         	
         	public static final int TNC_INPUT_VOLUME = 4;
         	public static final int TNC_OUTPUT_VOLUME = 12;
+            public static final int TNC_GET_OUTPUT_TWIST = 27;
         	public static final int TNC_GET_TXDELAY = 33;
         	public static final int TNC_GET_PERSIST = 34;
         	public static final int TNC_GET_SLOTTIME = 35;
@@ -782,12 +892,22 @@ public class BluetoothTncService {
         	public static final int TNC_GET_FW_VERSION = 40;
         	public static final int TNC_GET_VERBOSITY = 17;
         	public static final int TNC_GET_BATTERY_LEVEL = 6;
-        	public static final int TNC_GET_INPUT_ATTEN = 13;
+        	public static final int TNC_GET_INPUT_ATTEN = 13;       // API 1.0
+            public static final int TNC_GET_INPUT_GAIN = 13;        // API 2.0
+            public static final int TNC_GET_INPUT_TWIST = 25;       // API 2.0
         	public static final int TNC_GET_BT_CONN_TRACK = 70;
         	public static final int TNC_GET_USB_POWER_ON = 74;
         	public static final int TNC_GET_USB_POWER_OFF = 76;
         	public static final int TNC_GET_PTT_CHANNEL = 80;
+            public static final int TNC_GET_MIN_OUTPUT_TWIST = 119;     // API 2.0
+            public static final int TNC_GET_MAX_OUTPUT_TWIST = 120;     // API 2.0
+            public static final int TNC_GET_MIN_INPUT_TWIST = 121;      // API 2.0
+            public static final int TNC_GET_MAX_INPUT_TWIST = 122;      // API 2.0
+            public static final int TNC_GET_API_VERSION = 123;
+            public static final int TNC_GET_MIN_INPUT_GAIN = 124;       // API 2.0
+        	public static final int TNC_GET_MAX_INPUT_GAIN = 125;       // API 2.0
         	public static final int TNC_GET_CAPABILITIES = 126;
+        	public static final int TNC_GET_DATETIME = 49;              // API 2.0
         	
         	boolean mAvailable = false;
         	byte[] mBuffer = new byte[BUFFER_SIZE];
@@ -873,6 +993,7 @@ public class BluetoothTncService {
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
             mHdlc = new HdlcDecoder();
+            mApiVersion = 0x100;
 
             // Get the BluetoothSocket input and output streams
             try {
@@ -893,23 +1014,35 @@ public class BluetoothTncService {
             while (true) {
                 try {
                     byte c = (byte) mmInStream.read();
+                    int level = 0;
                     mHdlc.process(c);
                     if (mHandler == null) {
                     	continue;
                     }
                     if (mHdlc.available()) {
+                        byte[] data = mHdlc.data();
                     	switch (mHdlc.getType()) {
+                        case HdlcDecoder.TNC_GET_API_VERSION:
+                            mApiVersion = (0xFF & data[0]) * 256 + (0xFF & data[1]);
+                            Log.i(TAG, "API version = " + mApiVersion);
+                            break;
                     	case HdlcDecoder.TNC_INPUT_VOLUME:
                             // Send the obtained bytes to the UI Activity
-                            mHandler.obtainMessage(
-                            		TncConfig.MESSAGE_INPUT_VOLUME, (int) mHdlc.getValue(),
-                            		mHdlc.size(), mHdlc.data()).sendToTarget();
+                             mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_INPUT_VOLUME, (int) mHdlc.getValue(),
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
                     	case HdlcDecoder.TNC_OUTPUT_VOLUME:
                             // Send the obtained bytes to the UI Activity
-                            mHandler.obtainMessage(
+                                if (mApiVersion == 0x0100) {mHandler.obtainMessage(
                             		TncConfig.MESSAGE_OUTPUT_VOLUME, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            } else {
+                                level = (0xFF & data[0]) * 256 + (0xFF & data[1]);
+                                mHandler.obtainMessage(
+                                        TncConfig.MESSAGE_OUTPUT_VOLUME, level,
+                                        mHdlc.size(), data).sendToTarget();
+                            }
                             break;
                     	case HdlcDecoder.TNC_GET_TXDELAY:
                             // Send the obtained bytes to the UI Activity
@@ -977,11 +1110,18 @@ public class BluetoothTncService {
                             		TncConfig.MESSAGE_VERBOSITY, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
-                    	case HdlcDecoder.TNC_GET_INPUT_ATTEN:
+                    	case HdlcDecoder.TNC_GET_INPUT_GAIN:
                             // Send the obtained bytes to the UI Activity
-                            mHandler.obtainMessage(
-                            		TncConfig.MESSAGE_INPUT_ATTEN, (int) mHdlc.getValue(),
-                            		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            if (mApiVersion == 0x0100) {
+                                mHandler.obtainMessage(
+                                        TncConfig.MESSAGE_INPUT_ATTEN, (int) mHdlc.getValue(),
+                                        mHdlc.size(), mHdlc.data()).sendToTarget();
+                            } else {
+                                int gain = (0xFF & data[0]) * 256 + (0xFF & data[1]);
+                                mHandler.obtainMessage(
+                                        TncConfig.MESSAGE_INPUT_GAIN, gain,
+                                        mHdlc.size(), data).sendToTarget();
+                            }
                             break;
                     	case HdlcDecoder.TNC_GET_USB_POWER_ON:
                             // Send the obtained bytes to the UI Activity
@@ -1001,11 +1141,47 @@ public class BluetoothTncService {
                             		TncConfig.MESSAGE_PTT_STYLE, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
+                        case HdlcDecoder.TNC_GET_MAX_INPUT_GAIN:
+                            // Send the obtained bytes to the UI Activity
+                            int max_input_gain = (0xFF & data[0]) * 256 + (0xFF & data[1]);
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_INPUT_GAIN_MAX, max_input_gain,
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                        case HdlcDecoder.TNC_GET_MIN_INPUT_GAIN:
+                            // Send the obtained bytes to the UI Activity
+                            int min_input_gain = (0xFF & data[0]) * 256 + (0xFF & data[1]);
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_INPUT_GAIN_MIN, min_input_gain,
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                        case HdlcDecoder.TNC_GET_INPUT_TWIST:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_INPUT_TWIST, (int) data[0],
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                        case HdlcDecoder.TNC_GET_MAX_INPUT_TWIST:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_INPUT_TWIST_MAX, (int) data[0],
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                        case HdlcDecoder.TNC_GET_MIN_INPUT_TWIST:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_INPUT_TWIST_MIN, (int) data[0],
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
                     	case HdlcDecoder.TNC_GET_CAPABILITIES:
                             // Send the obtained bytes to the UI Activity
                             mHandler.obtainMessage(
                             		TncConfig.MESSAGE_CAPABILITIES, (int) mHdlc.getValue(),
                             		mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                        case HdlcDecoder.TNC_GET_DATETIME:
+                            // Send the obtained bytes to the UI Activity
+                            Log.i(TAG, "TNC_GET_DATETIME: " + Arrays.toString(data));
                             break;
                     	default:
                             // Send the obtained bytes to the UI Activity
