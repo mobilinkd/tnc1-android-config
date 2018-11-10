@@ -301,7 +301,7 @@ public class NumberPicker extends LinearLayout {
     /**
      * Cache for the string representation of selector indices.
      */
-    private final SparseArray<String> mSelectorIndexToStringCache = new SparseArray<String>();
+    private final SparseArray<String> mSelectorIndexToStringCache = new SparseArray<>();
 
     /**
      * The selector indices whose value are show by the selector.
@@ -368,11 +368,6 @@ public class NumberPicker extends LinearLayout {
      * The Y position of the last down event.
      */
     private float mLastDownEventY;
-
-    /**
-     * The time of the last down event.
-     */
-    private long mLastDownEventTime;
 
     /**
      * The Y position of the last down or move event.
@@ -503,7 +498,7 @@ public class NumberPicker extends LinearLayout {
         /**
          * The view is not scrolling.
          */
-        public static int SCROLL_STATE_IDLE = 0;
+        int SCROLL_STATE_IDLE = 0;
 
         /**
          * The user is scrolling using touch, and his finger is still on the screen.
@@ -661,7 +656,7 @@ public class NumberPicker extends LinearLayout {
 
         // increment button
         if (!mHasSelectorWheel) {
-            mIncrementButton = (ImageButton) findViewById(R.id.np__increment);
+            mIncrementButton = findViewById(R.id.np__increment);
             mIncrementButton.setOnClickListener(onClickListener);
             mIncrementButton.setOnLongClickListener(onLongClickListener);
         } else {
@@ -670,7 +665,7 @@ public class NumberPicker extends LinearLayout {
 
         // decrement button
         if (!mHasSelectorWheel) {
-            mDecrementButton = (ImageButton) findViewById(R.id.np__decrement);
+            mDecrementButton = findViewById(R.id.np__decrement);
             mDecrementButton.setOnClickListener(onClickListener);
             mDecrementButton.setOnLongClickListener(onLongClickListener);
         } else {
@@ -678,7 +673,7 @@ public class NumberPicker extends LinearLayout {
         }
 
         // input text
-        mInputText = (EditText) findViewById(R.id.np__numberpicker_input);
+        mInputText = findViewById(R.id.np__numberpicker_input);
         mInputText.setOnFocusChangeListener(new OnFocusChangeListener() {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -815,7 +810,11 @@ public class NumberPicker extends LinearLayout {
                 removeAllCallbacks();
                 mInputText.setVisibility(View.INVISIBLE);
                 mLastDownOrMoveEventY = mLastDownEventY = event.getY();
-                mLastDownEventTime = event.getEventTime();
+                /*
+      The time of the last down event.
+     */ /**
+                 * The time of the last down event.
+                 */long mLastDownEventTime = event.getEventTime();
                 mIngonreMoveEvents = false;
                 mShowSoftInputOnTap = false;
                 // Handle pressed state before any state change.
@@ -1233,8 +1232,8 @@ public class NumberPicker extends LinearLayout {
             maxTextWidth = (int) (numberOfDigits * maxDigitWidth);
         } else {
             final int valueCount = mDisplayedValues.length;
-            for (int i = 0; i < valueCount; i++) {
-                final float textWidth = mSelectorWheelPaint.measureText(mDisplayedValues[i]);
+            for (String mDisplayedValue : mDisplayedValues) {
+                final float textWidth = mSelectorWheelPaint.measureText(mDisplayedValue);
                 if (textWidth > maxTextWidth) {
                     maxTextWidth = (int) textWidth;
                 }
@@ -1752,9 +1751,7 @@ public class NumberPicker extends LinearLayout {
      * will be displayed in the selector.
      */
     private void incrementSelectorIndices(int[] selectorIndices) {
-        for (int i = 0; i < selectorIndices.length - 1; i++) {
-            selectorIndices[i] = selectorIndices[i + 1];
-        }
+        System.arraycopy(selectorIndices, 1, selectorIndices, 0, selectorIndices.length - 1);
         int nextScrollSelectorIndex = selectorIndices[selectorIndices.length - 2] + 1;
         if (mWrapSelectorWheel && nextScrollSelectorIndex > mMaxValue) {
             nextScrollSelectorIndex = mMinValue;
@@ -1768,9 +1765,7 @@ public class NumberPicker extends LinearLayout {
      * will be displayed in the selector.
      */
     private void decrementSelectorIndices(int[] selectorIndices) {
-        for (int i = selectorIndices.length - 1; i > 0; i--) {
-            selectorIndices[i] = selectorIndices[i - 1];
-        }
+        System.arraycopy(selectorIndices, 0, selectorIndices, 1, selectorIndices.length - 1);
         int nextScrollSelectorIndex = selectorIndices[1] - 1;
         if (mWrapSelectorWheel && nextScrollSelectorIndex < mMinValue) {
             nextScrollSelectorIndex = mMaxValue;
@@ -1813,7 +1808,7 @@ public class NumberPicker extends LinearLayout {
             updateInputTextView();
         } else {
             // Check the new value and ensure it's in range
-            int current = getSelectedPos(str.toString());
+            int current = getSelectedPos(str);
             setValueInternal(current, true);
         }
     }
@@ -2490,7 +2485,7 @@ public class NumberPicker extends LinearLayout {
                 case VIRTUAL_VIEW_ID_DECREMENT: {
                     String text = getVirtualDecrementButtonText();
                     if (!TextUtils.isEmpty(text)
-                            && text.toString().toLowerCase().contains(searchedLowerCase)) {
+                            && text.toLowerCase().contains(searchedLowerCase)) {
                         outResult.add(createAccessibilityNodeInfo(VIRTUAL_VIEW_ID_DECREMENT));
                     }
                 } return;
@@ -2511,10 +2506,10 @@ public class NumberPicker extends LinearLayout {
                 case VIRTUAL_VIEW_ID_INCREMENT: {
                     String text = getVirtualIncrementButtonText();
                     if (!TextUtils.isEmpty(text)
-                            && text.toString().toLowerCase().contains(searchedLowerCase)) {
+                            && text.toLowerCase().contains(searchedLowerCase)) {
                         outResult.add(createAccessibilityNodeInfo(VIRTUAL_VIEW_ID_INCREMENT));
                     }
-                } return;
+                }
             }
         }
 

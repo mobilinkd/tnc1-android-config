@@ -30,7 +30,7 @@ import android.view.animation.Interpolator;
  * automatically moved to its final stage and computeScrollOffset()
  * will always return false to indicate that scrolling is over.
  */
-public class Scroller  {
+class Scroller  {
     private int mMode;
 
     private int mStartX;
@@ -61,7 +61,6 @@ public class Scroller  {
     private static final int FLING_MODE = 1;
 
     private static float DECELERATION_RATE = (float) (Math.log(0.75) / Math.log(0.9));
-    private static float ALPHA = 800; // pixels / seconds
     private static float START_TENSION = 0.4f; // Tension at start: (0.4 * total T, 1.0 * Distance)
     private static float END_TENSION = 1.0f - START_TENSION;
     private static final int NB_SAMPLES = 100;
@@ -389,6 +388,8 @@ public class Scroller  {
         float velocity = (float) Math.sqrt(velocityX * velocityX + velocityY * velocityY);
      
         mVelocity = velocity;
+        // pixels / seconds
+        float ALPHA = 800;
         final double l = Math.log(START_TENSION * velocity / ALPHA);
         mDuration = (int) (1000.0 * Math.exp(l / (DECELERATION_RATE - 1.0)));
         mStartTime = AnimationUtils.currentAnimationTimeMillis();
