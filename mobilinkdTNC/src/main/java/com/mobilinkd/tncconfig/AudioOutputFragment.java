@@ -64,6 +64,8 @@ public class AudioOutputFragment extends DialogFragment {
 
 	private Listener mListener = null;
 
+    private long mLastOutputVolumeUpdateTimestamp = 0;
+
 	@SuppressLint("SetTextI18n")
     private View configureDialogView(View view)
 	{
@@ -129,8 +131,12 @@ public class AudioOutputFragment extends DialogFragment {
             public void onProgressChanged(SeekBar seekbar, int level, boolean fromUser) {
 
             	if (fromUser) {
+            	    long now = System.currentTimeMillis();
             		mVolume = level;
-            		mListener.onAudioOutputDialogLevelChanged(AudioOutputFragment.this);
+            		if (now - mLastOutputVolumeUpdateTimestamp >= 100) {
+                        mListener.onAudioOutputDialogLevelChanged(AudioOutputFragment.this);
+                        mLastOutputVolumeUpdateTimestamp = now;
+                    }
                 }
             	mOutputVolumeText.setText(Integer.toString(mVolume));
             }
@@ -138,6 +144,25 @@ public class AudioOutputFragment extends DialogFragment {
             public void onStartTrackingTouch(SeekBar seekbar) {
             }
         	@Override
+            public void onStopTrackingTouch(SeekBar seekbar) {
+                mListener.onAudioOutputDialogLevelChanged(AudioOutputFragment.this);
+                mLastOutputVolumeUpdateTimestamp = System.currentTimeMillis();
+            }
+        });
+        mOutputVolumeLevel.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekbar, int level, boolean fromUser) {
+
+                if (fromUser) {
+                    mVolume = level;
+                    mListener.onAudioOutputDialogLevelChanged(AudioOutputFragment.this);
+                }
+                mOutputVolumeText.setText(Integer.toString(mVolume));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekbar) {
+            }
+            @Override
             public void onStopTrackingTouch(SeekBar seekbar) {
             }
         });

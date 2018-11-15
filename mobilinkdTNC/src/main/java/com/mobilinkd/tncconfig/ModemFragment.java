@@ -34,10 +34,12 @@ public class ModemFragment extends DialogFragment {
     }
 	
     private View mDialogView = null;
-    
+
+    private boolean mHasDcd = false;
 	private boolean mDcd = false;
     private boolean mHasConnTrack = false;
 	private boolean mConnTrack = false;
+	private boolean mHasVerbose = false;
 	private boolean mVerbose = false;
 	
     private CheckedTextView mDcdView;
@@ -53,12 +55,17 @@ public class ModemFragment extends DialogFragment {
         mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
 
         mDcdView.setChecked(mDcd);
+        mDcdView.setEnabled(mHasDcd);
+        mDcdView.setClickable(mHasDcd);
+
+
         mConnTrackView.setChecked(mConnTrack);
         mConnTrackView.setEnabled(mHasConnTrack);
-        mVerboseView.setChecked(mVerbose);
-
-        mConnTrackView.setEnabled(mHasConnTrack);
         mConnTrackView.setClickable(mHasConnTrack);
+
+        mVerboseView.setChecked(mVerbose);
+        mVerboseView.setEnabled(mHasVerbose);
+        mVerboseView.setClickable(mHasVerbose);
 
         mDcdView.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
@@ -196,7 +203,8 @@ public class ModemFragment extends DialogFragment {
     }
 
     public void setDcd(boolean value) {
-    	mDcd = value;
+	    mDcd = value;
+	    mHasDcd = true;
     }
     
     public boolean getDcd() {
@@ -216,8 +224,11 @@ public class ModemFragment extends DialogFragment {
     	return mConnTrack;
     }
 
+    public boolean hasVerbose() { return mHasVerbose; }
+
     public void setVerbose(boolean value) {
     	mVerbose = value;
+    	mHasVerbose = true;
     }
     
     public boolean getVerbose() {

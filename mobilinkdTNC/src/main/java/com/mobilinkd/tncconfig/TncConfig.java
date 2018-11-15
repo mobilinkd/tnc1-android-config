@@ -145,9 +145,11 @@ public class TncConfig extends FragmentActivity
 
     private ModemFragment mModemFragment = null;
     private Button mModemButton = null;
+    private boolean mHasDcd = false;
     private boolean mDcd = false;
     private boolean mHasConnTrack = false;
     private boolean mConnTrack = false;
+    private boolean mHasVerbose = false;
     private boolean mVerbose = false;
     
     private Button mSaveButton = null;
@@ -181,6 +183,8 @@ public class TncConfig extends FragmentActivity
         mKissButton.setEnabled(false);
         mModemButton.setEnabled(false);
         mHasConnTrack = false;
+        mHasDcd = false;
+        mHasVerbose = false;
         mHasInputAtten = false;
         mHasPttStyle = false;
         mPowerControl = false;
@@ -199,6 +203,8 @@ public class TncConfig extends FragmentActivity
         mKissButton.setEnabled(false);
         mModemButton.setEnabled(false);
         mHasConnTrack = false;
+        mHasDcd = false;
+        mHasVerbose = false;
         mHasInputAtten = false;
         mHasPttStyle = false;
         mPowerControl = false;
@@ -271,9 +277,11 @@ public class TncConfig extends FragmentActivity
                 break;
             case MESSAGE_SQUELCH_LEVEL:
                 tncConfig.mDcd = (msg.arg1 == 0);
+                tncConfig.mHasDcd = true;
                 if(D) Log.d(TAG, "DCD: " + tncConfig.mDcd);
                 break;
             case MESSAGE_VERBOSITY:
+                tncConfig.mHasVerbose = true;
                 tncConfig.mVerbose = (msg.arg1 != 0);
                 if(D) Log.d(TAG, "info: " + tncConfig.mVerbose);
                 break;
@@ -501,6 +509,7 @@ public class TncConfig extends FragmentActivity
                 // Is the toggle on?
                 boolean on = ((ToggleButton) view).isChecked();
                 if (on) {
+                    mConnectButton.setChecked(false);
                     // Launch the DeviceListActivity to see devices and do scan
                     Intent selectDeviceIntent = new Intent(
                     		TncConfig.this, DeviceListActivity.class);
@@ -699,11 +708,15 @@ public class TncConfig extends FragmentActivity
         		}
         		mModemFragment = modemFragment;
         		
-        		mModemFragment.setDcd(mDcd);
             	if (mHasConnTrack) {
             		mModemFragment.setConnTrack(mConnTrack);
             	}
-            	mModemFragment.setVerbose(mVerbose);
+            	if (mHasVerbose) {
+                    mModemFragment.setVerbose(mVerbose);
+                }
+                if (mHasDcd) {
+                    mModemFragment.setDcd(mDcd);
+                }
 
                 if (fragmentView != null) {
                 	mModemFragment.setShowsDialog(false);
@@ -975,9 +988,10 @@ public class TncConfig extends FragmentActivity
         if(D) Log.i(TAG, "DCD: " + dialog.getDcd());
         if(D) Log.i(TAG, "Has ConnTrack: " + dialog.hasConnTrack());
         if(D && dialog.hasConnTrack()) Log.i(TAG, "ConnTrack: " + dialog.getConnTrack());
-        if(D) Log.i(TAG, "Verbose: " + dialog.getVerbose());
+        if(D) Log.i(TAG, "Has Verbose: " + dialog.hasVerbose());
+        if(D && dialog.hasVerbose()) Log.i(TAG, "Verbose: " + dialog.getVerbose());
         
-        if (mDcd != dialog.getDcd()) {
+        if (mHasDcd && (mDcd != dialog.getDcd())) {
         	mDcd = dialog.getDcd();
         	mTncService.setDcd(mDcd);
     		settingsUpdated();
@@ -989,7 +1003,7 @@ public class TncConfig extends FragmentActivity
     		settingsUpdated();
         }
         
-        if (mVerbose != dialog.getVerbose()) {
+        if (mHasVerbose && (mVerbose != dialog.getVerbose())) {
         	mVerbose = dialog.getVerbose();
         	mTncService.setVerbosity(mVerbose);
     		settingsUpdated();

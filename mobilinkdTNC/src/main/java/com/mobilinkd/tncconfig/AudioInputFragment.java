@@ -75,6 +75,9 @@ public class AudioInputFragment extends DialogFragment {
     private Listener mListener = null;
     private Context mContext = null;
 
+    private long mLastInputGainUpdateTimestamp = 0;
+    private long mLastInputTwistUpdateTimestamp = 0;
+
 	@SuppressLint("SetTextI18n")
     private View configureDialogView(View view) {
 		
@@ -130,8 +133,13 @@ public class AudioInputFragment extends DialogFragment {
             public void onProgressChanged(SeekBar seekbar, int level, boolean fromUser) {
 
                 if (fromUser) {
+                    long now = System.currentTimeMillis();
                     mInputGainLevel = level + mInputGainMin;
-                    mListener.onAudioInputDialogGainLevelChanged(AudioInputFragment.this);
+                    // Limit update rate to 100ms.
+                    if (now - mLastInputGainUpdateTimestamp >= 100) {
+                        mListener.onAudioInputDialogGainLevelChanged(AudioInputFragment.this);
+                        mLastInputGainUpdateTimestamp = now;
+                    }
                 }
                 mInputGainLevelText.setText(Integer.toString(mInputGainLevel));
             }
@@ -140,6 +148,8 @@ public class AudioInputFragment extends DialogFragment {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekbar) {
+                mListener.onAudioInputDialogGainLevelChanged(AudioInputFragment.this);
+                mLastInputGainUpdateTimestamp = System.currentTimeMillis();
             }
         });
 
@@ -148,8 +158,13 @@ public class AudioInputFragment extends DialogFragment {
             public void onProgressChanged(SeekBar seekbar, int level, boolean fromUser) {
 
                 if (fromUser) {
+                    long now = System.currentTimeMillis();
                     mInputTwistLevel = level + mInputTwistMin;
-                    mListener.onAudioInputDialogTwistLevelChanged(AudioInputFragment.this);
+                    // Limit update rate to 100ms.
+                    if (now - mLastInputTwistUpdateTimestamp >= 100) {
+                        mListener.onAudioInputDialogTwistLevelChanged(AudioInputFragment.this);
+                        mLastInputTwistUpdateTimestamp = now;
+                    }
                 }
                 String db = String.format(getString(R.string.input_twist_db), mInputTwistLevel);
                 mInputTwistLevelText.setText(db);
@@ -159,6 +174,8 @@ public class AudioInputFragment extends DialogFragment {
             }
             @Override
             public void onStopTrackingTouch(SeekBar seekbar) {
+                mListener.onAudioInputDialogTwistLevelChanged(AudioInputFragment.this);
+                mLastInputTwistUpdateTimestamp = System.currentTimeMillis();
             }
         });
 
