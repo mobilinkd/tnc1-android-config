@@ -113,7 +113,9 @@ public class BluetoothTncService {
             new byte[] { (byte)0xc0, 0x06, 0x01, 0, 0, (byte)0xC0 };    // API 2.0
     private static final byte[] TNC_GET_OUTPUT_VOLUME =
     		new byte[] { (byte)0xc0, 0x06, 0x0C, (byte)0xC0 };
-    private static final byte[] TNC_SET_SQUELCH_LEVEL = 
+    private static final byte[] TNC_SET_OUTPUT_TWIST =
+            new byte[] { (byte)0xc0, 0x06, 0x1A, (byte)0xC0 };
+    private static final byte[] TNC_SET_SQUELCH_LEVEL =
     		new byte[] { (byte)0xc0, 0x06, 0x03, 0, (byte)0xC0 };
     private static final byte[] TNC_GET_ALL_VALUES = 
     		new byte[] { (byte)0xc0, 0x06, 0x7F, (byte)0xC0 };
@@ -748,7 +750,24 @@ public class BluetoothTncService {
             c[4] = (byte) (v & 0xFF);
             r.write(c);        }
     }
-    
+
+    public void outputTwist(int v)
+    {
+        if (D) Log.d(TAG, "outputTwist() = " + v);
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+        byte c[] = TNC_SET_OUTPUT_TWIST;
+        c[3] = (byte) v;
+        r.write(c);
+    }
+
+
     /**
      * Write to the ConnectedThread in an unsynchronized manner
      * @param out The bytes to write
@@ -1043,6 +1062,13 @@ public class BluetoothTncService {
                                         TncConfig.MESSAGE_OUTPUT_VOLUME, level,
                                         mHdlc.size(), data).sendToTarget();
                             }
+                            break;
+                        case HdlcDecoder.TNC_GET_OUTPUT_TWIST:
+                            // Send the obtained bytes to the UI Activity
+                            Log.i(TAG, "TNC_GET_OUTPUT_TWIST = " + mHdlc.getValue());
+                            mHandler.obtainMessage(
+                                TncConfig.MESSAGE_OUTPUT_TWIST, (int) mHdlc.getValue(),
+                                mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
                     	case HdlcDecoder.TNC_GET_TXDELAY:
                             // Send the obtained bytes to the UI Activity

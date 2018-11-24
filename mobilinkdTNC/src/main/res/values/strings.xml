@@ -52,6 +52,18 @@
         signal (Simplex) or multiplexes the PTT signal on Mic+ (Multiplex).
         Kenwood HTs (and all Chinese HTs that use the same connector) and
         MiniDIN-6 data ports use Simplex.  Most other HTs use Multiplex.</string>
+
+    <string name="output_twist_label">Output Twist</string>
+    <string name="output_twist_default">50</string>
+    <string name="output_twist_min">0</string>
+    <string name="output_twist_max">100</string>
+    <string name="output_twist_help_title">Output Twist Help</string>
+    <string name="output_twist_help">
+        Changing the output twist changes the relative amplitude of MARK and SPACE tones.  50 is
+        even (which is the default).  Values less than 50 decrease the 2200Hz SPACE tone.  Values
+        greater than 50 decrease the 1200Hz MARK tone.  This can be used to compensate for lack of
+        pre-emphasis in the transmitter, or when the pre-emphasis is not a flat 6dB per octave.
+    </string>
     
     <string name="label_audio_output_tone">Output Tone</string>
     <string name="mark_button">1200Hz</string>
@@ -74,7 +86,7 @@
     <string name="about_content">
         Mobilinkd TNC Configuration Utility\n
         For Mobilinkd TNC1, TNC2 and TNC3 devices\n
-        Version 1.2.3 &#8211; 2018-11-14\n\n
+        Version 1.2.4 &#8211; 2018-11-23\n\n
         Copyright &#169; 2013-2018 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n

@@ -27,6 +27,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
+import java.util.Locale;
+
 public class AudioOutputFragment extends DialogFragment {
     // Debugging
     private static final String TAG = "AudioOutputFragment";
@@ -44,6 +46,7 @@ public class AudioOutputFragment extends DialogFragment {
         void onAudioOutputDialogPttStyleChanged(AudioOutputFragment dialog);
         void onAudioOutputDialogLevelChanged(AudioOutputFragment dialog);
         void onAudioOutputDialogToneChanged(AudioOutputFragment dialog);
+        void onAudioOutputDialogTwistLevelChanged(AudioOutputFragment dialog);
     }
 
     private Context mContext = null;
@@ -66,7 +69,13 @@ public class AudioOutputFragment extends DialogFragment {
 
     private long mLastOutputVolumeUpdateTimestamp = 0;
 
-	@SuppressLint("SetTextI18n")
+    private boolean mHasOutputTwistControl = false;
+    private TextView mOutputTwistLevelText = null;
+    private SeekBar mOutputTwistLevelBar = null;
+    private int mOutputTwistLevel = 0;
+    private long mLastOutputTwistUpdateTimestamp = 0;
+
+    @SuppressLint("SetTextI18n")
     private View configureDialogView(View view)
 	{
         mPttStyleGroup = view.findViewById(R.id.pttStyleGroup);
@@ -202,10 +211,67 @@ public class AudioOutputFragment extends DialogFragment {
                     mPttStyleGroup.getChildAt(i).setEnabled(!mPtt);
                 }
         		mOutputVolumeLevel.setEnabled(mPtt);
+                mOutputTwistLevelBar.setEnabled(mPtt);
     			mListener.onAudioOutputDialogToneChanged(AudioOutputFragment.this);
         	}
         });
         mPttButton.getBackground().setAlpha(64);
+
+        LinearLayout outputTwistLayout = view.findViewById(R.id.outputTwistLayout);
+
+        if (mHasOutputTwistControl) {
+            outputTwistLayout.setVisibility(LinearLayout.VISIBLE);
+        } else {
+            outputTwistLayout.setVisibility(LinearLayout.GONE);
+        }
+
+        mOutputTwistLevelText = view.findViewById(R.id.outputTwistLevelText);
+        mOutputTwistLevelBar = view.findViewById(R.id.outputTwistLevelBar);
+        mOutputTwistLevelBar.setProgress(mOutputTwistLevel);
+        mOutputTwistLevelBar.setEnabled(mPtt);
+        mOutputTwistLevelText.setText(String.format(Locale.getDefault(),"%d", mOutputTwistLevel));
+
+        ImageButton outputTwistHelpButton = view.findViewById(R.id.outputTwistHelpButton);
+        outputTwistHelpButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(mContext)
+                        .setTitle(R.string.output_twist_help_title)
+                        .setMessage(R.string.output_twist_help)
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // pass
+                            }
+                        }).show();
+            }
+        });
+        outputTwistHelpButton.getBackground().setAlpha(64);
+
+        mOutputTwistLevelBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekbar, int level, boolean fromUser) {
+
+                if (fromUser) {
+                    long now = System.currentTimeMillis();
+                    mOutputTwistLevel = level;
+                    // Limit update rate to 100ms.
+                    if (now - mLastOutputTwistUpdateTimestamp >= 100) {
+                        mListener.onAudioOutputDialogTwistLevelChanged(AudioOutputFragment.this);
+                        mLastOutputTwistUpdateTimestamp = now;
+                    }
+                }
+                mOutputTwistLevelText.setText(String.format(Locale.getDefault(),"%d", mOutputTwistLevel));
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekbar) {
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekbar) {
+                mListener.onAudioOutputDialogTwistLevelChanged(AudioOutputFragment.this);
+                mLastOutputTwistUpdateTimestamp = System.currentTimeMillis();
+            }
+        });
 
         return view;
 	}
@@ -327,4 +393,23 @@ public class AudioOutputFragment extends DialogFragment {
     public boolean getPtt() {
     	return mPtt;
     }
+
+    public int getOutputTwist()
+    {
+        return mOutputTwistLevel;
+    }
+
+    public void setOutputTwist(int level)
+    {
+        if(D) Log.d(TAG, "setOutputTwist = " + level);
+
+        mHasOutputTwistControl = true;
+        mOutputTwistLevel = level;
+
+        if (isAdded()) {
+            mOutputTwistLevelBar.setProgress(mOutputTwistLevel);
+            mOutputTwistLevelText.setText(String.format(Locale.getDefault(),"%d",level));
+        }
+    }
+
 }

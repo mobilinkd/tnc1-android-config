@@ -3,6 +3,7 @@
     <integer name="volume_min">0</integer>
     <integer name="volume_default">128</integer>
     <integer name="volume_max">255</integer>
+    <integer name="output_twist_max">100</integer>
     <integer name="input_gain_min">0</integer>
     <integer name="input_gain_default">0</integer>
     <integer name="input_gain_max">4</integer>

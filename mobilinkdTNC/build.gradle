@@ -10,10 +10,10 @@ android {
         targetSdkVersion 28
 
         // Defines the version number of your app.
-        versionCode 17
+        versionCode 18
 
         // Defines a user-friendly version name for your app.
-        versionName "1.2.3"
+        versionName "1.2.4"
     }
 
     buildTypes {

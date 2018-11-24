@@ -82,7 +82,7 @@ public class TncConfig extends FragmentActivity
     public static final int MESSAGE_INPUT_TWIST = 26;
     public static final int MESSAGE_INPUT_TWIST_MIN = 27;
     public static final int MESSAGE_INPUT_TWIST_MAX = 28;
-
+    public static final int MESSAGE_OUTPUT_TWIST = 29;
 
     // Key names received from the BluetoothTncService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -115,6 +115,8 @@ public class TncConfig extends FragmentActivity
     private boolean mHasPttStyle = false;
     private int mPttStyle = AudioOutputFragment.PTT_STYLE_SIMPLEX;
     private int mOutputVolume = 0;
+    private boolean mHasOutputTwist = false;
+    private int mOutputTwist = 50;
 
     private AudioInputFragment mAudioInputFragment = null;
     private Button mAudioInputButton = null;
@@ -168,6 +170,8 @@ public class TncConfig extends FragmentActivity
 			mTncService.setDateTIme();
 			mTncService.getAllValues();
 			mNeedsSave = false;
+			mHasOutputTwist = false;
+            mHasInputGain = false;
 		} else {
 			Toast.makeText(this, R.string.msg_bt_not_connected, Toast.LENGTH_SHORT).show();
 		}
@@ -211,6 +215,8 @@ public class TncConfig extends FragmentActivity
         mSaveButton.setVisibility(Button.GONE);
         mHasEeprom = false;
         mNeedsSave = false;
+        mHasOutputTwist = false;
+        mHasInputGain = false;
 	}
 	
 	private void settingsUpdated() {
@@ -254,6 +260,11 @@ public class TncConfig extends FragmentActivity
             case MESSAGE_OUTPUT_VOLUME:
                 tncConfig.mOutputVolume = msg.arg1;
                 if(D) Log.d(TAG, "output volume: " + tncConfig.mOutputVolume);
+                break;
+            case MESSAGE_OUTPUT_TWIST:
+                tncConfig.mHasOutputTwist = true;
+                tncConfig.mOutputTwist = msg.arg1;
+                if(D) Log.d(TAG, "output twist: " + tncConfig.mOutputTwist);
                 break;
             case MESSAGE_TX_DELAY:
                 tncConfig.mTxDelay = msg.arg1;
@@ -536,6 +547,10 @@ public class TncConfig extends FragmentActivity
             	}
 
             	audioOutputFragment.setVolume(mOutputVolume);
+
+        		if (mHasOutputTwist) {
+        		    audioOutputFragment.setOutputTwist(mOutputTwist);
+                }
 
             	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
             	if (fragmentView != null) {
@@ -842,7 +857,12 @@ public class TncConfig extends FragmentActivity
 			mTncService.ptt(TONE_NONE);
 		}	
 	}
-	
+
+    @Override
+    public void onAudioOutputDialogTwistLevelChanged(AudioOutputFragment dialog) {
+        mOutputTwist = dialog.getOutputTwist();
+        mTncService.outputTwist(mOutputTwist);
+    }
 
 	@Override
     public void onAudioInputDialogClose(AudioInputFragment dialog) {
