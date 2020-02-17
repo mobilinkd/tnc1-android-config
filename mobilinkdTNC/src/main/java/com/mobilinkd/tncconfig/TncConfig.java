@@ -228,6 +228,9 @@ public class TncConfig extends FragmentActivity
         mNeedsSave = false;
         mHasOutputTwist = false;
         mHasInputGain = false;
+        mHasPassall = false;
+        mModemType = 1;
+        mSupportedModemTypes = null;
 	}
 	
 	private void settingsUpdated() {
