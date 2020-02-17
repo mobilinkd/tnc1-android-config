@@ -83,6 +83,9 @@ public class TncConfig extends FragmentActivity
     public static final int MESSAGE_INPUT_TWIST_MIN = 27;
     public static final int MESSAGE_INPUT_TWIST_MAX = 28;
     public static final int MESSAGE_OUTPUT_TWIST = 29;
+    public static final int MESSAGE_MODEM_TYPE = 30;
+    public static final int MESSAGE_SUPPORTED_MODEM_TYPES = 31;
+    public static final int MESSAGE_PASSALL = 32;
 
     // Key names received from the BluetoothTncService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -145,6 +148,10 @@ public class TncConfig extends FragmentActivity
     private int mTxTail = 0;
     private boolean mDuplex = false;
 
+    public static int MODEM_TYPE_1200 = 1;
+    public static int MODEM_TYPE_300 = 2;
+    public static int MODEM_TYPE_9600 = 3;
+
     private ModemFragment mModemFragment = null;
     private Button mModemButton = null;
     private boolean mHasDcd = false;
@@ -153,7 +160,11 @@ public class TncConfig extends FragmentActivity
     private boolean mConnTrack = false;
     private boolean mHasVerbose = false;
     private boolean mVerbose = false;
-    
+    private int[] mSupportedModemTypes;
+    private int mModemType = 1;
+    private boolean mHasPassall = false;
+    private boolean mPassall = false;
+
     private Button mSaveButton = null;
     private boolean mHasEeprom = false;
     private boolean mNeedsSave = false;
@@ -427,6 +438,37 @@ public class TncConfig extends FragmentActivity
                     }
                     if(D) Log.d(TAG, "input twist max: " + level);
                 }
+                break;
+            case MESSAGE_MODEM_TYPE:
+                synchronized (this) {
+                    int modem = msg.arg1;
+                    tncConfig.mModemType = modem;
+                    if (tncConfig.mModemFragment != null) {
+                        tncConfig.mModemFragment.setModemType(modem);
+                    }
+                    if(D) Log.d(TAG, "modem type: " + modem);
+                }
+                break;
+            case MESSAGE_SUPPORTED_MODEM_TYPES:
+                synchronized (this) {
+                    buffer = (byte[]) msg.obj;
+                    tncConfig.mSupportedModemTypes = new int[buffer.length - 1];
+                    for (int i = 1; i != buffer.length; i++) {
+                        tncConfig.mSupportedModemTypes[i - 1] = (int) buffer[i];
+                    }
+                    if (tncConfig.mModemFragment != null) {
+                        tncConfig.mModemFragment.setSupportedModemTypes(tncConfig.mSupportedModemTypes);
+                    }
+                    if(D) Log.d(TAG, "supported modem types: " + (buffer.length - 1));
+                }
+                break;
+            case MESSAGE_PASSALL:
+                tncConfig.mHasPassall = true;
+                tncConfig.mPassall = (msg.arg1 != 0);
+                if (tncConfig.mModemFragment != null) {
+                    tncConfig.mModemFragment.setPassall(tncConfig.mPassall);
+                }
+                if(D) Log.d(TAG, "passall: " + tncConfig.mPassall);
                 break;
             case MESSAGE_TOAST:
                 Toast.makeText(tncConfig.getApplicationContext(), msg.getData().getInt(TOAST),
@@ -732,6 +774,13 @@ public class TncConfig extends FragmentActivity
                 if (mHasDcd) {
                     mModemFragment.setDcd(mDcd);
                 }
+                if (mHasPassall) {
+                    mModemFragment.setPassall(mPassall);
+                }
+                if (mSupportedModemTypes != null) {
+                    mModemFragment.setSupportedModemTypes(mSupportedModemTypes);
+                    mModemFragment.setModemType(mModemType);
+                }
 
                 if (fragmentView != null) {
                 	mModemFragment.setShowsDialog(false);
@@ -1027,6 +1076,18 @@ public class TncConfig extends FragmentActivity
         	mVerbose = dialog.getVerbose();
         	mTncService.setVerbosity(mVerbose);
     		settingsUpdated();
+        }
+
+        if (mHasPassall && (mPassall != dialog.getPassall())) {
+            mPassall = dialog.getPassall();
+            mTncService.setPassall(mPassall);
+            settingsUpdated();
+        }
+
+        if (mSupportedModemTypes != null && (mModemType != dialog.getModemType())) {
+            mModemType = dialog.getModemType();
+            mTncService.setModemType(mModemType);
+            settingsUpdated();
         }
     }
     

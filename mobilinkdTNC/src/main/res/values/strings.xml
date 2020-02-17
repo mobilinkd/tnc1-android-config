@@ -34,13 +34,19 @@
     <string name="label_10ms">x 10ms</string>
     <string name="label_kiss_parameters">KISS Parameters</string>
     <string name="label_0_255">0&#8211;255</string>
-    
+
+    <string name="label_modem_type">Modem Type</string>
+    <string name="label_passall">Passall</string>
+    <string name="label_passall_hint">Pass packets with an invalid CRC.</string>
     <string name="label_dcd">DCD</string>
     <string name="label_dcd_hint">Enable DCD when using an open squelch</string>
     <string name="label_conn_track">BT Connection Tracking</string>
     <string name="label_conn_track_hint">Enable when TNC is used for digipeating</string>
     <string name="label_verbose">Verbose Output</string>
     <string name="label_verbose_hint">Enable only when troubleshooting</string>
+    <string name="modem_1200_afsk">1200 baud AFSK</string>
+    <string name="modem_300_afsk">300 baud AFSK</string>
+    <string name="modem_9600_fsk">9600 baud FSK</string>
     
     <string name="audio_output_settings">Audio Output Settings&#8230;</string>
     <string name="label_audio_output_settings"><font color='white'>Audio Output Settings</font></string>
@@ -86,8 +92,8 @@
     <string name="about_content">
         Mobilinkd TNC Configuration Utility\n
         For Mobilinkd TNC1, TNC2 and TNC3 devices\n
-        Version 1.2.4 &#8211; 2018-11-23\n\n
-        Copyright &#169; 2013-2018 Mobilinkd LLC.\n
+        Version 1.3.0 &#8211; 2020-02-17\n\n
+        Copyright &#169; 2013-2020 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
         https://github.com/mobilinkd/tnc1-android-config
@@ -172,5 +178,6 @@
     <string name="msg_connected_to">Connected to</string>
     <string name="msg_bluetooth_not_present">Bluetooth is not available on this device</string>
     <string name="battery_level_mv">%04dmV</string>
+    <string name="label_modem_hint">Select modem type</string>
 
 </resources>

@@ -16,13 +16,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ModemFragment extends DialogFragment {
 	
     // Debugging
     private static final String TAG = "ModemFragment";
     private static final boolean D = true;
+
+    public ModemFragment() {
+    }
 
     /* The activity that creates an instance of this dialog fragment must
      * implement this interface in order to receive event callbacks.
@@ -41,23 +55,102 @@ public class ModemFragment extends DialogFragment {
 	private boolean mConnTrack = false;
 	private boolean mHasVerbose = false;
 	private boolean mVerbose = false;
-	
+
+	private boolean mHasModemType = false;
+	private int mModemType = 1;
+	private int[] mSupportedModemTypes = null;
+
+	private boolean mHasPassall = false;
+	private boolean mPassall = false;
+
+	private class ModemType {
+	    public String name;
+	    public int code;
+    }
+
+	private static Map<Integer, Integer> ModemTypes;
+    static {
+        ModemTypes = new HashMap<>();
+        ModemTypes.put(1, R.string.modem_1200_afsk);
+        ModemTypes.put(2, R.string.modem_300_afsk);
+        ModemTypes.put(3, R.string.modem_9600_fsk);
+    }
+
     private CheckedTextView mDcdView;
     private CheckedTextView mConnTrackView;
     private CheckedTextView mVerboseView;
-	
+
+    private LinearLayout mModemLayout;
+    private Spinner mModemSpinner;
+
+    private LinearLayout mPassallLayout;
+    private CheckedTextView mPassallView;
+
 	private Listener mListener = null;
 
-	private View configureDialogView(View view) {
+
+    // from https://stackoverflow.com/a/14640612
+    private int getIndex(Spinner spinner, String itemValue)
+    {
+        for (int i=0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(itemValue)) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+    
+    private int getModemTypeNumber(String name)
+    {
+        for (Map.Entry<Integer, Integer> entry : ModemTypes.entrySet()) {
+            if (getString(entry.getValue()) == name) return entry.getKey();
+        }
+
+        return 1;
+    }
+    
+    private View configureDialogView(View view) {
+
+	    mModemLayout = (LinearLayout)  view.findViewById(R.id.modemLayout);
+	    mModemSpinner = (Spinner) view.findViewById(R.id.modemSpinner);
+
+	    mPassallLayout = (LinearLayout) view.findViewById(R.id.passallLayout);
+	    mPassallView = (CheckedTextView) view.findViewById(R.id.passallCheckBox);
 		
         mDcdView = (CheckedTextView) view.findViewById(R.id.dcdCheckBox);
         mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
         mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
 
+        if (mSupportedModemTypes != null) {
+            String[] items = new String[mSupportedModemTypes.length];
+            for (int i = 0; i != mSupportedModemTypes.length; i++) {
+                items[i] = getString(ModemTypes.get(mSupportedModemTypes[i]));
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    getContext(), android.R.layout.simple_spinner_item, items);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mModemSpinner.setAdapter(adapter);
+            mModemLayout.setVisibility(View.VISIBLE);
+        }
+
+        if (mHasModemType) {
+            mModemLayout.setVisibility(View.VISIBLE);
+            mModemSpinner.setSelection(getIndex(mModemSpinner, getString(ModemTypes.get(mModemType))));
+        } else {
+            mModemLayout.setVisibility(View.GONE);
+        }
+
+        if (mHasPassall) {
+            mPassallLayout.setVisibility(View.VISIBLE);
+            mPassallView.setChecked(mPassall);
+        } else {
+            mPassallLayout.setVisibility(View.GONE);
+        }
+
         mDcdView.setChecked(mDcd);
         mDcdView.setEnabled(mHasDcd);
         mDcdView.setClickable(mHasDcd);
-
 
         mConnTrackView.setChecked(mConnTrack);
         mConnTrackView.setEnabled(mHasConnTrack);
@@ -103,7 +196,32 @@ public class ModemFragment extends DialogFragment {
             }
         });
 
-		return view;
+        mPassallView.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+                ((CheckedTextView) view).toggle();
+                mPassall = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mPassall changed: " + mPassall);
+                if (mListener != null) {
+                    mListener.onModemDialogUpdate(ModemFragment.this);
+                }
+            }
+        });
+
+        mModemSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Object item = parent.getItemAtPosition(position);
+                mModemType = getModemTypeNumber(item.toString());
+                Log.i(TAG, "mModemType changed: " + mModemType + " " + item.toString());
+                if (mListener != null) {
+                    mListener.onModemDialogUpdate(ModemFragment.this);
+                }
+            }
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        return view;
 	}	
 
 	
@@ -215,7 +333,47 @@ public class ModemFragment extends DialogFragment {
     	mConnTrack = value;
     	mHasConnTrack = true;
     }
-    
+
+    public void setModemType(int value) {
+        mModemType = value;
+        mHasModemType = true;
+    }
+
+    public void setSupportedModemTypes(int[] supportedModemTypes) {
+        mSupportedModemTypes = supportedModemTypes;
+
+        if (isAdded()) {
+            String[] items = new String[supportedModemTypes.length];
+            for (int i = 0; i != supportedModemTypes.length; i++) {
+                if (D) Log.d(TAG, "** mSupportedModemTypes = " + supportedModemTypes[i]);
+                items[i] = getString(ModemTypes.get(supportedModemTypes[i]));
+            }
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                    getContext(), android.R.layout.simple_spinner_item, items);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mModemSpinner.setAdapter(adapter);
+            mModemLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void setPassall(boolean value) {
+        mPassall = value;
+        mHasPassall = true;
+        if (isAdded()) {
+            if(D) Log.d(TAG, "** setPassall = " + value);
+            mPassallView.setChecked(value);
+            mPassallLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public boolean hasModemType() { return mHasModemType; }
+    public int getModemType() { return mModemType; }
+
+    public boolean hasPassall() { return mHasPassall; }
+    public boolean getPassall() { return mPassall; }
+
+    public boolean hasSupportedModemTypes() { return mSupportedModemTypes != null;}
+
     public boolean hasConnTrack() {
     	return mHasConnTrack;
     }
