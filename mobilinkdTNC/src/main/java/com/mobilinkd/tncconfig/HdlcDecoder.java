@@ -39,6 +39,8 @@ public class HdlcDecoder {
     public static final int TNC_GET_USB_POWER_OFF = 76;
     public static final int TNC_GET_PTT_CHANNEL = 80;
     public static final int TNC_GET_PASSALL = 82;               // API 2.1
+    public static final int TNC_GET_RX_REVERSE_POLARITY = 84;   // API 2.2
+    public static final int TNC_GET_TX_REVERSE_POLARITY = 86;   // API 2.2
     public static final int TNC_GET_MIN_OUTPUT_TWIST = 119;     // API 2.0
     public static final int TNC_GET_MAX_OUTPUT_TWIST = 120;     // API 2.0
     public static final int TNC_GET_MIN_INPUT_TWIST = 121;      // API 2.0

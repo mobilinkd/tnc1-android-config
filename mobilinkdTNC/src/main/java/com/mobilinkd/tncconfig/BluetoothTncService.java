@@ -141,6 +141,11 @@ public class BluetoothTncService {
     private static final byte[] TNC_SET_MODEM_TYPE =
             new byte[] { (byte)0xc0, 0x06, (byte)0xc1, (byte)0x82, 0, (byte)0xC0 };
 
+    private static final byte[] TNC_SET_RX_REVERSE_POLARITY =
+            new byte[] { (byte)0xc0, 0x06, 0x53, 0, (byte)0xC0 };
+    private static final byte[] TNC_SET_TX_REVERSE_POLARITY =
+            new byte[] { (byte)0xc0, 0x06, 0x55, 0, (byte)0xC0 };
+
     /**
      * Constructor. Prepares a new Bluetooth session.
      * @param context  The UI Activity Context
@@ -536,6 +541,54 @@ public class BluetoothTncService {
         r.write(c);
     }
 
+    public void setRxReversePolarity(boolean on)
+    {
+        if (D) Log.d(TAG, "setRxReversePolarity()");
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        byte c[] = TNC_SET_RX_REVERSE_POLARITY;
+        if (on)
+        {
+            c[3] = 1;
+        }
+        else
+        {
+            c[3] = 0;
+        }
+        r.write(c);
+    }
+
+    public void setTxReversePolarity(boolean on)
+    {
+        if (D) Log.d(TAG, "setTxReversePolarity()");
+
+        // Create temporary object
+        ConnectedThread r;
+        // Synchronize a copy of the ConnectedThread
+        synchronized (this) {
+            if (mState != STATE_CONNECTED) return;
+            r = mConnectedThread;
+        }
+
+        byte c[] = TNC_SET_TX_REVERSE_POLARITY;
+        if (on)
+        {
+            c[3] = 1;
+        }
+        else
+        {
+            c[3] = 0;
+        }
+        r.write(c);
+    }
+
     public void setModemType(int v)
     {
         if (D) Log.d(TAG, "setModemType()");
@@ -700,7 +753,7 @@ public class BluetoothTncService {
         return (byte) (((value / 10) * 16) + (value % 10));
     }
 
-    public void setDateTIme()
+    public void setDateTime()
     {
         if (D) Log.d(TAG, "setDateTIme");
 
@@ -1187,6 +1240,18 @@ public class BluetoothTncService {
                                     TncConfig.MESSAGE_INPUT_TWIST_MIN, (int) data[0],
                                     mHdlc.size(), mHdlc.data()).sendToTarget();
                             break;
+                        case HdlcDecoder.TNC_GET_RX_REVERSE_POLARITY:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_RX_REVERSE_POLARITY, mHdlc.getValue(),
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
+                        case HdlcDecoder.TNC_GET_TX_REVERSE_POLARITY:
+                            // Send the obtained bytes to the UI Activity
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_TX_REVERSE_POLARITY, mHdlc.getValue(),
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
+                            break;
                     	case HdlcDecoder.TNC_GET_CAPABILITIES:
                             // Send the obtained bytes to the UI Activity
                             mHandler.obtainMessage(
@@ -1195,12 +1260,22 @@ public class BluetoothTncService {
                             break;
                         case HdlcDecoder.TNC_GET_DATETIME:
                             // Send the obtained bytes to the UI Activity
-                            Log.i(TAG, "TNC_GET_DATETIME: " + Arrays.toString(data));
+                            String dateTime = Arrays.toString(data);
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_DATE_TIME, 0,
+                                    mHdlc.size(), dateTime).sendToTarget();
+                            Log.i(TAG, "TNC_GET_DATETIME: " + dateTime);
                             break;
                         case HdlcDecoder.TNC_GET_SERIAL_NUMBER:
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_SERIAL_NUMBER, 0,
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
                             Log.i(TAG, "TNC_GET_SERIAL_NUMBER: " + byteArrayToHex(data));
                             break;
                         case HdlcDecoder.TNC_GET_MAC_ADDRESS:
+                            mHandler.obtainMessage(
+                                    TncConfig.MESSAGE_MAC_ADDRESS, 0,
+                                    0, byteArrayToMacAddress(data)).sendToTarget();
                             Log.i(TAG, "TNC_GET_MAC_ADDRESS: " + byteArrayToMacAddress(data));
                             break;
                         case HdlcDecoder.EXT_RANGE_1:

@@ -46,8 +46,14 @@
     <string name="label_verbose_hint">Enable only when troubleshooting</string>
     <string name="modem_1200_afsk">1200 baud AFSK</string>
     <string name="modem_300_afsk">300 baud AFSK</string>
-    <string name="modem_9600_fsk">9600 baud FSK</string>
-    
+    <string name="modem_9600_fsk">9600 baud G3RUH/GMSK</string>
+    <string name="modem_M17">M17 4-FSK</string>
+    <string name="modem_unknown">unknown modem type</string>
+    <string name="label_rxReversePolarity">RX Reverse Polarity</string>
+    <string name="label_rxReversePolarityHint">Reverse polarity for received 4-FSK symbols.  Normally Off.  Only affects 4-FSK modes.</string>
+    <string name="label_txReversePolarity">TX Reverse Polarity</string>
+    <string name="label_txReversePolarityHint">Reverse polarity for transmitted 4-FSK symbols.  Normally Off.  Only affects 4-FSK modes.</string>
+
     <string name="audio_output_settings">Audio Output Settings&#8230;</string>
     <string name="label_audio_output_settings"><font color='white'>Audio Output Settings</font></string>
     <string name="label_ptt_style">PTT Style</string>
@@ -92,7 +98,7 @@
     <string name="about_content">
         Mobilinkd TNC Configuration Utility\n
         For Mobilinkd TNC1, TNC2 and TNC3 devices\n
-        Version 1.3.0 &#8211; 2020-02-17\n\n
+        Version 1.4.0 &#8211; 2020-12-30\n\n
         Copyright &#169; 2013-2020 Mobilinkd LLC.\n
         Chicago, Illinois, USA\n\n
         This software is released under the Apache Software License 2.0\n\n
@@ -132,6 +138,7 @@
     <string name="modem_settings">Modem Settings&#8230;</string>
     <string name="kiss_settings">KISS Parameters&#8230;</string>
     <string name="save_settings">Save Settings&#8230;</string>
+    <string name="device_information">Device Information&#8230;</string>
     <string name="firmware_settings">Firmware&#8230;</string>
 
     <string name="audio_input_title"><font color='white'>Audio Input Settings</font></string>
@@ -179,5 +186,13 @@
     <string name="msg_bluetooth_not_present">Bluetooth is not available on this device</string>
     <string name="battery_level_mv">%04dmV</string>
     <string name="label_modem_hint">Select modem type</string>
+
+    <string name="device_information_title"><font color='white'>Device Information</font></string>
+    <string name="label_hwVersion">Hardware Version</string>
+    <string name="label_fwVersion">Firmware Version</string>
+    <string name="label_macAddress">MAC Address</string>
+    <string name="label_serialNumber">Serial Number</string>
+    <string name="label_dateTime">Date/Time</string>
+    <string name="unknown">Unknown</string>
 
 </resources>

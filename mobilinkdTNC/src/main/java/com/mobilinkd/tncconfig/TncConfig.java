@@ -47,7 +47,7 @@ import java.lang.ref.WeakReference;
 public class TncConfig extends FragmentActivity
 	implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
 		PowerFragment.Listener, KissFragment.Listener,
-		ModemFragment.Listener {
+		ModemFragment.Listener, InfoFragment.Listener {
 	
     // Debugging
     private static final String TAG = "TncConfig";
@@ -86,6 +86,11 @@ public class TncConfig extends FragmentActivity
     public static final int MESSAGE_MODEM_TYPE = 30;
     public static final int MESSAGE_SUPPORTED_MODEM_TYPES = 31;
     public static final int MESSAGE_PASSALL = 32;
+    public static final int MESSAGE_RX_REVERSE_POLARITY = 33;
+    public static final int MESSAGE_TX_REVERSE_POLARITY = 34;
+    public static final int MESSAGE_MAC_ADDRESS = 35;
+    public static final int MESSAGE_SERIAL_NUMBER = 36;
+    public static final int MESSAGE_DATE_TIME = 37;
 
     // Key names received from the BluetoothTncService Handler
     public static final String DEVICE_NAME = "device_name";
@@ -164,6 +169,19 @@ public class TncConfig extends FragmentActivity
     private int mModemType = 1;
     private boolean mHasPassall = false;
     private boolean mPassall = false;
+    private boolean mHasRxReversePolarity = false;
+    private boolean mRxReversePolarity = false;
+    private boolean mHasTxReversePolarity = false;
+    private boolean mTxReversePolarity = false;
+
+    private InfoFragment mInfoFragment = null;
+    private Button mInfoButton = null;
+    private boolean mHasSerialNumber = false;
+    private boolean mHasMacAddress = false;
+    private boolean mHasDateTime = false;
+    private String mMacAddress = "";
+    private String mSerialNumber = "";
+    private String mDateTime = "";
 
     private Button mSaveButton = null;
     private boolean mHasEeprom = false;
@@ -178,7 +196,8 @@ public class TncConfig extends FragmentActivity
 			mAudioInputButton.setEnabled(true);
 			mKissButton.setEnabled(true);
 			mModemButton.setEnabled(true);
-			mTncService.setDateTIme();
+            mInfoButton.setEnabled(true);
+			mTncService.setDateTime();
 			mTncService.getAllValues();
 			mNeedsSave = false;
 			mHasOutputTwist = false;
@@ -197,6 +216,7 @@ public class TncConfig extends FragmentActivity
         mPowerButton.setEnabled(false);
         mKissButton.setEnabled(false);
         mModemButton.setEnabled(false);
+        mInfoButton.setEnabled(false);
         mHasConnTrack = false;
         mHasDcd = false;
         mHasVerbose = false;
@@ -206,6 +226,11 @@ public class TncConfig extends FragmentActivity
         mSaveButton.setVisibility(Button.GONE);
         mHasEeprom = false;
         mNeedsSave = false;
+        mHasSerialNumber = false;
+        mHasDateTime = false;
+        mHasMacAddress = false;
+        mHasRxReversePolarity = false;
+        mHasTxReversePolarity = false;
 	}
 	
 	private void onBluetoothDisconnected() {
@@ -217,6 +242,7 @@ public class TncConfig extends FragmentActivity
         mPowerButton.setEnabled(false);
         mKissButton.setEnabled(false);
         mModemButton.setEnabled(false);
+        mInfoButton.setEnabled(false);
         mHasConnTrack = false;
         mHasDcd = false;
         mHasVerbose = false;
@@ -231,6 +257,11 @@ public class TncConfig extends FragmentActivity
         mHasPassall = false;
         mModemType = 1;
         mSupportedModemTypes = null;
+        mHasSerialNumber = false;
+        mHasDateTime = false;
+        mHasMacAddress = false;
+        mHasRxReversePolarity = false;
+        mHasTxReversePolarity = false;
 	}
 	
 	private void settingsUpdated() {
@@ -472,6 +503,47 @@ public class TncConfig extends FragmentActivity
                     tncConfig.mModemFragment.setPassall(tncConfig.mPassall);
                 }
                 if(D) Log.d(TAG, "passall: " + tncConfig.mPassall);
+                break;
+            case MESSAGE_RX_REVERSE_POLARITY:
+                tncConfig.mHasRxReversePolarity = true;
+                tncConfig.mRxReversePolarity = (msg.arg1 != 0);
+                if (tncConfig.mModemFragment != null) {
+                    tncConfig.mModemFragment.setRxReversePolarity(tncConfig.mRxReversePolarity);
+                }
+                if(D) Log.d(TAG, "rx reverse polarity: " + tncConfig.mRxReversePolarity);
+                break;
+            case MESSAGE_TX_REVERSE_POLARITY:
+                tncConfig.mHasTxReversePolarity = true;
+                tncConfig.mTxReversePolarity = (msg.arg1 != 0);
+                if (tncConfig.mModemFragment != null) {
+                    tncConfig.mModemFragment.setTxReversePolarity(tncConfig.mTxReversePolarity);
+                }
+                if(D) Log.d(TAG, "Tx reverse polarity: " + tncConfig.mTxReversePolarity);
+                break;
+            case MESSAGE_MAC_ADDRESS:
+                tncConfig.mHasMacAddress = true;
+                tncConfig.mMacAddress = (String) msg.obj;
+                if (tncConfig.mInfoFragment != null) {
+                    tncConfig.mInfoFragment.setMacAddress(tncConfig.mMacAddress);
+                }
+                if(D) Log.d(TAG, "MAC address: " + tncConfig.mMacAddress);
+                break;
+            case MESSAGE_SERIAL_NUMBER:
+                buffer = (byte[]) msg.obj;
+                tncConfig.mSerialNumber = new String(buffer);
+                tncConfig.mHasSerialNumber = true;
+                if (tncConfig.mInfoFragment != null) {
+                    tncConfig.mInfoFragment.setSerialNumber(tncConfig.mSerialNumber);
+                }
+                if(D) Log.d(TAG, "Serial number: " + tncConfig.mSerialNumber);
+                break;
+            case MESSAGE_DATE_TIME:
+                tncConfig.mHasDateTime = true;
+                tncConfig.mDateTime = (String) msg.obj;
+                if (tncConfig.mInfoFragment != null) {
+                    tncConfig.mInfoFragment.setDateTime(tncConfig.mDateTime);
+                }
+                if(D) Log.d(TAG, "Date/Time: " + tncConfig.mDateTime);
                 break;
             case MESSAGE_TOAST:
                 Toast.makeText(tncConfig.getApplicationContext(), msg.getData().getInt(TOAST),
@@ -785,6 +857,12 @@ public class TncConfig extends FragmentActivity
                     mModemFragment.setModemType(mModemType);
                 }
 
+                if (mHasRxReversePolarity || mHasTxReversePolarity)
+                {
+                    mModemFragment.setRxReversePolarity(mRxReversePolarity);
+                    mModemFragment.setTxReversePolarity(mTxReversePolarity);
+                }
+
                 if (fragmentView != null) {
                 	mModemFragment.setShowsDialog(false);
                 	mModemFragment.setRetainInstance(false);
@@ -807,7 +885,54 @@ public class TncConfig extends FragmentActivity
             }
         });
         mModemButton.getBackground().setAlpha(64);
-       
+
+        mInfoButton = (Button) findViewById(R.id.infoButton);
+        mInfoButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                InfoFragment infoFragment = (InfoFragment) fragmentManager.findFragmentByTag("InfoFragment");
+                if (infoFragment == null) {
+                    infoFragment = new InfoFragment();
+                }
+                mInfoFragment = infoFragment;
+                mInfoFragment.setHardwareVersion(hwVersion);
+                mInfoFragment.setFirmwareVersion(mFirmwareVersion);
+
+                if (mHasMacAddress) {
+                    infoFragment.setMacAddress(mMacAddress);
+                }
+                if (mHasSerialNumber) {
+                    infoFragment.setSerialNumber(mSerialNumber);
+                }
+                if (mHasDateTime) {
+                    infoFragment.setDateTime(mDateTime);
+                }
+
+                if (fragmentView != null) {
+                    infoFragment.setShowsDialog(false);
+                    infoFragment.setRetainInstance(false);
+
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_view, infoFragment, "InfoFragment");
+                    fragmentTransaction.commit();
+                } else {
+                    infoFragment.setShowsDialog(true);
+                    infoFragment.setRetainInstance(false);
+
+                    Fragment fragment = fragmentManager.findFragmentByTag("InfoFragment");
+                    if (fragment != null) {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                    }
+                    infoFragment.show(fragmentManager, "InfoFragment");
+                }
+            }
+        });
+        mInfoButton.getBackground().setAlpha(64);
+
         // Initialize the BluetoothChatService to perform bluetooth connections
         TncConfigApplication app = (TncConfigApplication) getApplication();
         mTncService = app.getBluetoothTncService();
@@ -1087,6 +1212,18 @@ public class TncConfig extends FragmentActivity
             settingsUpdated();
         }
 
+        if (mHasRxReversePolarity && (mRxReversePolarity != dialog.getRxReversePolarity())) {
+            mRxReversePolarity = dialog.getRxReversePolarity();
+            mTncService.setRxReversePolarity(mRxReversePolarity);
+            settingsUpdated();
+        }
+
+        if (mHasTxReversePolarity && (mTxReversePolarity != dialog.getTxReversePolarity())) {
+            mTxReversePolarity = dialog.getTxReversePolarity();
+            mTncService.setTxReversePolarity(mTxReversePolarity);
+            settingsUpdated();
+        }
+
         if (mSupportedModemTypes != null && (mModemType != dialog.getModemType())) {
             mModemType = dialog.getModemType();
             mTncService.setModemType(mModemType);
@@ -1101,6 +1238,20 @@ public class TncConfig extends FragmentActivity
 		if (modemFragment != mModemFragment) {
 			mModemFragment = modemFragment;
 		}
+    }
+
+    @Override
+    public void onInfoDialogUpdate(InfoFragment dialog) {
+
+    }
+
+    @Override
+    public void onInfoDialogResume(InfoFragment dialog) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        InfoFragment infoFragment = (InfoFragment) fragmentManager.findFragmentByTag("InfoFragment");
+        if (infoFragment != mInfoFragment) {
+            mInfoFragment = infoFragment;
+        }
     }
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

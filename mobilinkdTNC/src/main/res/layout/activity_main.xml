@@ -104,6 +104,17 @@
 	        android:text="@string/modem_settings"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
+		<Button
+			android:id="@+id/infoButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:drawableStart="@android:drawable/ic_menu_info_details"
+			android:drawableLeft="@android:drawable/ic_menu_info_details"
+			android:enabled="false"
+			android:gravity="center_vertical|center_horizontal|start"
+			android:text="@string/device_information"
+			android:textAppearance="?android:attr/textAppearanceMedium" />
+
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"

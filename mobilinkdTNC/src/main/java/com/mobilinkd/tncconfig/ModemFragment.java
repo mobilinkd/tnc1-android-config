@@ -63,6 +63,10 @@ public class ModemFragment extends DialogFragment {
 	private boolean mHasPassall = false;
 	private boolean mPassall = false;
 
+    private boolean mHasReversePolarity = false;
+    private boolean mRxReversePolarity = false;
+    private boolean mTxReversePolarity = false;
+
 	private class ModemType {
 	    public String name;
 	    public int code;
@@ -74,6 +78,7 @@ public class ModemFragment extends DialogFragment {
         ModemTypes.put(1, R.string.modem_1200_afsk);
         ModemTypes.put(2, R.string.modem_300_afsk);
         ModemTypes.put(3, R.string.modem_9600_fsk);
+        ModemTypes.put(5, R.string.modem_M17);
     }
 
     private CheckedTextView mDcdView;
@@ -86,7 +91,11 @@ public class ModemFragment extends DialogFragment {
     private LinearLayout mPassallLayout;
     private CheckedTextView mPassallView;
 
-	private Listener mListener = null;
+    private LinearLayout mReversePolarityLayout;
+    private CheckedTextView mRxReversePolarityCheckBox;
+    private CheckedTextView mTxReversePolarityCheckBox;
+
+    private Listener mListener = null;
 
 
     // from https://stackoverflow.com/a/14640612
@@ -117,6 +126,10 @@ public class ModemFragment extends DialogFragment {
 
 	    mPassallLayout = (LinearLayout) view.findViewById(R.id.passallLayout);
 	    mPassallView = (CheckedTextView) view.findViewById(R.id.passallCheckBox);
+
+        mReversePolarityLayout = (LinearLayout) view.findViewById(R.id.reversePolarityLayout);
+        mRxReversePolarityCheckBox = (CheckedTextView) view.findViewById(R.id.rxReversePolarityCheckBox);
+        mTxReversePolarityCheckBox = (CheckedTextView) view.findViewById(R.id.txReversePolarityCheckBox);
 		
         mDcdView = (CheckedTextView) view.findViewById(R.id.dcdCheckBox);
         mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
@@ -146,6 +159,14 @@ public class ModemFragment extends DialogFragment {
             mPassallView.setChecked(mPassall);
         } else {
             mPassallLayout.setVisibility(View.GONE);
+        }
+
+        if (mHasReversePolarity) {
+            mReversePolarityLayout.setVisibility(View.VISIBLE);
+            mRxReversePolarityCheckBox.setChecked(mRxReversePolarity);
+            mTxReversePolarityCheckBox.setChecked(mTxReversePolarity);
+        } else {
+            mReversePolarityLayout.setVisibility(View.GONE);
         }
 
         mDcdView.setChecked(mDcd);
@@ -202,6 +223,30 @@ public class ModemFragment extends DialogFragment {
                 ((CheckedTextView) view).toggle();
                 mPassall = ((CheckedTextView) view).isChecked();
                 Log.i(TAG, "mPassall changed: " + mPassall);
+                if (mListener != null) {
+                    mListener.onModemDialogUpdate(ModemFragment.this);
+                }
+            }
+        });
+
+        mRxReversePolarityCheckBox.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+                ((CheckedTextView) view).toggle();
+                mRxReversePolarity = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mRxReversePolarity changed: " + mRxReversePolarity);
+                if (mListener != null) {
+                    mListener.onModemDialogUpdate(ModemFragment.this);
+                }
+            }
+        });
+
+        mTxReversePolarityCheckBox.setOnClickListener(new OnClickListener() {
+            public void onClick(View view) {
+                // Is the toggle on?
+                ((CheckedTextView) view).toggle();
+                mTxReversePolarity = ((CheckedTextView) view).isChecked();
+                Log.i(TAG, "mTxReversePolarity changed: " + mTxReversePolarity);
                 if (mListener != null) {
                     mListener.onModemDialogUpdate(ModemFragment.this);
                 }
@@ -337,6 +382,13 @@ public class ModemFragment extends DialogFragment {
     public void setModemType(int value) {
         mModemType = value;
         mHasModemType = true;
+        if (isAdded()) {
+            if (mModemType == 5 && mHasReversePolarity) {
+                mReversePolarityLayout.setVisibility(View.VISIBLE);
+            } else {
+                mReversePolarityLayout.setVisibility(View.GONE);
+            }
+        }
     }
 
     public void setSupportedModemTypes(int[] supportedModemTypes) {
@@ -392,4 +444,26 @@ public class ModemFragment extends DialogFragment {
     public boolean getVerbose() {
     	return mVerbose;
     }
+
+    public void setRxReversePolarity(boolean value) {
+        mRxReversePolarity = value;
+        mHasReversePolarity = true;
+        if (isAdded()) {
+            if(D) Log.d(TAG, "** setRxReversePolarity = " + value);
+            mRxReversePolarityCheckBox.setChecked(value);
+            mReversePolarityLayout.setVisibility(View.VISIBLE);
+        }
+    }
+    public void setTxReversePolarity(boolean value) {
+        mTxReversePolarity = value;
+        mHasReversePolarity = true;
+        if (isAdded()) {
+            if(D) Log.d(TAG, "** setTxReversePolarity = " + value);
+            mTxReversePolarityCheckBox.setChecked(value);
+            mReversePolarityLayout.setVisibility(View.VISIBLE);
+        }
+    }
+    public boolean hasReversePolarity() { return mHasReversePolarity; }
+    public boolean getRxReversePolarity() { return mRxReversePolarity; }
+    public boolean getTxReversePolarity() { return mTxReversePolarity; }
 }

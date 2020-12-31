@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/infoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:background="#0099cc"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/hwVersionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/label_hwVersion"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/hwVersion"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/unknown"
+            android:gravity="right"
+            android:textColor="?android:textColorSecondary"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/fwVersionLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/label_fwVersion"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/fwVersion"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/unknown"
+            android:gravity="right"
+            android:textColor="?android:textColorSecondary"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/macAddressLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/label_macAddress"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/macAddress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/unknown"
+            android:gravity="right"
+            android:textColor="?android:textColorSecondary"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/serialNumberLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/label_serialNumber"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/serialNumber"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/unknown"
+            android:gravity="right"
+            android:textColor="?android:textColorSecondary"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/dateTimeLabel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/label_dateTime"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <TextView
+            android:id="@+id/dateTime"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:text="@string/unknown"
+            android:gravity="right"
+            android:textColor="?android:textColorSecondary"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

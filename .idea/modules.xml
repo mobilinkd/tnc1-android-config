@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MobilinkdTNC.iml" filepath="$PROJECT_DIR$/MobilinkdTNC.iml" />
-      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
-      <module fileurl="file://$PROJECT_DIR$/mobilinkdTNC/mobilinkdTNC.iml" filepath="$PROJECT_DIR$/mobilinkdTNC/mobilinkdTNC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.iml" filepath="$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.iml" filepath="$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.iml" />
     </modules>
   </component>
 </project>
