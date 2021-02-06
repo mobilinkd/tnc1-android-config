@@ -138,7 +138,10 @@ public class ModemFragment extends DialogFragment {
         if (mSupportedModemTypes != null) {
             String[] items = new String[mSupportedModemTypes.length];
             for (int i = 0; i != mSupportedModemTypes.length; i++) {
-                items[i] = getString(ModemTypes.get(mSupportedModemTypes[i]));
+                Integer modem_string = ModemTypes.get(mSupportedModemTypes[i]);
+                if (modem_string != null) {
+                    items[i] = getString(modem_string);
+                }
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                     getContext(), android.R.layout.simple_spinner_item, items);
@@ -398,7 +401,14 @@ public class ModemFragment extends DialogFragment {
             String[] items = new String[supportedModemTypes.length];
             for (int i = 0; i != supportedModemTypes.length; i++) {
                 if (D) Log.d(TAG, "** mSupportedModemTypes = " + supportedModemTypes[i]);
-                items[i] = getString(ModemTypes.get(supportedModemTypes[i]));
+                Integer modem_string = ModemTypes.get(supportedModemTypes[i]);
+                if (modem_string != null) {
+                    items[i] = getString(modem_string);
+                } else {
+                    if (D) {
+                        Log.d(TAG, "** unknown modem type " + supportedModemTypes[i]);
+                    }
+                }
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                     getContext(), android.R.layout.simple_spinner_item, items);

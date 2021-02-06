@@ -18,6 +18,12 @@ import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
 public class InfoFragment extends DialogFragment {
 	
     // Debugging
@@ -66,6 +72,28 @@ public class InfoFragment extends DialogFragment {
 		return view;
 	}	
 
+	private int from_bcd(byte value) {
+        return ((value >> 4) * 10) + (value & 15);
+    }
+
+	private void updateDate(byte[] value) {
+        Calendar date = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+
+        date.set(
+            from_bcd(value[0]) + 2000,  // YEAR
+            from_bcd(value[1]) - 1,   // MONTH
+            from_bcd(value[2]),         // DAY
+            from_bcd(value[4]),         // HOUR
+            from_bcd(value[5]),         // MINUTE
+            from_bcd(value[6]));        // SECOND
+
+        date.set(Calendar.DAY_OF_WEEK, value[3] + 1);
+
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        format.setCalendar(date);
+        mDateTime = format.format(date.getTime()) + " UTC";
+    }
 	
 	@SuppressLint("InflateParams")
     @Override
@@ -212,8 +240,8 @@ public class InfoFragment extends DialogFragment {
         return mSerialNumber;
     }
 
-    void setDateTime(String value) {
-        mDateTime = value;
+    void setDateTime(byte[] value) {
+        updateDate(value);
         if (mDateTimeText != null) {
             mDateTimeText.setText(mDateTime);
         }

@@ -181,7 +181,7 @@ public class TncConfig extends FragmentActivity
     private boolean mHasDateTime = false;
     private String mMacAddress = "";
     private String mSerialNumber = "";
-    private String mDateTime = "";
+    private byte[] mDateTime;
 
     private Button mSaveButton = null;
     private boolean mHasEeprom = false;
@@ -539,11 +539,11 @@ public class TncConfig extends FragmentActivity
                 break;
             case MESSAGE_DATE_TIME:
                 tncConfig.mHasDateTime = true;
-                tncConfig.mDateTime = (String) msg.obj;
+                tncConfig.mDateTime = (byte[]) msg.obj;
                 if (tncConfig.mInfoFragment != null) {
                     tncConfig.mInfoFragment.setDateTime(tncConfig.mDateTime);
                 }
-                if(D) Log.d(TAG, "Date/Time: " + tncConfig.mDateTime);
+                // if(D) Log.d(TAG, "Date/Time: " + tncConfig.mDateTime);
                 break;
             case MESSAGE_TOAST:
                 Toast.makeText(tncConfig.getApplicationContext(), msg.getData().getInt(TOAST),

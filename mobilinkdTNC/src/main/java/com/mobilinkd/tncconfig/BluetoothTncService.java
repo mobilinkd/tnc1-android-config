@@ -768,14 +768,13 @@ public class BluetoothTncService {
         byte[] c = TNC_SET_DATETIME;
 
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-
-        int year = calendar.get(Calendar.YEAR) - 2000;
+        calendar.setTime(calendar.getTime());
 
         c[3] = bcd(calendar.get(Calendar.YEAR) - 2000);
         c[4] = bcd(calendar.get(Calendar.MONTH) + 1);
         c[5] = bcd(calendar.get(Calendar.DAY_OF_MONTH));
         c[6] = (byte) (calendar.get(Calendar.DAY_OF_WEEK) - 1);
-        c[7] = bcd(calendar.get(Calendar.HOUR));
+        c[7] = bcd(calendar.get(Calendar.HOUR_OF_DAY));
         c[8] = bcd(calendar.get(Calendar.MINUTE));
         c[9] = bcd(calendar.get(Calendar.SECOND));
 
@@ -920,7 +919,7 @@ public class BluetoothTncService {
     }
 
     public static String byteArrayToHex(byte[] a) {
-        StringBuilder sb = new StringBuilder(a.length * 2);
+        StringBuilder sb = new StringBuilder();
         for(byte b: a)
             sb.append(String.format("%02x", b));
         return sb.toString();
@@ -1263,14 +1262,14 @@ public class BluetoothTncService {
                             String dateTime = Arrays.toString(data);
                             mHandler.obtainMessage(
                                     TncConfig.MESSAGE_DATE_TIME, 0,
-                                    mHdlc.size(), dateTime).sendToTarget();
+                                    mHdlc.size(), mHdlc.data()).sendToTarget();
                             Log.i(TAG, "TNC_GET_DATETIME: " + dateTime);
                             break;
                         case HdlcDecoder.TNC_GET_SERIAL_NUMBER:
                             mHandler.obtainMessage(
                                     TncConfig.MESSAGE_SERIAL_NUMBER, 0,
                                     mHdlc.size(), mHdlc.data()).sendToTarget();
-                            Log.i(TAG, "TNC_GET_SERIAL_NUMBER: " + byteArrayToHex(data));
+                            Log.i(TAG, "TNC_GET_SERIAL_NUMBER: " + data.toString());
                             break;
                         case HdlcDecoder.TNC_GET_MAC_ADDRESS:
                             mHandler.obtainMessage(
