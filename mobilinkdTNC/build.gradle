@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     buildToolsVersion '28.0.3'
 
     defaultConfig {
         applicationId "com.mobilinkd.tncconfig"
         minSdkVersion 16
-        targetSdkVersion 28
+        targetSdkVersion 30
 
         // Defines the version number of your app.
         versionCode 20
@@ -26,7 +26,7 @@ android {
 
 dependencies {
     implementation project(':library')
-    implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
-    implementation "com.android.support:gridlayout-v7:${rootProject.ext.supportLibVersion}"
-    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 }

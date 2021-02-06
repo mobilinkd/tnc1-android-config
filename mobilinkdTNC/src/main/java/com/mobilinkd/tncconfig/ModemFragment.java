@@ -2,14 +2,15 @@ package com.mobilinkd.tncconfig;
 
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -21,13 +22,9 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ModemFragment extends DialogFragment {
 	
@@ -43,11 +40,9 @@ public class ModemFragment extends DialogFragment {
      * Each method passes the DialogFragment in case the host needs to query it.
      * */
     public interface Listener {
-        public void onModemDialogResume(ModemFragment dialog);
-        public void onModemDialogUpdate(ModemFragment dialog);
+        void onModemDialogResume(ModemFragment dialog);
+        void onModemDialogUpdate(ModemFragment dialog);
     }
-	
-    private View mDialogView = null;
 
     private boolean mHasDcd = false;
 	private boolean mDcd = false;
@@ -67,12 +62,7 @@ public class ModemFragment extends DialogFragment {
     private boolean mRxReversePolarity = false;
     private boolean mTxReversePolarity = false;
 
-	private class ModemType {
-	    public String name;
-	    public int code;
-    }
-
-	private static Map<Integer, Integer> ModemTypes;
+	private static final Map<Integer, Integer> ModemTypes;
     static {
         ModemTypes = new HashMap<>();
         ModemTypes.put(1, R.string.modem_1200_afsk);
@@ -82,8 +72,6 @@ public class ModemFragment extends DialogFragment {
     }
 
     private CheckedTextView mDcdView;
-    private CheckedTextView mConnTrackView;
-    private CheckedTextView mVerboseView;
 
     private LinearLayout mModemLayout;
     private Spinner mModemSpinner;
@@ -113,7 +101,7 @@ public class ModemFragment extends DialogFragment {
     private int getModemTypeNumber(String name)
     {
         for (Map.Entry<Integer, Integer> entry : ModemTypes.entrySet()) {
-            if (getString(entry.getValue()) == name) return entry.getKey();
+            if (getString(entry.getValue()).equals(name)) return entry.getKey();
         }
 
         return 1;
@@ -132,8 +120,8 @@ public class ModemFragment extends DialogFragment {
         mTxReversePolarityCheckBox = (CheckedTextView) view.findViewById(R.id.txReversePolarityCheckBox);
 		
         mDcdView = (CheckedTextView) view.findViewById(R.id.dcdCheckBox);
-        mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
-        mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
+        CheckedTextView mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
+        CheckedTextView mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
 
         if (mSupportedModemTypes != null) {
             String[] items = new String[mSupportedModemTypes.length];
@@ -143,7 +131,7 @@ public class ModemFragment extends DialogFragment {
                     items[i] = getString(modem_string);
                 }
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     getContext(), android.R.layout.simple_spinner_item, items);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mModemSpinner.setAdapter(adapter);
@@ -275,13 +263,13 @@ public class ModemFragment extends DialogFragment {
 	
 	@SuppressLint("InflateParams")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
     	
     	
         if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
 
-        if (getShowsDialog() == true) {
+        if (getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
             View view = getActivity().getLayoutInflater().inflate(R.layout.modem_fragment, null);    
@@ -290,7 +278,8 @@ public class ModemFragment extends DialogFragment {
     }
 
 	
-	@SuppressLint("InflateParams")
+	@NonNull
+    @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -305,7 +294,7 @@ public class ModemFragment extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.modem_fragment, null);
+        View mDialogView = inflater.inflate(R.layout.modem_fragment, null);
         builder.setView(mDialogView)
         // Add action buttons
                .setTitle(R.string.modem_settings_title)
@@ -410,7 +399,7 @@ public class ModemFragment extends DialogFragment {
                     }
                 }
             }
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
                     getContext(), android.R.layout.simple_spinner_item, items);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mModemSpinner.setAdapter(adapter);
