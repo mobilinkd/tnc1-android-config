@@ -1181,7 +1181,7 @@ public class TncConfig extends FragmentActivity
     
     @Override
     public void onModemDialogUpdate(ModemFragment dialog) {
-        if(D) Log.i(TAG, "onModemDialogPause()");
+        if(D) Log.i(TAG, "onModemDialogUpdate()");
         if(D) Log.i(TAG, "DCD: " + dialog.getDcd());
         if(D) Log.i(TAG, "Has ConnTrack: " + dialog.hasConnTrack());
         if(D && dialog.hasConnTrack()) Log.i(TAG, "ConnTrack: " + dialog.getConnTrack());
@@ -1233,6 +1233,7 @@ public class TncConfig extends FragmentActivity
     
 	@Override
     public void onModemDialogResume(ModemFragment dialog) {
+        if(D) Log.d(TAG, "onModemDialogResume");
 		FragmentManager fragmentManager = getSupportFragmentManager();
 		ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
 		if (modemFragment != mModemFragment) {

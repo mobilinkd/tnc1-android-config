@@ -1,6 +1,5 @@
 package com.mobilinkd.tncconfig;
 
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -82,6 +81,8 @@ public class ModemFragment extends DialogFragment {
     private LinearLayout mReversePolarityLayout;
     private CheckedTextView mRxReversePolarityCheckBox;
     private CheckedTextView mTxReversePolarityCheckBox;
+    private CheckedTextView mConnTrackView;
+    CheckedTextView mVerboseView;
 
     private Listener mListener = null;
 
@@ -109,19 +110,19 @@ public class ModemFragment extends DialogFragment {
     
     private View configureDialogView(View view) {
 
-	    mModemLayout = (LinearLayout)  view.findViewById(R.id.modemLayout);
-	    mModemSpinner = (Spinner) view.findViewById(R.id.modemSpinner);
+        mModemLayout = (LinearLayout) view.findViewById(R.id.modemLayout);
+        mModemSpinner = (Spinner) view.findViewById(R.id.modemSpinner);
 
-	    mPassallLayout = (LinearLayout) view.findViewById(R.id.passallLayout);
-	    mPassallView = (CheckedTextView) view.findViewById(R.id.passallCheckBox);
+        mPassallLayout = (LinearLayout) view.findViewById(R.id.passallLayout);
+        mPassallView = (CheckedTextView) view.findViewById(R.id.passallCheckBox);
 
         mReversePolarityLayout = (LinearLayout) view.findViewById(R.id.reversePolarityLayout);
         mRxReversePolarityCheckBox = (CheckedTextView) view.findViewById(R.id.rxReversePolarityCheckBox);
         mTxReversePolarityCheckBox = (CheckedTextView) view.findViewById(R.id.txReversePolarityCheckBox);
-		
+
         mDcdView = (CheckedTextView) view.findViewById(R.id.dcdCheckBox);
-        CheckedTextView mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
-        CheckedTextView mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
+        mConnTrackView = (CheckedTextView) view.findViewById(R.id.connTrackCheckBox);
+        mVerboseView = (CheckedTextView) view.findViewById(R.id.verboseCheckBox);
 
         if (mSupportedModemTypes != null) {
             String[] items = new String[mSupportedModemTypes.length];
@@ -175,36 +176,36 @@ public class ModemFragment extends DialogFragment {
         mDcdView.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 // Is the toggle on?
-            	((CheckedTextView) view).toggle();
+                ((CheckedTextView) view).toggle();
                 mDcd = ((CheckedTextView) view).isChecked();
                 Log.i(TAG, "mDcd changed: " + mDcd);
                 if (mListener != null) {
-             	   mListener.onModemDialogUpdate(ModemFragment.this);
+                    mListener.onModemDialogUpdate(ModemFragment.this);
                 }
             }
         });
-        
+
         mConnTrackView.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-            	mConnTrack = ((CheckedTextView) view).isChecked();
+                ((CheckedTextView) view).toggle();
+                mConnTrack = ((CheckedTextView) view).isChecked();
                 Log.i(TAG, "mConnTrack changed: " + mConnTrack);
                 if (mListener != null) {
-              	   mListener.onModemDialogUpdate(ModemFragment.this);
-                 }
+                    mListener.onModemDialogUpdate(ModemFragment.this);
+                }
             }
         });
-        
+
         mVerboseView.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
                 // Is the toggle on?
-            	((CheckedTextView) view).toggle();
-            	mVerbose = ((CheckedTextView) view).isChecked();
+                ((CheckedTextView) view).toggle();
+                mVerbose = ((CheckedTextView) view).isChecked();
                 Log.i(TAG, "mVerbose changed: " + mVerbose);
                 if (mListener != null) {
-              	   mListener.onModemDialogUpdate(ModemFragment.this);
-                 }
+                    mListener.onModemDialogUpdate(ModemFragment.this);
+                }
             }
         });
 
@@ -246,19 +247,90 @@ public class ModemFragment extends DialogFragment {
 
         mModemSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object item = parent.getItemAtPosition(position);
-                mModemType = getModemTypeNumber(item.toString());
-                Log.i(TAG, "mModemType changed: " + mModemType + " " + item.toString());
-                if (mListener != null) {
-                    mListener.onModemDialogUpdate(ModemFragment.this);
+                if (isResumed()) {
+                    Object item = parent.getItemAtPosition(position);
+                    mModemType = getModemTypeNumber(item.toString());
+                    Log.i(TAG, "mModemType changed: " + mModemType + " " + item.toString());
+                    if (mListener != null) {
+                        mListener.onModemDialogUpdate(ModemFragment.this);
+                    }
                 }
             }
+
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
 
         return view;
-	}	
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        if(D) Log.d(TAG, "+++ ON SAVE INSTANCE STATE +++");
+
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("hasConnTrack", mHasConnTrack);
+        outState.putBoolean("hasDcd", mHasDcd);
+        outState.putBoolean("hasModemType", mHasModemType);
+        outState.putBoolean("hasPassall", mHasPassall);
+        outState.putBoolean("hasReversePolarity", mHasReversePolarity);
+        outState.putBoolean("hasVerbose", mHasVerbose);
+
+        if (mHasConnTrack) outState.putBoolean("connTrack", mConnTrackView.isChecked());
+        if (mHasDcd) outState.putBoolean("dcd", mDcdView.isChecked());
+        if (mHasModemType) {
+            outState.putIntArray("supportedModemTypes", mSupportedModemTypes);
+            outState.putInt("modemType", mModemType);
+        }
+        if (mHasPassall) outState.putBoolean("passall", mPassallView.isChecked());
+        if (mHasReversePolarity) {
+            outState.putBoolean("rxReversePolarity", mRxReversePolarityCheckBox.isChecked());
+            outState.putBoolean("txReversePolarity", mTxReversePolarityCheckBox.isChecked());
+        }
+        if (mHasVerbose) outState.putBoolean("verbose", mVerboseView.isChecked());
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+
+        if(D) Log.d(TAG, "+++ RESTORE STATE +++");
+
+        super.onCreate(savedInstanceState);
+        // initialize all your visual fields
+        if (savedInstanceState != null) {
+            mHasConnTrack = savedInstanceState.getBoolean("hasConnTrack");
+            mHasDcd = savedInstanceState.getBoolean("hasDcd");
+            mHasModemType = savedInstanceState.getBoolean("hasModemType");
+            mHasPassall = savedInstanceState.getBoolean("hasPassall");
+            mHasReversePolarity = savedInstanceState.getBoolean("hasReversePolarity");
+            mHasVerbose = savedInstanceState.getBoolean("hasVerbose");
+
+            if (mHasConnTrack) {
+                mConnTrack = savedInstanceState.getBoolean("connTrack");
+            }
+
+            if (mHasDcd) {
+                mDcd = savedInstanceState.getBoolean("dcd");
+            }
+
+            if (mHasPassall) {
+                mPassall = savedInstanceState.getBoolean("passall");
+            }
+
+            if (mHasVerbose) {
+                mVerbose = savedInstanceState.getBoolean("verbose");
+            }
+
+            if (mHasModemType) {
+                mSupportedModemTypes = savedInstanceState.getIntArray("supportedModemTypes");
+                mModemType = savedInstanceState.getInt("modemType", 0);
+            }
+
+            if (mHasReversePolarity) {
+                mRxReversePolarity = savedInstanceState.getBoolean("rxReversePolarity");
+                mTxReversePolarity = savedInstanceState.getBoolean("txReversePolarity");
+            }
+        }
+    }
 
 	
 	@SuppressLint("InflateParams")
@@ -272,7 +344,7 @@ public class ModemFragment extends DialogFragment {
         if (getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.modem_fragment, null);    
+            View view = getActivity().getLayoutInflater().inflate(R.layout.modem_fragment, null);
             return configureDialogView(view);
         }
     }
@@ -282,6 +354,8 @@ public class ModemFragment extends DialogFragment {
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
 
         // Get the layout inflater
         FragmentActivity activity = getActivity();
@@ -308,10 +382,8 @@ public class ModemFragment extends DialogFragment {
                    }
                });
 
-
         configureDialogView(mDialogView);        
-        if(D) Log.d(TAG, "+++ ON CREATE DIALOG +++");
-        
+        restoreState(savedInstanceState);
         return builder.create();
     }
 
@@ -321,7 +393,8 @@ public class ModemFragment extends DialogFragment {
     	super.onStart();
 
         if(D) Log.d(TAG, "++ ON START ++");
-     }
+
+    }
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
@@ -375,6 +448,8 @@ public class ModemFragment extends DialogFragment {
         mModemType = value;
         mHasModemType = true;
         if (isAdded()) {
+            if(D) Log.d(TAG, "** setModemType = " + value);
+            mModemSpinner.setSelection(getIndex(mModemSpinner, getString(ModemTypes.get(mModemType))));
             if (mModemType == 5 && mHasReversePolarity) {
                 mReversePolarityLayout.setVisibility(View.VISIBLE);
             } else {
@@ -403,6 +478,7 @@ public class ModemFragment extends DialogFragment {
                     getContext(), android.R.layout.simple_spinner_item, items);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mModemSpinner.setAdapter(adapter);
+            if (mHasModemType) mModemSpinner.setSelection(getIndex(mModemSpinner, getString(ModemTypes.get(mModemType))));
             mModemLayout.setVisibility(View.VISIBLE);
         }
     }
