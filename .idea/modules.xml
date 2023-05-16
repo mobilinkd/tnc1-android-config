@@ -4,7 +4,13 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/MobilinkdTNC.iml" filepath="$PROJECT_DIR$/MobilinkdTNC.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.iml" filepath="$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.main.iml" filepath="$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/library/MobilinkdTNC.library.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.iml" filepath="$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.main.iml" filepath="$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/mobilinkdTNC/MobilinkdTNC.mobilinkdTNC.unitTest.iml" />
     </modules>
   </component>
 </project>

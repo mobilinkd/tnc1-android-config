@@ -1,24 +1,24 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.1'
 
     defaultConfig {
         applicationId "com.mobilinkd.tncconfig"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 33
 
         // Defines the version number of your app.
-        versionCode 20
+        versionCode 23
 
         // Defines a user-friendly version name for your app.
-        versionName "1.4.1"
+        versionName "1.4.3"
     }
 
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
@@ -26,6 +26,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    packagingOptions {
+        exclude 'META-INF/androidx.legacy_legacy-support-core-utils.version'
+    }
+
 }
 
 dependencies {

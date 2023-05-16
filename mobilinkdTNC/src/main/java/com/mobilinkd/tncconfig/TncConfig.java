@@ -16,16 +16,21 @@
 
 package com.mobilinkd.tncconfig;
 
+import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +42,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -45,10 +52,10 @@ import androidx.fragment.app.FragmentTransaction;
 import java.lang.ref.WeakReference;
 
 public class TncConfig extends FragmentActivity
-	implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
-		PowerFragment.Listener, KissFragment.Listener,
-		ModemFragment.Listener, InfoFragment.Listener {
-	
+        implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
+        PowerFragment.Listener, KissFragment.Listener,
+        ModemFragment.Listener, InfoFragment.Listener {
+
     // Debugging
     private static final String TAG = "TncConfig";
     private static final boolean D = true;
@@ -99,7 +106,8 @@ public class TncConfig extends FragmentActivity
     // Intent request codes
     private static final int REQUEST_CONNECT_DEVICE = 1;
     private static final int REQUEST_ENABLE_BT = 2;
-    
+    private static final int REQUEST_BT_CONNECT = 3;
+
     public static final int TONE_NONE = 0;
     public static final int TONE_SPACE = 1;
     public static final int TONE_MARK = 2;
@@ -111,14 +119,14 @@ public class TncConfig extends FragmentActivity
     private BluetoothAdapter mBluetoothAdapter = null;
     // Member object for the chat services
     private BluetoothTncService mTncService = null;
-    
+
     private ToggleButton mConnectButton;
     private TextView mBluetoothDeviceView;
     private TextView mFirmwareVersionView;
-	private String mFirmwareVersion = "UNKNOWN";
+    private String mFirmwareVersion = "UNKNOWN";
     @SuppressWarnings("unused")
-	private String hwVersion = "1.12";
-    
+    private String hwVersion = "1.12";
+
     private Button mAudioOutputButton = null;
     private boolean mHasPttStyle = false;
     private int mPttStyle = AudioOutputFragment.PTT_STYLE_SIMPLEX;
@@ -137,14 +145,14 @@ public class TncConfig extends FragmentActivity
     private int mInputTwist = -6;
     private int mInputTwistMin = -9;
     private int mInputTwistMax = 3;
-    
+
     private PowerFragment mPowerFragment = null;
     private Button mPowerButton = null;
     private int mBatteryLevel = 0;
     private boolean mPowerControl = false;
     private boolean mPowerOn = false;
     private boolean mPowerOff = false;
-    
+
     private KissFragment mKissFragment = null;
     private Button mKissButton = null;
     private int mTxDelay = 0;
@@ -187,28 +195,28 @@ public class TncConfig extends FragmentActivity
     private boolean mHasEeprom = false;
     private boolean mNeedsSave = false;
 
-	private void onBluetoothConnected() {
-		if (mTncService != null) {
-			mBluetoothDeviceView.setText(mConnectedDeviceName);
-			mFirmwareVersionView.setText(mFirmwareVersion);
-			mConnectButton.setChecked(true);
-			mAudioOutputButton.setEnabled(true);
-			mAudioInputButton.setEnabled(true);
-			mKissButton.setEnabled(true);
-			mModemButton.setEnabled(true);
+    private void onBluetoothConnected() {
+        if (mTncService != null) {
+            mBluetoothDeviceView.setText(mConnectedDeviceName);
+            mFirmwareVersionView.setText(mFirmwareVersion);
+            mConnectButton.setChecked(true);
+            mAudioOutputButton.setEnabled(true);
+            mAudioInputButton.setEnabled(true);
+            mKissButton.setEnabled(true);
+            mModemButton.setEnabled(true);
             mInfoButton.setEnabled(true);
-			mTncService.setDateTime();
-			mTncService.getAllValues();
-			mNeedsSave = false;
-			mHasOutputTwist = false;
+            mTncService.setDateTime();
+            mTncService.getAllValues();
+            mNeedsSave = false;
+            mHasOutputTwist = false;
             mHasInputGain = false;
-		} else {
-			Toast.makeText(this, R.string.msg_bt_not_connected, Toast.LENGTH_SHORT).show();
-		}
-	}
-	
-	private void onBluetoothConnecting() {
-		mBluetoothDeviceView.setText(R.string.title_connecting);
+        } else {
+            Toast.makeText(this, R.string.msg_bt_not_connected, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void onBluetoothConnecting() {
+        mBluetoothDeviceView.setText(R.string.title_connecting);
         mFirmwareVersionView.setText("");
         mConnectButton.setChecked(false);
         mAudioOutputButton.setEnabled(false);
@@ -231,10 +239,10 @@ public class TncConfig extends FragmentActivity
         mHasMacAddress = false;
         mHasRxReversePolarity = false;
         mHasTxReversePolarity = false;
-	}
-	
-	private void onBluetoothDisconnected() {
-    	mBluetoothDeviceView.setText(R.string.title_not_connected);
+    }
+
+    private void onBluetoothDisconnected() {
+        mBluetoothDeviceView.setText(R.string.title_not_connected);
         mFirmwareVersionView.setText("");
         mConnectButton.setChecked(false);
         mAudioOutputButton.setEnabled(false);
@@ -262,15 +270,15 @@ public class TncConfig extends FragmentActivity
         mHasMacAddress = false;
         mHasRxReversePolarity = false;
         mHasTxReversePolarity = false;
-	}
-	
-	private void settingsUpdated() {
-		if (mHasEeprom && !mNeedsSave) {
-			mNeedsSave = true;
-			mSaveButton.setEnabled(true);
-		}
-	}
-	
+    }
+
+    private void settingsUpdated() {
+        if (mHasEeprom && !mNeedsSave) {
+            mNeedsSave = true;
+            mSaveButton.setEnabled(true);
+        }
+    }
+
     //static inner class doesn't hold an implicit reference to the outer class
     private static class TncHandler extends Handler {
         //Using a weak reference means you won't prevent garbage collection
@@ -288,267 +296,267 @@ public class TncConfig extends FragmentActivity
 
             byte[] buffer;
             switch (msg.what) {
-            case MESSAGE_STATE_CHANGE:
-                if(D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
-                switch (msg.arg1) {
-                case BluetoothTncService.STATE_CONNECTED:
-                    tncConfig.onBluetoothConnected();
+                case MESSAGE_STATE_CHANGE:
+                    if (D) Log.i(TAG, "MESSAGE_STATE_CHANGE: " + msg.arg1);
+                    switch (msg.arg1) {
+                        case BluetoothTncService.STATE_CONNECTED:
+                            tncConfig.onBluetoothConnected();
+                            break;
+                        case BluetoothTncService.STATE_CONNECTING:
+                            tncConfig.onBluetoothConnecting();
+                            break;
+                        case BluetoothTncService.STATE_NONE:
+                            tncConfig.onBluetoothDisconnected();
+                            break;
+                    }
                     break;
-                case BluetoothTncService.STATE_CONNECTING:
-                    tncConfig.onBluetoothConnecting();
+                case MESSAGE_OUTPUT_VOLUME:
+                    tncConfig.mOutputVolume = msg.arg1;
+                    if (D) Log.d(TAG, "output volume: " + tncConfig.mOutputVolume);
                     break;
-                case BluetoothTncService.STATE_NONE:
-                    tncConfig.onBluetoothDisconnected();
+                case MESSAGE_OUTPUT_TWIST:
+                    tncConfig.mHasOutputTwist = true;
+                    tncConfig.mOutputTwist = msg.arg1;
+                    if (D) Log.d(TAG, "output twist: " + tncConfig.mOutputTwist);
                     break;
-                }
-                break;
-            case MESSAGE_OUTPUT_VOLUME:
-                tncConfig.mOutputVolume = msg.arg1;
-                if(D) Log.d(TAG, "output volume: " + tncConfig.mOutputVolume);
-                break;
-            case MESSAGE_OUTPUT_TWIST:
-                tncConfig.mHasOutputTwist = true;
-                tncConfig.mOutputTwist = msg.arg1;
-                if(D) Log.d(TAG, "output twist: " + tncConfig.mOutputTwist);
-                break;
-            case MESSAGE_TX_DELAY:
-                tncConfig.mTxDelay = msg.arg1;
-                if(D) Log.d(TAG, "tx delay: " + msg.arg1);
-                break;
-            case MESSAGE_PERSISTENCE:
-                tncConfig.mPersistence = msg.arg1;
-                if(D) Log.d(TAG, "persistence: " + msg.arg1);
-                break;
-            case MESSAGE_SLOT_TIME:
-                tncConfig.mSlotTime = msg.arg1;
-                if(D) Log.d(TAG, "slot time: " + msg.arg1);
-                break;
-            case MESSAGE_TX_TAIL:
-                tncConfig.mTxTail = msg.arg1;
-                if(D) Log.d(TAG, "tx tail: " + msg.arg1);
-                break;
-            case MESSAGE_DUPLEX:
-                tncConfig.mDuplex = (msg.arg1 != 0);
-                if(D) Log.d(TAG, "duplex: " + tncConfig.mDuplex);
-                break;
-            case MESSAGE_SQUELCH_LEVEL:
-                tncConfig.mDcd = (msg.arg1 == 0);
-                tncConfig.mHasDcd = true;
-                if(D) Log.d(TAG, "DCD: " + tncConfig.mDcd);
-                break;
-            case MESSAGE_VERBOSITY:
-                tncConfig.mHasVerbose = true;
-                tncConfig.mVerbose = (msg.arg1 != 0);
-                if(D) Log.d(TAG, "info: " + tncConfig.mVerbose);
-                break;
-            case MESSAGE_BT_CONN_TRACK:
-                tncConfig.mHasConnTrack = true;
-                tncConfig.mConnTrack = (msg.arg1 != 0);
-                if(D) Log.d(TAG, "bt conn track: " + tncConfig.mConnTrack);
-                break;
-            case MESSAGE_INPUT_ATTEN:
-                tncConfig.mHasInputAtten = true;
-                tncConfig.mInputAtten = (msg.arg1 != 0);
-                if(D) Log.d(TAG, "input atten: " + msg.arg1);
-                break;
-            case MESSAGE_BATTERY_LEVEL:
-                tncConfig.mPowerButton.setEnabled(true);
-                buffer = (byte[]) msg.obj;
-                tncConfig.mBatteryLevel = (0xFF & buffer[0]) * 256 + (0xFF & buffer[1]);
-                if (tncConfig.mPowerFragment != null) {
-                    tncConfig.mPowerFragment.setBatteryLevel(tncConfig.mBatteryLevel);
-                }
-                if(D) Log.d(TAG, "battery level: " + tncConfig.mBatteryLevel + "mV");
-                break;
-            case MESSAGE_HW_VERSION:
-                buffer = (byte[]) msg.obj;
-                String hwVersion = new String(buffer);
-                tncConfig.hwVersion = hwVersion;
-                if(D) Log.d(TAG, "hw version: " + hwVersion);
-                break;
-            case MESSAGE_FW_VERSION:
-                buffer = (byte[]) msg.obj;
-                String fwVersion = new String(buffer);
-                tncConfig.mFirmwareVersion = fwVersion;
-                tncConfig.mFirmwareVersionView.setText(tncConfig.mFirmwareVersion);
-                if(D) Log.d(TAG, "fw version: " + fwVersion);
-                break;
-            case MESSAGE_INPUT_VOLUME:
-                synchronized (this) {
-                    if (tncConfig.mAudioInputFragment != null) {
-                        int inputVolume = msg.arg1;
-                        double level = (Math.log((double)inputVolume) / Math.log(2.0)) / 8.0;
-                        tncConfig.mAudioInputFragment.setInputVolume(level);
-                        // if(D) Log.d(TAG, "input volume: " + level);
-                    }
-                }
-                break;
-            case MESSAGE_DEVICE_NAME:
-                // save the connected device's name
-                tncConfig.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-                Toast.makeText(tncConfig.getApplicationContext(), tncConfig.getString(R.string.msg_connected_to)
-                               + tncConfig.mConnectedDeviceName, Toast.LENGTH_SHORT).show();
-                break;
-            case MESSAGE_USB_POWER_ON:
-                tncConfig.mPowerControl = true;
-                tncConfig.mPowerOn = (msg.arg1 == 1);
-                if(D) Log.d(TAG, "power on: " + tncConfig.mPowerOn);
-                break;
-            case MESSAGE_USB_POWER_OFF:
-                tncConfig.mPowerControl = true;
-                tncConfig.mPowerOff = (msg.arg1 == 1);
-                if(D) Log.d(TAG, "power off: " + tncConfig.mPowerOff);
-                break;
-            case MESSAGE_PTT_STYLE:
-                tncConfig.mHasPttStyle = true;
-                tncConfig.mPttStyle = msg.arg1;
-                if(D) Log.d(TAG, "ptt style: " + tncConfig.mPttStyle);
-                break;
-            case MESSAGE_CAPABILITIES:
-                buffer = (byte[]) msg.obj;
-                if (buffer.length > 1) {
-                    tncConfig.mHasEeprom = ((buffer[1] & 0x02) == 0x02);
-                    tncConfig.mSaveButton.setVisibility(tncConfig.mHasEeprom ? Button.VISIBLE : Button.GONE);
-                    if(D) Log.d(TAG, "eeprom save:" + tncConfig.mHasEeprom);
-                }
-                break;
-            case MESSAGE_INPUT_GAIN:
-                synchronized (this) {
-                    int level = msg.arg1;
-                    tncConfig.mInputGain = level;
-                    tncConfig.mHasInputGain = true;
-                    if (tncConfig.mAudioInputFragment != null) {
-                        tncConfig.mAudioInputFragment.setInputGain(level);
-                    }
-                    if(D) Log.d(TAG, "input gain: " + level);
-                }
-                break;
-            case MESSAGE_INPUT_GAIN_MIN:
-                synchronized (this) {
-                    int level = msg.arg1;
-                    tncConfig.mInputGainMin = level;
-                    if (tncConfig.mAudioInputFragment != null) {
-                        tncConfig.mAudioInputFragment.setInputGainMin(level);
-                    }
-                    if(D) Log.d(TAG, "input gain min: " + level);
-                }
-                break;
-            case MESSAGE_INPUT_GAIN_MAX:
-                synchronized (this) {
-                    int level = msg.arg1;
-                    tncConfig.mInputGainMax = level;
-                    if (tncConfig.mAudioInputFragment != null) {
-                        tncConfig.mAudioInputFragment.setInputGainMax(level);
-                    }
-                    if(D) Log.d(TAG, "input gain max: " + level);
-                }
-                break;
-            case MESSAGE_INPUT_TWIST:
-                synchronized (this) {
-                    int level = msg.arg1;
-                    tncConfig.mInputTwist = level;
-                    if (tncConfig.mAudioInputFragment != null) {
-                        tncConfig.mAudioInputFragment.setInputTwist(level);
-                    }
-                    if(D) Log.d(TAG, "input twist: " + level);
-                }
-                break;
-            case MESSAGE_INPUT_TWIST_MIN:
-                synchronized (this) {
-                    int level = msg.arg1;
-                    tncConfig.mInputTwistMin = level;
-                    if (tncConfig.mAudioInputFragment != null) {
-                        tncConfig.mAudioInputFragment.setInputTwistMin(level);
-                    }
-                    if(D) Log.d(TAG, "input twist min: " + level);
-                }
-                break;
-            case MESSAGE_INPUT_TWIST_MAX:
-                synchronized (this) {
-                    int level = msg.arg1;
-                    tncConfig.mInputTwistMax = level;
-                    if (tncConfig.mAudioInputFragment != null) {
-                        tncConfig.mAudioInputFragment.setInputTwistMax(level);
-                    }
-                    if(D) Log.d(TAG, "input twist max: " + level);
-                }
-                break;
-            case MESSAGE_MODEM_TYPE:
-                synchronized (this) {
-                    int modem = msg.arg1;
-                    tncConfig.mModemType = modem;
-                    if (tncConfig.mModemFragment != null) {
-                        tncConfig.mModemFragment.setModemType(modem);
-                    }
-                    if(D) Log.d(TAG, "modem type: " + modem);
-                }
-                break;
-            case MESSAGE_SUPPORTED_MODEM_TYPES:
-                synchronized (this) {
+                case MESSAGE_TX_DELAY:
+                    tncConfig.mTxDelay = msg.arg1;
+                    if (D) Log.d(TAG, "tx delay: " + msg.arg1);
+                    break;
+                case MESSAGE_PERSISTENCE:
+                    tncConfig.mPersistence = msg.arg1;
+                    if (D) Log.d(TAG, "persistence: " + msg.arg1);
+                    break;
+                case MESSAGE_SLOT_TIME:
+                    tncConfig.mSlotTime = msg.arg1;
+                    if (D) Log.d(TAG, "slot time: " + msg.arg1);
+                    break;
+                case MESSAGE_TX_TAIL:
+                    tncConfig.mTxTail = msg.arg1;
+                    if (D) Log.d(TAG, "tx tail: " + msg.arg1);
+                    break;
+                case MESSAGE_DUPLEX:
+                    tncConfig.mDuplex = (msg.arg1 != 0);
+                    if (D) Log.d(TAG, "duplex: " + tncConfig.mDuplex);
+                    break;
+                case MESSAGE_SQUELCH_LEVEL:
+                    tncConfig.mDcd = (msg.arg1 == 0);
+                    tncConfig.mHasDcd = true;
+                    if (D) Log.d(TAG, "DCD: " + tncConfig.mDcd);
+                    break;
+                case MESSAGE_VERBOSITY:
+                    tncConfig.mHasVerbose = true;
+                    tncConfig.mVerbose = (msg.arg1 != 0);
+                    if (D) Log.d(TAG, "info: " + tncConfig.mVerbose);
+                    break;
+                case MESSAGE_BT_CONN_TRACK:
+                    tncConfig.mHasConnTrack = true;
+                    tncConfig.mConnTrack = (msg.arg1 != 0);
+                    if (D) Log.d(TAG, "bt conn track: " + tncConfig.mConnTrack);
+                    break;
+                case MESSAGE_INPUT_ATTEN:
+                    tncConfig.mHasInputAtten = true;
+                    tncConfig.mInputAtten = (msg.arg1 != 0);
+                    if (D) Log.d(TAG, "input atten: " + msg.arg1);
+                    break;
+                case MESSAGE_BATTERY_LEVEL:
+                    tncConfig.mPowerButton.setEnabled(true);
                     buffer = (byte[]) msg.obj;
-                    tncConfig.mSupportedModemTypes = new int[buffer.length - 1];
-                    for (int i = 1; i != buffer.length; i++) {
-                        tncConfig.mSupportedModemTypes[i - 1] = (int) buffer[i];
+                    tncConfig.mBatteryLevel = (0xFF & buffer[0]) * 256 + (0xFF & buffer[1]);
+                    if (tncConfig.mPowerFragment != null) {
+                        tncConfig.mPowerFragment.setBatteryLevel(tncConfig.mBatteryLevel);
                     }
+                    if (D) Log.d(TAG, "battery level: " + tncConfig.mBatteryLevel + "mV");
+                    break;
+                case MESSAGE_HW_VERSION:
+                    buffer = (byte[]) msg.obj;
+                    String hwVersion = new String(buffer);
+                    tncConfig.hwVersion = hwVersion;
+                    if (D) Log.d(TAG, "hw version: " + hwVersion);
+                    break;
+                case MESSAGE_FW_VERSION:
+                    buffer = (byte[]) msg.obj;
+                    String fwVersion = new String(buffer);
+                    tncConfig.mFirmwareVersion = fwVersion;
+                    tncConfig.mFirmwareVersionView.setText(tncConfig.mFirmwareVersion);
+                    if (D) Log.d(TAG, "fw version: " + fwVersion);
+                    break;
+                case MESSAGE_INPUT_VOLUME:
+                    synchronized (this) {
+                        if (tncConfig.mAudioInputFragment != null) {
+                            int inputVolume = msg.arg1;
+                            double level = (Math.log((double) inputVolume) / Math.log(2.0)) / 8.0;
+                            tncConfig.mAudioInputFragment.setInputVolume(level);
+                            // if(D) Log.d(TAG, "input volume: " + level);
+                        }
+                    }
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    tncConfig.mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    Toast.makeText(tncConfig.getApplicationContext(), tncConfig.getString(R.string.msg_connected_to)
+                            + tncConfig.mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+                    break;
+                case MESSAGE_USB_POWER_ON:
+                    tncConfig.mPowerControl = true;
+                    tncConfig.mPowerOn = (msg.arg1 == 1);
+                    if (D) Log.d(TAG, "power on: " + tncConfig.mPowerOn);
+                    break;
+                case MESSAGE_USB_POWER_OFF:
+                    tncConfig.mPowerControl = true;
+                    tncConfig.mPowerOff = (msg.arg1 == 1);
+                    if (D) Log.d(TAG, "power off: " + tncConfig.mPowerOff);
+                    break;
+                case MESSAGE_PTT_STYLE:
+                    tncConfig.mHasPttStyle = true;
+                    tncConfig.mPttStyle = msg.arg1;
+                    if (D) Log.d(TAG, "ptt style: " + tncConfig.mPttStyle);
+                    break;
+                case MESSAGE_CAPABILITIES:
+                    buffer = (byte[]) msg.obj;
+                    if (buffer.length > 1) {
+                        tncConfig.mHasEeprom = ((buffer[1] & 0x02) == 0x02);
+                        tncConfig.mSaveButton.setVisibility(tncConfig.mHasEeprom ? Button.VISIBLE : Button.GONE);
+                        if (D) Log.d(TAG, "eeprom save:" + tncConfig.mHasEeprom);
+                    }
+                    break;
+                case MESSAGE_INPUT_GAIN:
+                    synchronized (this) {
+                        int level = msg.arg1;
+                        tncConfig.mInputGain = level;
+                        tncConfig.mHasInputGain = true;
+                        if (tncConfig.mAudioInputFragment != null) {
+                            tncConfig.mAudioInputFragment.setInputGain(level);
+                        }
+                        if (D) Log.d(TAG, "input gain: " + level);
+                    }
+                    break;
+                case MESSAGE_INPUT_GAIN_MIN:
+                    synchronized (this) {
+                        int level = msg.arg1;
+                        tncConfig.mInputGainMin = level;
+                        if (tncConfig.mAudioInputFragment != null) {
+                            tncConfig.mAudioInputFragment.setInputGainMin(level);
+                        }
+                        if (D) Log.d(TAG, "input gain min: " + level);
+                    }
+                    break;
+                case MESSAGE_INPUT_GAIN_MAX:
+                    synchronized (this) {
+                        int level = msg.arg1;
+                        tncConfig.mInputGainMax = level;
+                        if (tncConfig.mAudioInputFragment != null) {
+                            tncConfig.mAudioInputFragment.setInputGainMax(level);
+                        }
+                        if (D) Log.d(TAG, "input gain max: " + level);
+                    }
+                    break;
+                case MESSAGE_INPUT_TWIST:
+                    synchronized (this) {
+                        int level = msg.arg1;
+                        tncConfig.mInputTwist = level;
+                        if (tncConfig.mAudioInputFragment != null) {
+                            tncConfig.mAudioInputFragment.setInputTwist(level);
+                        }
+                        if (D) Log.d(TAG, "input twist: " + level);
+                    }
+                    break;
+                case MESSAGE_INPUT_TWIST_MIN:
+                    synchronized (this) {
+                        int level = msg.arg1;
+                        tncConfig.mInputTwistMin = level;
+                        if (tncConfig.mAudioInputFragment != null) {
+                            tncConfig.mAudioInputFragment.setInputTwistMin(level);
+                        }
+                        if (D) Log.d(TAG, "input twist min: " + level);
+                    }
+                    break;
+                case MESSAGE_INPUT_TWIST_MAX:
+                    synchronized (this) {
+                        int level = msg.arg1;
+                        tncConfig.mInputTwistMax = level;
+                        if (tncConfig.mAudioInputFragment != null) {
+                            tncConfig.mAudioInputFragment.setInputTwistMax(level);
+                        }
+                        if (D) Log.d(TAG, "input twist max: " + level);
+                    }
+                    break;
+                case MESSAGE_MODEM_TYPE:
+                    synchronized (this) {
+                        int modem = msg.arg1;
+                        tncConfig.mModemType = modem;
+                        if (tncConfig.mModemFragment != null) {
+                            tncConfig.mModemFragment.setModemType(modem);
+                        }
+                        if (D) Log.d(TAG, "modem type: " + modem);
+                    }
+                    break;
+                case MESSAGE_SUPPORTED_MODEM_TYPES:
+                    synchronized (this) {
+                        buffer = (byte[]) msg.obj;
+                        tncConfig.mSupportedModemTypes = new int[buffer.length - 1];
+                        for (int i = 1; i != buffer.length; i++) {
+                            tncConfig.mSupportedModemTypes[i - 1] = (int) buffer[i];
+                        }
+                        if (tncConfig.mModemFragment != null) {
+                            tncConfig.mModemFragment.setSupportedModemTypes(tncConfig.mSupportedModemTypes);
+                        }
+                        if (D) Log.d(TAG, "supported modem types: " + (buffer.length - 1));
+                    }
+                    break;
+                case MESSAGE_PASSALL:
+                    tncConfig.mHasPassall = true;
+                    tncConfig.mPassall = (msg.arg1 != 0);
                     if (tncConfig.mModemFragment != null) {
-                        tncConfig.mModemFragment.setSupportedModemTypes(tncConfig.mSupportedModemTypes);
+                        tncConfig.mModemFragment.setPassall(tncConfig.mPassall);
                     }
-                    if(D) Log.d(TAG, "supported modem types: " + (buffer.length - 1));
-                }
-                break;
-            case MESSAGE_PASSALL:
-                tncConfig.mHasPassall = true;
-                tncConfig.mPassall = (msg.arg1 != 0);
-                if (tncConfig.mModemFragment != null) {
-                    tncConfig.mModemFragment.setPassall(tncConfig.mPassall);
-                }
-                if(D) Log.d(TAG, "passall: " + tncConfig.mPassall);
-                break;
-            case MESSAGE_RX_REVERSE_POLARITY:
-                tncConfig.mHasRxReversePolarity = true;
-                tncConfig.mRxReversePolarity = (msg.arg1 != 0);
-                if (tncConfig.mModemFragment != null) {
-                    tncConfig.mModemFragment.setRxReversePolarity(tncConfig.mRxReversePolarity);
-                }
-                if(D) Log.d(TAG, "rx reverse polarity: " + tncConfig.mRxReversePolarity);
-                break;
-            case MESSAGE_TX_REVERSE_POLARITY:
-                tncConfig.mHasTxReversePolarity = true;
-                tncConfig.mTxReversePolarity = (msg.arg1 != 0);
-                if (tncConfig.mModemFragment != null) {
-                    tncConfig.mModemFragment.setTxReversePolarity(tncConfig.mTxReversePolarity);
-                }
-                if(D) Log.d(TAG, "Tx reverse polarity: " + tncConfig.mTxReversePolarity);
-                break;
-            case MESSAGE_MAC_ADDRESS:
-                tncConfig.mHasMacAddress = true;
-                tncConfig.mMacAddress = (String) msg.obj;
-                if (tncConfig.mInfoFragment != null) {
-                    tncConfig.mInfoFragment.setMacAddress(tncConfig.mMacAddress);
-                }
-                if(D) Log.d(TAG, "MAC address: " + tncConfig.mMacAddress);
-                break;
-            case MESSAGE_SERIAL_NUMBER:
-                buffer = (byte[]) msg.obj;
-                tncConfig.mSerialNumber = new String(buffer);
-                tncConfig.mHasSerialNumber = true;
-                if (tncConfig.mInfoFragment != null) {
-                    tncConfig.mInfoFragment.setSerialNumber(tncConfig.mSerialNumber);
-                }
-                if(D) Log.d(TAG, "Serial number: " + tncConfig.mSerialNumber);
-                break;
-            case MESSAGE_DATE_TIME:
-                tncConfig.mHasDateTime = true;
-                tncConfig.mDateTime = (byte[]) msg.obj;
-                if (tncConfig.mInfoFragment != null) {
-                    tncConfig.mInfoFragment.setDateTime(tncConfig.mDateTime);
-                }
-                // if(D) Log.d(TAG, "Date/Time: " + tncConfig.mDateTime);
-                break;
-            case MESSAGE_TOAST:
-                Toast.makeText(tncConfig.getApplicationContext(), msg.getData().getInt(TOAST),
-                               Toast.LENGTH_SHORT).show();
-                break;
+                    if (D) Log.d(TAG, "passall: " + tncConfig.mPassall);
+                    break;
+                case MESSAGE_RX_REVERSE_POLARITY:
+                    tncConfig.mHasRxReversePolarity = true;
+                    tncConfig.mRxReversePolarity = (msg.arg1 != 0);
+                    if (tncConfig.mModemFragment != null) {
+                        tncConfig.mModemFragment.setRxReversePolarity(tncConfig.mRxReversePolarity);
+                    }
+                    if (D) Log.d(TAG, "rx reverse polarity: " + tncConfig.mRxReversePolarity);
+                    break;
+                case MESSAGE_TX_REVERSE_POLARITY:
+                    tncConfig.mHasTxReversePolarity = true;
+                    tncConfig.mTxReversePolarity = (msg.arg1 != 0);
+                    if (tncConfig.mModemFragment != null) {
+                        tncConfig.mModemFragment.setTxReversePolarity(tncConfig.mTxReversePolarity);
+                    }
+                    if (D) Log.d(TAG, "Tx reverse polarity: " + tncConfig.mTxReversePolarity);
+                    break;
+                case MESSAGE_MAC_ADDRESS:
+                    tncConfig.mHasMacAddress = true;
+                    tncConfig.mMacAddress = (String) msg.obj;
+                    if (tncConfig.mInfoFragment != null) {
+                        tncConfig.mInfoFragment.setMacAddress(tncConfig.mMacAddress);
+                    }
+                    if (D) Log.d(TAG, "MAC address: " + tncConfig.mMacAddress);
+                    break;
+                case MESSAGE_SERIAL_NUMBER:
+                    buffer = (byte[]) msg.obj;
+                    tncConfig.mSerialNumber = new String(buffer);
+                    tncConfig.mHasSerialNumber = true;
+                    if (tncConfig.mInfoFragment != null) {
+                        tncConfig.mInfoFragment.setSerialNumber(tncConfig.mSerialNumber);
+                    }
+                    if (D) Log.d(TAG, "Serial number: " + tncConfig.mSerialNumber);
+                    break;
+                case MESSAGE_DATE_TIME:
+                    tncConfig.mHasDateTime = true;
+                    tncConfig.mDateTime = (byte[]) msg.obj;
+                    if (tncConfig.mInfoFragment != null) {
+                        tncConfig.mInfoFragment.setDateTime(tncConfig.mDateTime);
+                    }
+                    // if(D) Log.d(TAG, "Date/Time: " + tncConfig.mDateTime);
+                    break;
+                case MESSAGE_TOAST:
+                    Toast.makeText(tncConfig.getApplicationContext(), msg.getData().getInt(TOAST),
+                            Toast.LENGTH_SHORT).show();
+                    break;
             }
         }
     }
@@ -558,16 +566,19 @@ public class TncConfig extends FragmentActivity
     }
 
 
-	@Override
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-		}
-		setContentView(R.layout.activity_main);
 
-		if(D) Log.e(TAG, "+++ ON CREATE +++");
+    @Override
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
+        }
+        setContentView(R.layout.activity_main);
+
+        if (D) {
+            Log.e(TAG, "+++ ON CREATE +++");
+        }
 
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -579,27 +590,58 @@ public class TncConfig extends FragmentActivity
             finish();
             return;
         }
-        
+
         mBluetoothDeviceView = (TextView) findViewById(R.id.bluetooth_device_text);
         mFirmwareVersionView = (TextView) findViewById(R.id.firmware_version_text);
-	}
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-        if(D) Log.e(TAG, "++ ON START ++");
+        if (D) Log.e(TAG, "++ ON START ++");
+/*
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.BLUETOOTH_CONNECT)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TncConfig.this);
+            builder
+                    .setTitle("Bluetooth Permissions")
+                    .setMessage("Bluetooth permissions are required to connect to the TNC")
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, (dialog, id) -> {
+                        //do nothing
+                    })
+                    .setPositiveButton(android.R.string.ok, (dialog, id) -> ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.BLUETOOTH_CONNECT }, REQUEST_BT_CONNECT));
+            builder.create().show();
+        }
+        else ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.BLUETOOTH_CONNECT }, REQUEST_BT_CONNECT);
+*/
+        if (Build.VERSION.SDK_INT >= 31) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_BT_CONNECT);
+            }
+        }
 
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        // Otherwise, setup the chat session
         } else {
             if (mTncService == null) setupConfig();
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        if (requestCode == REQUEST_BT_CONNECT) {
+
+            // Checking whether user granted the permission or not.
+            if (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Bluetooth Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
     @Override
     public synchronized void onPause() {
         super.onPause();
@@ -640,12 +682,12 @@ public class TncConfig extends FragmentActivity
                     mConnectButton.setChecked(false);
                     // Launch the DeviceListActivity to see devices and do scan
                     Intent selectDeviceIntent = new Intent(
-                    		TncConfig.this, DeviceListActivity.class);
+                            TncConfig.this, DeviceListActivity.class);
                     startActivityForResult(
-                    		selectDeviceIntent, REQUEST_CONNECT_DEVICE);
+                            selectDeviceIntent, REQUEST_CONNECT_DEVICE);
                 } else {
                     // Disconnect Bluetooth
-                	mTncService.stop();
+                    mTncService.stop();
                 }
             }
         });
@@ -654,39 +696,39 @@ public class TncConfig extends FragmentActivity
         mAudioOutputButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
 
-        		FragmentManager fragmentManager = getSupportFragmentManager();
-        		AudioOutputFragment audioOutputFragment = (AudioOutputFragment) fragmentManager.findFragmentByTag("AudioOutputFragment");
-        		if (audioOutputFragment == null) {
-        			audioOutputFragment = new AudioOutputFragment();
-        		}
-               	if (mHasPttStyle) {
-            		audioOutputFragment.setPttStyle(mPttStyle);
-            	}
-
-            	audioOutputFragment.setVolume(mOutputVolume);
-
-        		if (mHasOutputTwist) {
-        		    audioOutputFragment.setOutputTwist(mOutputTwist);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                AudioOutputFragment audioOutputFragment = (AudioOutputFragment) fragmentManager.findFragmentByTag("AudioOutputFragment");
+                if (audioOutputFragment == null) {
+                    audioOutputFragment = new AudioOutputFragment();
+                }
+                   if (mHasPttStyle) {
+                    audioOutputFragment.setPttStyle(mPttStyle);
                 }
 
-            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
-            	if (fragmentView != null) {
-            		audioOutputFragment.setShowsDialog(false);
-	            	audioOutputFragment.setRetainInstance(false);
-            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-	            	fragmentTransaction.replace(R.id.fragment_view, audioOutputFragment, "AudioOutputFragment");
-                   	fragmentTransaction.commit();
-            	} else {
-            		audioOutputFragment.setShowsDialog(true);
-	            	audioOutputFragment.setRetainInstance(false);
-            		Fragment fragment = fragmentManager.findFragmentByTag("AudioOutputFragment");
-            		if (fragment != null) {
-            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            			fragmentTransaction.remove(fragment);
-            			fragmentTransaction.commit();
-            		}
-	            	audioOutputFragment.show(fragmentManager, "AudioOutputFragment");
-            	}
+                audioOutputFragment.setVolume(mOutputVolume);
+
+                if (mHasOutputTwist) {
+                    audioOutputFragment.setOutputTwist(mOutputTwist);
+                }
+
+                FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+                if (fragmentView != null) {
+                    audioOutputFragment.setShowsDialog(false);
+                    audioOutputFragment.setRetainInstance(false);
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_view, audioOutputFragment, "AudioOutputFragment");
+                       fragmentTransaction.commit();
+                } else {
+                    audioOutputFragment.setShowsDialog(true);
+                    audioOutputFragment.setRetainInstance(false);
+                    Fragment fragment = fragmentManager.findFragmentByTag("AudioOutputFragment");
+                    if (fragment != null) {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                    }
+                    audioOutputFragment.show(fragmentManager, "AudioOutputFragment");
+                }
             }
         });
         mAudioOutputButton.getBackground().setAlpha(64);
@@ -695,20 +737,20 @@ public class TncConfig extends FragmentActivity
         mAudioInputButton = (Button) findViewById(R.id.audioInputButton);
         mAudioInputButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+                FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
 
-        		FragmentManager fragmentManager = getSupportFragmentManager();
-        		AudioInputFragment audioInputFragment = (AudioInputFragment) fragmentManager.findFragmentByTag("AudioInputFragment");
-        		if (audioInputFragment == null) {
-        			audioInputFragment = new AudioInputFragment();
-        		}
-        		mAudioInputFragment = audioInputFragment;
-        		
-            	if (mHasInputAtten) {
-            		mAudioInputFragment.setInputAtten(mInputAtten);
-            	}
-            	
-            	if (mHasInputGain) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                AudioInputFragment audioInputFragment = (AudioInputFragment) fragmentManager.findFragmentByTag("AudioInputFragment");
+                if (audioInputFragment == null) {
+                    audioInputFragment = new AudioInputFragment();
+                }
+                mAudioInputFragment = audioInputFragment;
+                
+                if (mHasInputAtten) {
+                    mAudioInputFragment.setInputAtten(mInputAtten);
+                }
+                
+                if (mHasInputGain) {
                     mAudioInputFragment.setInputGain(mInputGain);
                     mAudioInputFragment.setInputGainMin(mInputGainMin);
                     mAudioInputFragment.setInputGainMax(mInputGainMax);
@@ -717,25 +759,25 @@ public class TncConfig extends FragmentActivity
                     mAudioInputFragment.setInputTwistMax(mInputTwistMax);
                 }
 
-            	if (fragmentView != null) {
-            		mAudioInputFragment.setShowsDialog(false);
-            		mAudioInputFragment.setRetainInstance(false);
-            		
-            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            		fragmentTransaction.replace(R.id.fragment_view, mAudioInputFragment, "AudioInputFragment");
-                   	fragmentTransaction.commit();
-            	} else {
-            		mAudioInputFragment.setShowsDialog(true);
-            		mAudioInputFragment.setRetainInstance(false);
-            		
-            		Fragment fragment = fragmentManager.findFragmentByTag("AudioInputFragment");
-            		if (fragment != null) {
-            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            			fragmentTransaction.remove(fragment);
-            			fragmentTransaction.commit();
-            		}
-	            	mAudioInputFragment.show(fragmentManager, "AudioInputFragment");
-            	}
+                if (fragmentView != null) {
+                    mAudioInputFragment.setShowsDialog(false);
+                    mAudioInputFragment.setRetainInstance(false);
+                    
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_view, mAudioInputFragment, "AudioInputFragment");
+                       fragmentTransaction.commit();
+                } else {
+                    mAudioInputFragment.setShowsDialog(true);
+                    mAudioInputFragment.setRetainInstance(false);
+                    
+                    Fragment fragment = fragmentManager.findFragmentByTag("AudioInputFragment");
+                    if (fragment != null) {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                    }
+                    mAudioInputFragment.show(fragmentManager, "AudioInputFragment");
+                }
             }
         });
         mAudioInputButton.getBackground().setAlpha(64);
@@ -744,44 +786,44 @@ public class TncConfig extends FragmentActivity
         mPowerButton = (Button) findViewById(R.id.powerButton);
         mPowerButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	
-            	mTncService.getBatteryLevel();
-            	
-            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+                
+                mTncService.getBatteryLevel();
+                
+                FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
 
-        		FragmentManager fragmentManager = getSupportFragmentManager();
-        		PowerFragment powerFragment = (PowerFragment) fragmentManager.findFragmentByTag("PowerFragment");
-        		if (powerFragment == null) {
-        			powerFragment = new PowerFragment();
-        		}
-        		mPowerFragment = powerFragment;
-        		
-            	if (mPowerControl) {
-            		mPowerFragment.setPowerOn(mPowerOn);
-            		mPowerFragment.setPowerOff(mPowerOff);
-            	}
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                PowerFragment powerFragment = (PowerFragment) fragmentManager.findFragmentByTag("PowerFragment");
+                if (powerFragment == null) {
+                    powerFragment = new PowerFragment();
+                }
+                mPowerFragment = powerFragment;
+                
+                if (mPowerControl) {
+                    mPowerFragment.setPowerOn(mPowerOn);
+                    mPowerFragment.setPowerOff(mPowerOff);
+                }
 
-            	mPowerFragment.setBatteryLevel(mBatteryLevel);
+                mPowerFragment.setBatteryLevel(mBatteryLevel);
  
                 if (fragmentView != null) {
-            		mPowerFragment.setShowsDialog(false);
-            		mPowerFragment.setRetainInstance(false);
-            		
-            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            		fragmentTransaction.replace(R.id.fragment_view, mPowerFragment, "PowerFragment");
-                   	fragmentTransaction.commit();
-            	} else {
-            		mPowerFragment.setShowsDialog(true);
-            		mPowerFragment.setRetainInstance(false);
-            		
-            		Fragment fragment = fragmentManager.findFragmentByTag("PowerFragment");
-            		if (fragment != null) {
-            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            			fragmentTransaction.remove(fragment);
-            			fragmentTransaction.commit();
-            		}
-            		mPowerFragment.show(fragmentManager, "PowerFragment");
-            	}
+                    mPowerFragment.setShowsDialog(false);
+                    mPowerFragment.setRetainInstance(false);
+                    
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_view, mPowerFragment, "PowerFragment");
+                       fragmentTransaction.commit();
+                } else {
+                    mPowerFragment.setShowsDialog(true);
+                    mPowerFragment.setRetainInstance(false);
+                    
+                    Fragment fragment = fragmentManager.findFragmentByTag("PowerFragment");
+                    if (fragment != null) {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                    }
+                    mPowerFragment.show(fragmentManager, "PowerFragment");
+                }
             }
         });
         mPowerButton.getBackground().setAlpha(64);
@@ -790,39 +832,39 @@ public class TncConfig extends FragmentActivity
         mKissButton = (Button) findViewById(R.id.kissButton);
         mKissButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+                FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
 
-        		FragmentManager fragmentManager = getSupportFragmentManager();
-        		KissFragment kissFragment = (KissFragment) fragmentManager.findFragmentByTag("KissFragment");
-        		if (kissFragment == null) {
-        			kissFragment = new KissFragment();
-        		}
-        		mKissFragment = kissFragment;
-        		
-        		mKissFragment.setTxDelay(mTxDelay);
-        		mKissFragment.setPersistence(mPersistence);
-        		mKissFragment.setSlotTime(mSlotTime);
-        		mKissFragment.setDuplex(mDuplex);
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                KissFragment kissFragment = (KissFragment) fragmentManager.findFragmentByTag("KissFragment");
+                if (kissFragment == null) {
+                    kissFragment = new KissFragment();
+                }
+                mKissFragment = kissFragment;
+                
+                mKissFragment.setTxDelay(mTxDelay);
+                mKissFragment.setPersistence(mPersistence);
+                mKissFragment.setSlotTime(mSlotTime);
+                mKissFragment.setDuplex(mDuplex);
 
                 if (fragmentView != null) {
-                	mKissFragment.setShowsDialog(false);
-                	mKissFragment.setRetainInstance(false);
-            		
-            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            		fragmentTransaction.replace(R.id.fragment_view, mKissFragment, "KissFragment");
-                   	fragmentTransaction.commit();
-            	} else {
-            		mKissFragment.setShowsDialog(true);
-            		mKissFragment.setRetainInstance(false);
-            		
-            		Fragment fragment = fragmentManager.findFragmentByTag("KissFragment");
-            		if (fragment != null) {
-            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            			fragmentTransaction.remove(fragment);
-            			fragmentTransaction.commit();
-            		}
-            		mKissFragment.show(fragmentManager, "KissFragment");
-            	}
+                    mKissFragment.setShowsDialog(false);
+                    mKissFragment.setRetainInstance(false);
+                    
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_view, mKissFragment, "KissFragment");
+                       fragmentTransaction.commit();
+                } else {
+                    mKissFragment.setShowsDialog(true);
+                    mKissFragment.setRetainInstance(false);
+                    
+                    Fragment fragment = fragmentManager.findFragmentByTag("KissFragment");
+                    if (fragment != null) {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                    }
+                    mKissFragment.show(fragmentManager, "KissFragment");
+                }
             }
         });
         mKissButton.getBackground().setAlpha(64);
@@ -831,19 +873,19 @@ public class TncConfig extends FragmentActivity
         mModemButton = (Button) findViewById(R.id.modemButton);
         mModemButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
+                FrameLayout fragmentView = (FrameLayout) findViewById(R.id.fragment_view);
 
-        		FragmentManager fragmentManager = getSupportFragmentManager();
-        		ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
-        		if (modemFragment == null) {
-        			modemFragment = new ModemFragment();
-        		}
-        		mModemFragment = modemFragment;
-        		
-            	if (mHasConnTrack) {
-            		mModemFragment.setConnTrack(mConnTrack);
-            	}
-            	if (mHasVerbose) {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
+                if (modemFragment == null) {
+                    modemFragment = new ModemFragment();
+                }
+                mModemFragment = modemFragment;
+                
+                if (mHasConnTrack) {
+                    mModemFragment.setConnTrack(mConnTrack);
+                }
+                if (mHasVerbose) {
                     mModemFragment.setVerbose(mVerbose);
                 }
                 if (mHasDcd) {
@@ -864,24 +906,24 @@ public class TncConfig extends FragmentActivity
                 }
 
                 if (fragmentView != null) {
-                	mModemFragment.setShowsDialog(false);
-                	mModemFragment.setRetainInstance(false);
-            		
-            		FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            		fragmentTransaction.replace(R.id.fragment_view, mModemFragment, "ModemFragment");
-                   	fragmentTransaction.commit();
-            	} else {
-            		mModemFragment.setShowsDialog(true);
-            		mModemFragment.setRetainInstance(false);
-            		
-            		Fragment fragment = fragmentManager.findFragmentByTag("ModemFragment");
-            		if (fragment != null) {
-            			FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            			fragmentTransaction.remove(fragment);
-            			fragmentTransaction.commit();
-            		}
-            		mModemFragment.show(fragmentManager, "ModemFragment");
-            	}
+                    mModemFragment.setShowsDialog(false);
+                    mModemFragment.setRetainInstance(false);
+                    
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.fragment_view, mModemFragment, "ModemFragment");
+                       fragmentTransaction.commit();
+                } else {
+                    mModemFragment.setShowsDialog(true);
+                    mModemFragment.setRetainInstance(false);
+                    
+                    Fragment fragment = fragmentManager.findFragmentByTag("ModemFragment");
+                    if (fragment != null) {
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                    }
+                    mModemFragment.show(fragmentManager, "ModemFragment");
+                }
             }
         });
         mModemButton.getBackground().setAlpha(64);
@@ -941,20 +983,20 @@ public class TncConfig extends FragmentActivity
             mTncService = new BluetoothTncService(this, handler);
             app.setBluetoothTncService(mTncService);
         } else {
-        	mTncService.setHandler(handler);
-        	if (mTncService.isConnected()) {
-            	mConnectedDeviceName = mTncService.getDeviceName();
-        		onBluetoothConnected();
-        		mTncService.getAllValues();
-        	}
+            mTncService.setHandler(handler);
+            if (mTncService.isConnected()) {
+                mConnectedDeviceName = mTncService.getDeviceName();
+                onBluetoothConnected();
+                mTncService.getAllValues();
+            }
         }
         
         mSaveButton = (Button) findViewById(R.id.saveButton);
         mSaveButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
-            	mTncService.saveEeprom();
-            	mNeedsSave = false;
-            	mSaveButton.setEnabled(false);
+                mTncService.saveEeprom();
+                mNeedsSave = false;
+                mSaveButton.setEnabled(false);
             }
         });
         mSaveButton.getBackground().setAlpha(64);
@@ -964,16 +1006,16 @@ public class TncConfig extends FragmentActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-    	super.onPrepareOptionsMenu(menu);
-    	return true;
+        super.onPrepareOptionsMenu(menu);
+        return true;
     }
     
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
         return true;
-	}
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -985,15 +1027,15 @@ public class TncConfig extends FragmentActivity
             startActivity(bluetoothSettingsIntent);
             return true;
         case R.id.action_firmware_update:
-        	// Stop the TNC service so the firmware service can connect.
+            // Stop the TNC service so the firmware service can connect.
             if (mTncService != null) {
-            	mTncService.stop();
-            	mTncService = null;
+                mTncService.stop();
+                mTncService = null;
             }
             
             // Launch the browser.
             Uri uri = Uri.parse(getString(R.string.firmware_url));
-        	startActivity(new Intent(Intent.ACTION_VIEW, uri));  
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));  
             return true;
         case R.id.action_about:
             // Launch the AboutActivity to learn about the program.
@@ -1005,35 +1047,35 @@ public class TncConfig extends FragmentActivity
     }
     
 
-	@Override
-	public void onAudioOutputDialogClose(AudioOutputFragment dialog) {
-		mTncService.ptt(TONE_NONE);
-	}
+    @Override
+    public void onAudioOutputDialogClose(AudioOutputFragment dialog) {
+        mTncService.ptt(TONE_NONE);
+    }
 
-	@Override
-	public void onAudioOutputDialogPttStyleChanged(AudioOutputFragment dialog) {
-		mPttStyle = dialog.getPttStyle();
-		mTncService.setPttChannel(mPttStyle);
-		settingsUpdated();
-	}
+    @Override
+    public void onAudioOutputDialogPttStyleChanged(AudioOutputFragment dialog) {
+        mPttStyle = dialog.getPttStyle();
+        mTncService.setPttChannel(mPttStyle);
+        settingsUpdated();
+    }
 
-	@Override
-	public void onAudioOutputDialogLevelChanged(AudioOutputFragment dialog) {
-		mOutputVolume = dialog.getVolume();
-		mTncService.volume(mOutputVolume);
-		settingsUpdated();
-	}
+    @Override
+    public void onAudioOutputDialogLevelChanged(AudioOutputFragment dialog) {
+        mOutputVolume = dialog.getVolume();
+        mTncService.volume(mOutputVolume);
+        settingsUpdated();
+    }
 
-	@Override
-	public void onAudioOutputDialogToneChanged(AudioOutputFragment dialog) {
+    @Override
+    public void onAudioOutputDialogToneChanged(AudioOutputFragment dialog) {
         boolean mPtt = dialog.getPtt();
-		int mTone = dialog.getTone();
-		if (mPtt) {
-			mTncService.ptt(mTone);
-		} else {
-			mTncService.ptt(TONE_NONE);
-		}	
-	}
+        int mTone = dialog.getTone();
+        if (mPtt) {
+            mTncService.ptt(mTone);
+        } else {
+            mTncService.ptt(TONE_NONE);
+        }    
+    }
 
     @Override
     public void onAudioOutputDialogTwistLevelChanged(AudioOutputFragment dialog) {
@@ -1041,46 +1083,46 @@ public class TncConfig extends FragmentActivity
         mTncService.outputTwist(mOutputTwist);
     }
 
-	@Override
+    @Override
     public void onAudioInputDialogClose(AudioInputFragment dialog) {
-    	if (mInputAtten != dialog.getInputAtten()) {
-    		mInputAtten = dialog.getInputAtten();
-    		mTncService.setInputAtten(mInputAtten);
-    	}
-    	synchronized (TAG) {
-	    	mTncService.ptt(TONE_NONE);
-    	}
+        if (mInputAtten != dialog.getInputAtten()) {
+            mInputAtten = dialog.getInputAtten();
+            mTncService.setInputAtten(mInputAtten);
+        }
+        synchronized (TAG) {
+            mTncService.ptt(TONE_NONE);
+        }
     }
     
-	@Override
+    @Override
     public void onAudioInputDialogPause(AudioInputFragment dialog) {
-    	if (mInputAtten != dialog.getInputAtten()) {
-    		mInputAtten = dialog.getInputAtten();
-    		mTncService.setInputAtten(mInputAtten);
-    	}
-    	synchronized (TAG) {
-	    	mTncService.ptt(TONE_NONE);
-    	}
+        if (mInputAtten != dialog.getInputAtten()) {
+            mInputAtten = dialog.getInputAtten();
+            mTncService.setInputAtten(mInputAtten);
+        }
+        synchronized (TAG) {
+            mTncService.ptt(TONE_NONE);
+        }
     }
     
-	@Override
+    @Override
     public void onAudioInputDialogResume(AudioInputFragment dialog) {
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		AudioInputFragment audioInputFragment = (AudioInputFragment) fragmentManager.findFragmentByTag("AudioInputFragment");
-		if (audioInputFragment != mAudioInputFragment) {
-			mAudioInputFragment = audioInputFragment;
-		}
-		mTncService.listen();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        AudioInputFragment audioInputFragment = (AudioInputFragment) fragmentManager.findFragmentByTag("AudioInputFragment");
+        if (audioInputFragment != mAudioInputFragment) {
+            mAudioInputFragment = audioInputFragment;
+        }
+        mTncService.listen();
     }
     
     @Override
     public void onAudioInputDialogChanged(AudioInputFragment dialog) {
-    	if (mInputAtten != dialog.getInputAtten()) {
-    		mInputAtten = dialog.getInputAtten();
-    		mTncService.setInputAtten(mInputAtten);
-    		mTncService.listen();
-    		settingsUpdated();
-    	}
+        if (mInputAtten != dialog.getInputAtten()) {
+            mInputAtten = dialog.getInputAtten();
+            mTncService.setInputAtten(mInputAtten);
+            mTncService.listen();
+            settingsUpdated();
+        }
     }
 
     @Override
@@ -1113,30 +1155,30 @@ public class TncConfig extends FragmentActivity
 
     @Override
     public void onPowerDialogUpdate(PowerFragment dialog) {
-    	if (mPowerOn != dialog.getPowerOn()) {
-    		mPowerOn = dialog.getPowerOn();
-    		mTncService.setUsbPowerOn(mPowerOn);
-    		settingsUpdated();
-    	}
-    	if (mPowerOff != dialog.getPowerOff()) {
-    		mPowerOff = dialog.getPowerOff();
-    		mTncService.setUsbPowerOff(mPowerOff);
-    		settingsUpdated();
-    	}
+        if (mPowerOn != dialog.getPowerOn()) {
+            mPowerOn = dialog.getPowerOn();
+            mTncService.setUsbPowerOn(mPowerOn);
+            settingsUpdated();
+        }
+        if (mPowerOff != dialog.getPowerOff()) {
+            mPowerOff = dialog.getPowerOff();
+            mTncService.setUsbPowerOff(mPowerOff);
+            settingsUpdated();
+        }
     }
     
-	@Override
+    @Override
     public void onPowerDialogResume(PowerFragment dialog) {
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		PowerFragment powerFragment = (PowerFragment) fragmentManager.findFragmentByTag("PowerFragment");
-		if (powerFragment != mPowerFragment) {
-			mPowerFragment = powerFragment;
-		}
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        PowerFragment powerFragment = (PowerFragment) fragmentManager.findFragmentByTag("PowerFragment");
+        if (powerFragment != mPowerFragment) {
+            mPowerFragment = powerFragment;
+        }
     }
     
     @Override
     public void onKissDialogUpdate(KissFragment dialog) {
-    	
+        
         if(D) Log.i(TAG, "onKissDialogPause()");
         if(D) Log.i(TAG, "TxDelay: " + dialog.getTxDelay());
         if(D) Log.i(TAG, "Persistence: " + dialog.getPersistence());
@@ -1144,39 +1186,39 @@ public class TncConfig extends FragmentActivity
         if(D) Log.i(TAG, "Duplex: " + dialog.getDuplex());
 
         if (mTxDelay != dialog.getTxDelay()) {
-    		mTxDelay = dialog.getTxDelay();
-    		mTncService.setTxDelay(mTxDelay);
-    		settingsUpdated();
-    	}
-    	if (mPersistence != dialog.getPersistence()) {
-    		mPersistence = dialog.getPersistence();
-    		mTncService.setPersistence(mPersistence);
-    		settingsUpdated();
-    	}
-    	if (mSlotTime != dialog.getSlotTime()) {
-    		mSlotTime = dialog.getSlotTime();
-    		mTncService.setSlotTime(mSlotTime);
-    		settingsUpdated();
-    	}
-    	if (mTxTail != dialog.getTxTail()) {
-    		mTxTail = dialog.getTxTail();
-    		mTncService.setSlotTime(mTxTail);
-    		settingsUpdated();
-    	}
-    	if (mDuplex != dialog.getDuplex()) {
-    		mDuplex = dialog.getDuplex();
-    		mTncService.setDuplex(mDuplex);
-    		settingsUpdated();
-    	}
+            mTxDelay = dialog.getTxDelay();
+            mTncService.setTxDelay(mTxDelay);
+            settingsUpdated();
+        }
+        if (mPersistence != dialog.getPersistence()) {
+            mPersistence = dialog.getPersistence();
+            mTncService.setPersistence(mPersistence);
+            settingsUpdated();
+        }
+        if (mSlotTime != dialog.getSlotTime()) {
+            mSlotTime = dialog.getSlotTime();
+            mTncService.setSlotTime(mSlotTime);
+            settingsUpdated();
+        }
+        if (mTxTail != dialog.getTxTail()) {
+            mTxTail = dialog.getTxTail();
+            mTncService.setSlotTime(mTxTail);
+            settingsUpdated();
+        }
+        if (mDuplex != dialog.getDuplex()) {
+            mDuplex = dialog.getDuplex();
+            mTncService.setDuplex(mDuplex);
+            settingsUpdated();
+        }
     }
     
-	@Override
+    @Override
     public void onKissDialogResume(KissFragment dialog) {
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		KissFragment kissFragment = (KissFragment) fragmentManager.findFragmentByTag("KissFragment");
-		if (kissFragment != mKissFragment) {
-			mKissFragment = kissFragment;
-		}
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        KissFragment kissFragment = (KissFragment) fragmentManager.findFragmentByTag("KissFragment");
+        if (kissFragment != mKissFragment) {
+            mKissFragment = kissFragment;
+        }
     }
     
     @Override
@@ -1189,21 +1231,21 @@ public class TncConfig extends FragmentActivity
         if(D && dialog.hasVerbose()) Log.i(TAG, "Verbose: " + dialog.getVerbose());
         
         if (mHasDcd && (mDcd != dialog.getDcd())) {
-        	mDcd = dialog.getDcd();
-        	mTncService.setDcd(mDcd);
-    		settingsUpdated();
+            mDcd = dialog.getDcd();
+            mTncService.setDcd(mDcd);
+            settingsUpdated();
         }
         
         if (mHasConnTrack && (mConnTrack != dialog.getConnTrack())) {
-        	mConnTrack = dialog.getConnTrack();
-        	mTncService.setConnTrack(mConnTrack);
-    		settingsUpdated();
+            mConnTrack = dialog.getConnTrack();
+            mTncService.setConnTrack(mConnTrack);
+            settingsUpdated();
         }
         
         if (mHasVerbose && (mVerbose != dialog.getVerbose())) {
-        	mVerbose = dialog.getVerbose();
-        	mTncService.setVerbosity(mVerbose);
-    		settingsUpdated();
+            mVerbose = dialog.getVerbose();
+            mTncService.setVerbosity(mVerbose);
+            settingsUpdated();
         }
 
         if (mHasPassall && (mPassall != dialog.getPassall())) {
@@ -1231,14 +1273,14 @@ public class TncConfig extends FragmentActivity
         }
     }
     
-	@Override
+    @Override
     public void onModemDialogResume(ModemFragment dialog) {
         if(D) Log.d(TAG, "onModemDialogResume");
-		FragmentManager fragmentManager = getSupportFragmentManager();
-		ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
-		if (modemFragment != mModemFragment) {
-			mModemFragment = modemFragment;
-		}
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        ModemFragment modemFragment = (ModemFragment) fragmentManager.findFragmentByTag("ModemFragment");
+        if (modemFragment != mModemFragment) {
+            mModemFragment = modemFragment;
+        }
     }
 
     @Override
@@ -1258,26 +1300,39 @@ public class TncConfig extends FragmentActivity
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(D) Log.d(TAG, "onActivityResult " + resultCode);
         switch (requestCode) {
-        case REQUEST_CONNECT_DEVICE:
-            // When DeviceListActivity returns with a device to connect
-            if (resultCode == AppCompatActivity.RESULT_OK) {
-                // Get the device MAC address
-                String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
-                // Get the BLuetoothDevice object
-                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-                // Attempt to connect to the device
-                mTncService.connect(device);
-            }
-            break;
-        case REQUEST_ENABLE_BT:
-            // When the request to enable Bluetooth returns
-            if (resultCode != AppCompatActivity.RESULT_OK) {
-                // User did not enable Bluetooth or an error occured
-                Log.d(TAG, "BT not enabled");
-                Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
-                finish();
-            }
+            case REQUEST_CONNECT_DEVICE:
+                // When DeviceListActivity returns with a device to connect
+                if (resultCode == AppCompatActivity.RESULT_OK) {
+                    // Get the device MAC address
+                    String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    if (!BluetoothAdapter.checkBluetoothAddress(address)) {
+                        Toast.makeText(this, R.string.msg_unable_to_connect, Toast.LENGTH_SHORT).show();
+                    } else {
+                        // Get the BLuetoothDevice object
+                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+                        // Attempt to connect to the device
+                        mTncService.connect(device);
+                    }
+                }
+                break;
+            case REQUEST_ENABLE_BT:
+                // When the request to enable Bluetooth returns
+                if (resultCode != AppCompatActivity.RESULT_OK) {
+                    // User did not enable Bluetooth or an error occured
+                    Log.d(TAG, "BT not enabled");
+                    Toast.makeText(this, R.string.bt_not_enabled_leaving, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+            case REQUEST_BT_CONNECT:
+                // When the request to enable Bluetooth returns
+                if (resultCode != AppCompatActivity.RESULT_OK) {
+                    // User did not grant Bluetooth Connect permission or an error occured
+                    Log.d(TAG, "BT Connect permission not granted");
+                    Toast.makeText(this, R.string.msg_no_connect_permission, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
         }
     }
-
 }

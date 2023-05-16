@@ -32,6 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This Activity appears as a dialog. It lists any paired devices and
@@ -86,15 +87,15 @@ public class DeviceListActivity extends Activity {
         // Get a set of currently paired devices
         Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
 
+        if (pairedDevices.size() == 0) {
+            Toast.makeText(this, R.string.msg_not_paired, Toast.LENGTH_LONG).show();
+            finish();
+        }
+
         // If there are paired devices, add each one to the ArrayAdapter
-        if (pairedDevices.size() > 0) {
-            findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
-            for (BluetoothDevice device : pairedDevices) {
-                mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-            }
-        } else {
-            String noDevices = getResources().getText(R.string.none_paired).toString();
-            mPairedDevicesArrayAdapter.add(noDevices);
+        findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
+        for (BluetoothDevice device : pairedDevices) {
+            mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
         }
     }
 
@@ -108,6 +109,11 @@ public class DeviceListActivity extends Activity {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
+
+            if (info == getResources().getText(R.string.none_paired).toString()) {
+                // do nothing...
+                return;
+            }
             String address = info.substring(info.length() - 17);
             if (D) Log.d(TAG, "onItemClick() -> " + address);
 
