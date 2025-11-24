@@ -330,12 +330,6 @@ public class AudioOutputFragment extends DialogFragment {
     public void onStart() {
     	super.onStart();
 
-    	AlertDialog dialog = ((AlertDialog) getDialog());
-    	Button close = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
-        LinearLayout.LayoutParams layout = (LinearLayout.LayoutParams) close.getLayoutParams();
-        layout.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        layout.gravity = Gravity.FILL_HORIZONTAL;
-        close.setLayoutParams(layout);
         if(D) Log.d(TAG, "++ ON START ++");
      }
     
