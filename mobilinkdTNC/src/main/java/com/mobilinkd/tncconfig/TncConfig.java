@@ -23,12 +23,14 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import androidx.core.graphics.Insets;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.util.Log;
@@ -39,17 +41,22 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import java.lang.ref.WeakReference;
+import android.view.ViewGroup;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.ViewCompat;
 
 public class TncConfig extends FragmentActivity
         implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
@@ -120,6 +127,7 @@ public class TncConfig extends FragmentActivity
     // Member object for the chat services
     private BluetoothTncService mTncService = null;
 
+    private ScrollView mainScrollView;
     private ToggleButton mConnectButton;
     private TextView mBluetoothDeviceView;
     private TextView mFirmwareVersionView;
@@ -289,7 +297,7 @@ public class TncConfig extends FragmentActivity
         }
 
         @Override
-        public void handleMessage(Message msg) {
+        public void handleMessage(@NonNull Message msg) {
 
             TncConfig tncConfig = tncConfigRef.get();
             if (tncConfig == null) return;
@@ -568,12 +576,9 @@ public class TncConfig extends FragmentActivity
 
 
     @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        }
+        getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_main);
 
         if (D) {
@@ -591,6 +596,7 @@ public class TncConfig extends FragmentActivity
             return;
         }
 
+        mainScrollView = (ScrollView) findViewById(R.id.scrollView);
         mBluetoothDeviceView = (TextView) findViewById(R.id.bluetooth_device_text);
         mFirmwareVersionView = (TextView) findViewById(R.id.firmware_version_text);
     }
@@ -620,6 +626,15 @@ public class TncConfig extends FragmentActivity
             }
         }
 
+        if (Build.VERSION.SDK_INT >= 29) {
+            ViewCompat.setOnApplyWindowInsetsListener(mainScrollView, (v, insets) -> {
+                Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+                return insets;
+            });
+        }
+
+
         // If BT is not on, request that it be enabled.
         // setupChat() will then be called during onActivityResult
         if (!mBluetoothAdapter.isEnabled()) {
@@ -628,6 +643,7 @@ public class TncConfig extends FragmentActivity
         } else {
             if (mTncService == null) setupConfig();
         }
+
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
@@ -1299,6 +1315,7 @@ public class TncConfig extends FragmentActivity
     
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(D) Log.d(TAG, "onActivityResult " + resultCode);
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CONNECT_DEVICE:
                 // When DeviceListActivity returns with a device to connect
