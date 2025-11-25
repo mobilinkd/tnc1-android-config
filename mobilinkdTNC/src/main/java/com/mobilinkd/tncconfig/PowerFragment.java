@@ -1,5 +1,6 @@
 package com.mobilinkd.tncconfig;
 
+import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -32,27 +33,23 @@ public class PowerFragment extends DialogFragment {
         public void onPowerDialogUpdate(PowerFragment dialog);
         public void onPowerDialogResume(PowerFragment dialog);
     }
-	
-    private View mDialogView = null;
-    
-	private boolean mPowerOn = false;
+
+    private boolean mPowerOn = false;
 	private boolean mPowerOff = false;
 	private int mBatteryLevel = 0;
 	
     private TextView mVoltageView;
     private ProgressBar mVoltageMeter;
-    private CheckedTextView mPowerOnView;
-    private CheckedTextView mPowerOffView;
-	
-	private Listener mListener = null;
+
+    private Listener mListener = null;
 	private boolean mPowerControl = false;
 	
 	private View configureDialogView(View view) {
 		
         mVoltageView = (TextView) view.findViewById(R.id.textView2);
         mVoltageMeter = (ProgressBar) view.findViewById(R.id.battery_meter_bar);
-        mPowerOnView = (CheckedTextView) view.findViewById(R.id.checkBox1);
-        mPowerOffView = (CheckedTextView) view.findViewById(R.id.checkBox2);
+        CheckedTextView mPowerOnView = (CheckedTextView) view.findViewById(R.id.checkBox1);
+        CheckedTextView mPowerOffView = (CheckedTextView) view.findViewById(R.id.checkBox2);
 
         String mv = String.format(getString(R.string.battery_level_mv), mBatteryLevel);
         mVoltageView.setText(mv);
@@ -97,21 +94,22 @@ public class PowerFragment extends DialogFragment {
 
 	@SuppressLint("InflateParams")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
     	
     	
         if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
 
-        if (getShowsDialog() == true) {
+        if (getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.power_fragment, null);    
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.power_fragment, null);
             return configureDialogView(view);
         }
     }
 
     
+    @NonNull
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -127,7 +125,7 @@ public class PowerFragment extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.power_fragment, null);
+        View mDialogView = inflater.inflate(R.layout.power_fragment, null);
         builder.setView(mDialogView)
         // Add action buttons
                .setTitle(R.string.power_settings_title)
@@ -164,7 +162,7 @@ public class PowerFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");

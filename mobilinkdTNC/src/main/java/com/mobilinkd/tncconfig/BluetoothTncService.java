@@ -21,20 +21,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.UUID;
 
-// import android.bluetooth.BluetoothAdapter;
+import android.Manifest;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.SystemClock;
 import android.util.Log;
+
+import androidx.annotation.RequiresPermission;
 
 /**
  * This class sets up and manages the Bluetooth connection with the TNC.
@@ -232,6 +231,7 @@ public class BluetoothTncService {
      * @param socket  The BluetoothSocket on which the connection was made
      * @param device  The BluetoothDevice that has been connected
      */
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     public synchronized void connected(BluetoothSocket socket, BluetoothDevice device) {
         if (D) Log.d(TAG, "connected");
 
@@ -365,7 +365,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_SQUELCH_LEVEL;
+        byte[] c = TNC_SET_SQUELCH_LEVEL;
         if (!on)
         {
         	c[3] = 2;
@@ -389,7 +389,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_TX_DELAY;
+        byte[] c = TNC_SET_TX_DELAY;
         c[2] = (byte) value;
     	r.write(c);
     }
@@ -406,7 +406,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_PERSISTENCE;
+        byte[] c = TNC_SET_PERSISTENCE;
         c[2] = (byte) value;
     	r.write(c);
     }
@@ -423,7 +423,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_SLOT_TIME;
+        byte[] c = TNC_SET_SLOT_TIME;
         c[2] = (byte) value;
     	r.write(c);
     }
@@ -440,7 +440,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_TX_TAIL;
+        byte[] c = TNC_SET_TX_TAIL;
         c[2] = (byte) value;
     	r.write(c);
     }
@@ -457,7 +457,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_DUPLEX;
+        byte[] c = TNC_SET_DUPLEX;
         if (on)
         {
         	c[2] = 1;
@@ -481,7 +481,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_BT_CONN_TRACK;
+        byte[] c = TNC_SET_BT_CONN_TRACK;
         if (on)
         {
         	c[3] = 1;
@@ -505,7 +505,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_VERBOSITY;
+        byte[] c = TNC_SET_VERBOSITY;
         if (on)
         {
         	c[3] = 1;
@@ -529,7 +529,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
 
-        byte c[] = TNC_SET_PASSALL;
+        byte[] c = TNC_SET_PASSALL;
         if (on)
         {
             c[3] = 1;
@@ -553,7 +553,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
 
-        byte c[] = TNC_SET_RX_REVERSE_POLARITY;
+        byte[] c = TNC_SET_RX_REVERSE_POLARITY;
         if (on)
         {
             c[3] = 1;
@@ -577,7 +577,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
 
-        byte c[] = TNC_SET_TX_REVERSE_POLARITY;
+        byte[] c = TNC_SET_TX_REVERSE_POLARITY;
         if (on)
         {
             c[3] = 1;
@@ -601,7 +601,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
 
-        byte c[] = TNC_SET_MODEM_TYPE;
+        byte[] c = TNC_SET_MODEM_TYPE;
         c[4] = (byte) v;
         r.write(c);
     }
@@ -618,7 +618,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_USB_POWER_ON;
+        byte[] c = TNC_SET_USB_POWER_ON;
         c[3] = (byte) (value ? 1 : 0);
     	r.write(c);
     }
@@ -635,7 +635,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_USB_POWER_OFF;
+        byte[] c = TNC_SET_USB_POWER_OFF;
         c[3] = (byte) (value ? 1 : 0);
     	r.write(c);
     }
@@ -652,7 +652,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_PTT_CHANNEL;
+        byte[] c = TNC_SET_PTT_CHANNEL;
         c[3] = (byte) channel;
     	r.write(c);
     }
@@ -684,7 +684,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         
-        byte c[] = TNC_SET_INPUT_ATTEN;
+        byte[] c = TNC_SET_INPUT_ATTEN;
         if (on)
         {
         	c[3] = 2;
@@ -708,7 +708,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
 
-        byte c[] = TNC_SET_INPUT_GAIN;
+        byte[] c = TNC_SET_INPUT_GAIN;
         c[3] = (byte) ((level >> 8) & 0xFF);
         c[4] = (byte) (level & 0xFF);
         r.write(c);
@@ -726,7 +726,7 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
 
-        byte c[] = TNC_SET_INPUT_TWIST;
+        byte[] c = TNC_SET_INPUT_TWIST;
         c[3] = (byte) level;
         r.write(c);
     }
@@ -781,35 +781,8 @@ public class BluetoothTncService {
         r.write(c);
     }
 
-
-    @SuppressWarnings("unused")
-	private class ListenTask extends AsyncTask<Integer, Void, Void> {
-        /** The system calls this to perform work in a worker thread and
-          * delivers it the parameters given to AsyncTask.execute() 
-         * @return */
-        protected Void doInBackground(Integer... delays) {
-        	SystemClock.sleep(delays[0].intValue());
-            return null;
-        }
-        
-        /** The system calls this to perform work in the UI thread and delivers
-          * the result from doInBackground() */
-        protected void onPostExecute(Void v) {
-            if (D) Log.d(TAG, "async listen()");
-            ConnectedThread r;
-            // Synchronize a copy of the ConnectedThread
-            synchronized (this) {
-                if (mState != STATE_CONNECTED) return;
-                r = mConnectedThread;
-            }
-           	r.listen();
-        }
-    }
-
     public void listen() {
         if (D) Log.d(TAG, "listen()");
-        
-        // new ListenTask().execute(Integer.valueOf(250));
 
         ConnectedThread r;
         // Synchronize a copy of the ConnectedThread
@@ -832,14 +805,15 @@ public class BluetoothTncService {
             r = mConnectedThread;
         }
         if (mApiVersion == 0x100) {
-            byte c[] = TNC_SET_OUTPUT_VOLUME;
+            byte[] c = TNC_SET_OUTPUT_VOLUME;
             c[3] = (byte) v;
             r.write(c);
         } else {
-            byte c[] = TNC_SET_OUTPUT_GAIN;
+            byte[] c = TNC_SET_OUTPUT_GAIN;
             c[3] = (byte) ((v >> 8) & 0xFF);
             c[4] = (byte) (v & 0xFF);
-            r.write(c);        }
+            r.write(c);
+        }
     }
 
     public void outputTwist(int v)
@@ -853,7 +827,7 @@ public class BluetoothTncService {
             if (mState != STATE_CONNECTED) return;
             r = mConnectedThread;
         }
-        byte c[] = TNC_SET_OUTPUT_TWIST;
+        byte[] c = TNC_SET_OUTPUT_TWIST;
         c[3] = (byte) v;
         r.write(c);
     }
@@ -869,7 +843,7 @@ public class BluetoothTncService {
             if (mState != STATE_CONNECTED) return;
             r = mConnectedThread;
         }
-        byte c[] = TNC_SET_MODEM_TYPE;
+        byte[] c = TNC_SET_MODEM_TYPE;
         c[4] = (byte) modem;
         r.write(c);
     }
@@ -956,6 +930,7 @@ public class BluetoothTncService {
             mmSocket = tmp;
         }
 
+        @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
         public void run() {
             Log.i(TAG, "BEGIN mConnectThread");
             setName("ConnectThread");
@@ -1269,7 +1244,7 @@ public class BluetoothTncService {
                             mHandler.obtainMessage(
                                     TncConfig.MESSAGE_SERIAL_NUMBER, 0,
                                     mHdlc.size(), mHdlc.data()).sendToTarget();
-                            Log.i(TAG, "TNC_GET_SERIAL_NUMBER: " + data.toString());
+                            Log.i(TAG, "TNC_GET_SERIAL_NUMBER: " + Arrays.toString(data));
                             break;
                         case HdlcDecoder.TNC_GET_MAC_ADDRESS:
                             mHandler.obtainMessage(

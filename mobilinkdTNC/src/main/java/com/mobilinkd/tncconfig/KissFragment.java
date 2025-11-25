@@ -1,5 +1,6 @@
 package com.mobilinkd.tncconfig;
 
+import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -33,16 +34,14 @@ public class KissFragment extends DialogFragment {
         public void onKissDialogResume(KissFragment dialog);
     }
 
-    abstract private class NumberPickerListener implements NumberPickerFragment.Listener {
+    abstract private static class NumberPickerListener implements NumberPickerFragment.Listener {
 
 		abstract public void onDialogPositiveClick(NumberPickerFragment dialog);
 
 		abstract public void onDialogNegativeClick(NumberPickerFragment dialog);
     }
-    
-    private View mDialogView = null;
-    
-	private int mTxDelay = 0;
+
+    private int mTxDelay = 0;
 	private int mPersistence = 0;
 	private int mSlotTime = 0;
 	private int mTxTail = 2;
@@ -52,13 +51,8 @@ public class KissFragment extends DialogFragment {
     private TextView mPersistenceText;
     private TextView mSlotTimeText;
     private TextView mTxTailText;
-    private CheckedTextView mDuplexView;
-    
-    private LinearLayout mTxDelayView;
-    private LinearLayout mPersistenceView;
-    private LinearLayout mSlotTimeView;
-	
-	private Listener mListener = null;
+
+    private Listener mListener = null;
 
 	private View configureDialogView(View view) {
 		
@@ -66,11 +60,11 @@ public class KissFragment extends DialogFragment {
         mPersistenceText = (TextView) view.findViewById(R.id.persistenceText);
         mSlotTimeText = (TextView) view.findViewById(R.id.slotTimeText);
         mTxTailText = (TextView) view.findViewById(R.id.txTailText);
-        mDuplexView = (CheckedTextView) view.findViewById(R.id.duplexCheckBox);
+        CheckedTextView mDuplexView = (CheckedTextView) view.findViewById(R.id.duplexCheckBox);
 
-        mTxDelayView = (LinearLayout) view.findViewById(R.id.txDelayView);
-        mPersistenceView = (LinearLayout) view.findViewById(R.id.persistenceView);
-        mSlotTimeView = (LinearLayout) view.findViewById(R.id.slotTimeView);
+        LinearLayout mTxDelayView = (LinearLayout) view.findViewById(R.id.txDelayView);
+        LinearLayout mPersistenceView = (LinearLayout) view.findViewById(R.id.persistenceView);
+        LinearLayout mSlotTimeView = (LinearLayout) view.findViewById(R.id.slotTimeView);
 
         mTxDelayView.setOnClickListener(new OnClickListener() {
         	@Override
@@ -179,22 +173,23 @@ public class KissFragment extends DialogFragment {
 	
 	@SuppressLint("InflateParams")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
     	
     	
         if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
 
-        if (getShowsDialog() == true) {
+        if (getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.kiss_fragment, null);    
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.kiss_fragment, null);
             return configureDialogView(view);
         }
     }
 
     
-	@SuppressLint("InflateParams")
+	@androidx.annotation.NonNull
+    @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -209,7 +204,7 @@ public class KissFragment extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.kiss_fragment, null);
+        View mDialogView = inflater.inflate(R.layout.kiss_fragment, null);
         builder.setView(mDialogView)
         // Add action buttons
                .setTitle(R.string.kiss_parameters_title)
@@ -246,7 +241,7 @@ public class KissFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");

@@ -122,7 +122,8 @@ public class AudioInputFragment extends DialogFragment {
             public void onClick(View view) {
                 // Is the toggle on?
             	((CheckedTextView) view).toggle();
-            	mInputAtten = ((CheckedTextView) view).isChecked();
+
+                mInputAtten = ((CheckedTextView) view).isChecked();
                 Log.i(TAG, "mInputAtten changed: " + mInputAtten);
                 mListener.onAudioInputDialogChanged(AudioInputFragment.this);
             }
@@ -291,7 +292,7 @@ public class AudioInputFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@androidx.annotation.NonNull Context context) {
         super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");

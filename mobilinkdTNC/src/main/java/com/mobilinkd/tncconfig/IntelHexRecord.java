@@ -24,8 +24,7 @@ public class IntelHexRecord {
 	private int length = 0;
 	private int address = 0;
 	private int type = 0;
-	private int checksum = 0;
-	private byte[] data = null;
+    private byte[] data = null;
 	
 	// Debugging
 	private static final String TAG = "IntelHexRecord";
@@ -59,7 +58,7 @@ public class IntelHexRecord {
 			result[i] = (byte) Integer.parseInt(
 					record.substring(pos, pos + 2), 16);
 		}
-		assert(result.length == size);
+
 		return result;
 	}
 	
@@ -82,7 +81,7 @@ public class IntelHexRecord {
 		address = parseAddress();
 		type = parseType();
 		data = parseData(length);
-		checksum = parseChecksum();
+        int checksum = parseChecksum();
 		
 		if (D) Log.i(TAG, "address: " + Integer.toHexString(address));
 		if (D) Log.i(TAG, "length: " + Integer.toString(length));

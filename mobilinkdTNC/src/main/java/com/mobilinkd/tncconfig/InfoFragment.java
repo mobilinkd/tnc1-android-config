@@ -1,5 +1,6 @@
 package com.mobilinkd.tncconfig;
 
+import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -36,9 +37,7 @@ public class InfoFragment extends DialogFragment {
         public void onInfoDialogResume(InfoFragment dialog);
     }
 
-    private View mDialogView = null;
-    
-	private String mHwVersion;
+    private String mHwVersion;
     private String mFwVersion;
     private String mMacAddress;
     private String mSerialNumber;
@@ -86,7 +85,7 @@ public class InfoFragment extends DialogFragment {
 
         date.set(Calendar.DAY_OF_WEEK, value[3] + 1);
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("UTC"));
         format.setCalendar(date);
         mDateTime = format.format(date.getTime()) + " UTC";
@@ -94,22 +93,23 @@ public class InfoFragment extends DialogFragment {
 	
 	@SuppressLint("InflateParams")
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
     	
     	
         if(D) Log.d(TAG, "+++ ON CREATE VIEW +++");
 
-        if (getShowsDialog() == true) {
+        if (getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.info_fragment, null);
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.info_fragment, null);
             return configureDialogView(view);
         }
     }
 
     
-	@SuppressLint("InflateParams")
+	@androidx.annotation.NonNull
+    @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
@@ -124,7 +124,7 @@ public class InfoFragment extends DialogFragment {
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.info_fragment, null);
+        View mDialogView = inflater.inflate(R.layout.info_fragment, null);
         builder.setView(mDialogView)
         // Add action buttons
                .setTitle(R.string.device_information_title)
@@ -161,7 +161,7 @@ public class InfoFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@androidx.annotation.NonNull Context context) {
         super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");

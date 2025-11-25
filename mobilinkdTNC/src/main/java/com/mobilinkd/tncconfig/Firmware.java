@@ -33,7 +33,7 @@ public class Firmware {
 	private static final boolean D = false;
 
 
-	public class Segment {
+	public static class Segment {
 		public char memoryType;
 		public int address;
 		public byte[] data;
@@ -74,7 +74,7 @@ public class Firmware {
 		    				throw new IllegalArgumentException("bad segment alignment");
 		    			}
 		    			Segment segment = new Segment(
-		    					'F', address - segmentData.length, segmentData);
+                                'F', address - segmentData.length, segmentData);
 		    			segments.add(segment);
 		    			address = record.address();
 		    		}
@@ -86,7 +86,7 @@ public class Firmware {
 		    
 			byte[] segmentData = buffer.toByteArray();
  			Segment segment = new Segment(
-					'F', address - segmentData.length, segmentData);
+                    'F', address - segmentData.length, segmentData);
 			segments.add(segment);
 			
 		} catch (IOException x) {

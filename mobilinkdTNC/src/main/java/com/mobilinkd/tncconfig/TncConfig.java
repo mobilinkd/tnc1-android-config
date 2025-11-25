@@ -17,22 +17,26 @@
 package com.mobilinkd.tncconfig;
 
 import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.graphics.Insets;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -54,9 +58,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import java.lang.ref.WeakReference;
-import android.view.ViewGroup;
+import java.util.Objects;
+
 import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.ViewCompat;
 
 public class TncConfig extends FragmentActivity
         implements AudioOutputFragment.Listener, AudioInputFragment.Listener,
@@ -288,11 +292,12 @@ public class TncConfig extends FragmentActivity
     }
 
     //static inner class doesn't hold an implicit reference to the outer class
-    private static class TncHandler extends Handler {
+    public static class TncHandler extends Handler {
         //Using a weak reference means you won't prevent garbage collection
         private final WeakReference<TncConfig> tncConfigRef;
 
         TncHandler(TncConfig tncConfig) {
+            super(Looper.getMainLooper());
             tncConfigRef = new WeakReference<>(tncConfig);
         }
 
@@ -646,7 +651,7 @@ public class TncConfig extends FragmentActivity
 
     }
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @androidx.annotation.NonNull String[] permissions, @androidx.annotation.NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
@@ -1035,26 +1040,23 @@ public class TncConfig extends FragmentActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.action_bluetooth_settings:
-            // Launch the DeviceListActivity to see devices and do scan
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_bluetooth_settings) {// Launch the DeviceListActivity to see devices and do scan
             Intent bluetoothSettingsIntent = new Intent();
-            bluetoothSettingsIntent.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+            bluetoothSettingsIntent.setAction(Settings.ACTION_BLUETOOTH_SETTINGS);
             startActivity(bluetoothSettingsIntent);
             return true;
-        case R.id.action_firmware_update:
-            // Stop the TNC service so the firmware service can connect.
+        } else if (itemId == R.id.action_firmware_update) {// Stop the TNC service so the firmware service can connect.
             if (mTncService != null) {
                 mTncService.stop();
                 mTncService = null;
             }
-            
+
             // Launch the browser.
             Uri uri = Uri.parse(getString(R.string.firmware_url));
-            startActivity(new Intent(Intent.ACTION_VIEW, uri));  
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
             return true;
-        case R.id.action_about:
-            // Launch the AboutActivity to learn about the program.
+        } else if (itemId == R.id.action_about) {// Launch the AboutActivity to learn about the program.
             Intent aboutIntent = new Intent(this, AboutActivity.class);
             startActivity(aboutIntent);
             return true;
@@ -1321,7 +1323,7 @@ public class TncConfig extends FragmentActivity
                 // When DeviceListActivity returns with a device to connect
                 if (resultCode == AppCompatActivity.RESULT_OK) {
                     // Get the device MAC address
-                    String address = data.getExtras().getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
+                    String address = Objects.requireNonNull(data.getExtras()).getString(DeviceListActivity.EXTRA_DEVICE_ADDRESS);
                     if (!BluetoothAdapter.checkBluetoothAddress(address)) {
                         Toast.makeText(this, R.string.msg_unable_to_connect, Toast.LENGTH_SHORT).show();
                     } else {

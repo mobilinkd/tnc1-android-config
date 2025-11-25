@@ -21,10 +21,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
 import java.util.UUID;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -35,10 +36,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -53,15 +55,15 @@ import android.widget.Toast;
 /**
  * This activity downloads firmware, connects the Bluetooth device, and uploads
  * the firmware to the TNC.
- * 
+ * <p>
  * It does the following, in order:
- * 
+ * <p>
  * - Verify that a Bluetooth adapter exists otherwise exit. - Verify that the
  * Bluetooth adapter is enabled, otherwise request BT enable. - Select the TNC
  * from Device List. - Connect to TNC - Download the firmware. It is small and
  * should be fast. - Verify the bootloader. - Verify the hardware. - Erase TNC
  * firmware. - Upload TNC firmware. - Verify TNC firmware. - Notify user.
- * 
+ * <p>
  * If the Upload or Verify steps fail or the user cancels the operation, the TNC
  * is erased to ensure that the bootloader is active.
  * 
@@ -117,48 +119,41 @@ public class FirmwareUpdateActivity extends Activity {
 	private BluetoothSocket mSocket = null;
 	private ConnectThread mConnectThread = null;
 	private FirmwareDownloadThread mFirmwareDownloadThread = null;
-	private Avr109 mFirmwareUploadThread = null;
-	private Uri mUri;
+    private Uri mUri;
 	private Firmware mFirmware;
 
 	private TextView mLog;
 	private ProgressBar mProgressBar;
-	private Button mCloseButton;
-	private ProgressDialog mDialog;
+    private ProgressDialog mDialog;
 
 	private int mState;
 
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
+
 	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+		Objects.requireNonNull(getActionBar()).setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-		if(getResources().getBoolean(R.bool.portrait_only)){
-	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+		if (getResources().getBoolean(R.bool.portrait_only)){
+	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 	    }
 		
-		if(getResources().getBoolean(R.bool.landscape_only)){
-	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		if (getResources().getBoolean(R.bool.landscape_only)){
+	        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
 	    }
 		
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-		}
+		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 		setContentView(R.layout.activity_firmware_update);
 
 		mLog = (TextView) findViewById(R.id.firmware_update_log);
 		mProgressBar = (ProgressBar) findViewById(R.id.upload_progress_bar);
-		mCloseButton = (Button) findViewById(R.id.firmware_close_button);
+        Button mCloseButton = (Button) findViewById(R.id.firmware_close_button);
 
 		mCloseButton.setOnClickListener(new OnClickListener() {
 			public void onClick(View view) {
@@ -197,7 +192,8 @@ public class FirmwareUpdateActivity extends Activity {
 		return true;
 	}
 
-	@Override
+	@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    @Override
 	public void onStart() {
 		super.onStart();
 		if (D)
@@ -209,8 +205,9 @@ public class FirmwareUpdateActivity extends Activity {
 					.setMessage(R.string.firmware_upload_notification)
 					.setPositiveButton("Yes",
 							new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog,
-										int which) {
+								@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
 									onStartCont();
 								}
 							})
@@ -228,7 +225,8 @@ public class FirmwareUpdateActivity extends Activity {
 		}
 	}
 	
-	private void onStartCont() {
+	@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private void onStartCont() {
 		
 		if (!mBluetoothAdapter.isEnabled()) {
 			mLog.append("Bluetooth not enabled\n");
@@ -263,7 +261,8 @@ public class FirmwareUpdateActivity extends Activity {
 				mConnectThread = null;
 			}
 		}
-	}
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+    }
 
 	@Override
 	public void onDestroy() {
@@ -334,8 +333,8 @@ public class FirmwareUpdateActivity extends Activity {
         mDialog.setMessage(getString(R.string.initializing_firmware));
         mDialog.setCancelable(false);
         mDialog.show();
-        
-		mFirmwareUploadThread = new Avr109(this, mSocket, mFirmware, mHandler);
+
+        Avr109 mFirmwareUploadThread = new Avr109(this, mSocket, mFirmware, mHandler);
 		mFirmwareUploadThread.start();
 	}
 
@@ -477,7 +476,8 @@ public class FirmwareUpdateActivity extends Activity {
 		mHandler.sendMessage(msg);
 	}
 
-	private void connecting(BluetoothDevice device) {
+	@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private void connecting(BluetoothDevice device) {
 		setState(STATE_CONNECTING);
 
 		String message = "Connecting to '" + device.getName() + "'";
@@ -515,7 +515,8 @@ public class FirmwareUpdateActivity extends Activity {
 			mHandler = handler;
 		}
 
-		public void run() {
+		@RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
+        public void run() {
 			Log.i(TAG, "BEGIN mConnectThread");
 			setName("ConnectThread");
 
@@ -603,7 +604,7 @@ public class FirmwareUpdateActivity extends Activity {
 					return url.openConnection().getInputStream();
 				}
 			} catch (IOException x) {
-			    System.err.format("IOException: %s%n", x);
+                System.err.format("IOException: %s%n", x);
 				throw(x);
 			}
 		}
@@ -625,12 +626,10 @@ public class FirmwareUpdateActivity extends Activity {
 				}
 
 				downloaded(mFirmware);
-			} catch (IOException e) {
-				firmwareDownloadFailed(mUri);
-			} catch (IllegalArgumentException e) {
+			} catch (IOException | IllegalArgumentException e) {
 				firmwareDownloadFailed(mUri);
 			}
-		}
+        }
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -650,7 +649,7 @@ public class FirmwareUpdateActivity extends Activity {
 			}
 
 			// Get the device MAC address
-			String address = data.getExtras().getString(
+			String address = Objects.requireNonNull(data.getExtras()).getString(
 					DeviceListActivity.EXTRA_DEVICE_ADDRESS);
 			mLog.append("Selected Bluetooth device " + address + "\n");
 			connectBluetooth(mBluetoothAdapter.getRemoteDevice(address));

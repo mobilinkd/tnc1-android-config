@@ -19,6 +19,7 @@ package com.mobilinkd.tncconfig;
 
 import java.util.Set;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -33,6 +34,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.RequiresPermission;
 
 /**
  * This Activity appears as a dialog. It lists any paired devices and
@@ -53,6 +56,7 @@ public class DeviceListActivity extends Activity {
     private ArrayAdapter<String> mPairedDevicesArrayAdapter;
     private ArrayAdapter<String> mNewDevicesArrayAdapter;
 
+    @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,10 +88,9 @@ public class DeviceListActivity extends Activity {
         // Get the local Bluetooth adapter
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // Get a set of currently paired devices
         Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
 
-        if (pairedDevices.size() == 0) {
+        if (pairedDevices.isEmpty()) {
             Toast.makeText(this, R.string.msg_not_paired, Toast.LENGTH_LONG).show();
             finish();
         }
@@ -105,12 +108,12 @@ public class DeviceListActivity extends Activity {
         if (D) Log.d(TAG, "onDestroy()");
     }
     // The on-click listener for all devices in the ListViews
-    private OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
+    private final OnItemClickListener mDeviceClickListener = new OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
 
-            if (info == getResources().getText(R.string.none_paired).toString()) {
+            if (info.equals(getResources().getText(R.string.none_paired).toString())) {
                 // do nothing...
                 return;
             }

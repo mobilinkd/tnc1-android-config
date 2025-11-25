@@ -35,10 +35,10 @@ public class Avr109 extends Thread {
 	private static final String TAG = "Avr109";
 	private static final boolean D = false;
 
-	private BluetoothSocket mSocket;
-	private Firmware mFirmware;
-	private Handler mHandler;
-	private Context mContext;
+	private final BluetoothSocket mSocket;
+	private final Firmware mFirmware;
+	private final Handler mHandler;
+	private final Context mContext;
 	private int mBlockSize;
 
 	private final InputStream mInStream;
@@ -96,9 +96,9 @@ public class Avr109 extends Thread {
 		if (D) Log.d(TAG, "BEGIN");
 
 		PowerManager powerManager = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-		PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MobilinkdFirmwareUpload");
-		
-		wakeLock.acquire();
+		PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Mobilinkd:FirmwareUpload");
+
+		wakeLock.acquire(10*60*1000L /*10 minutes*/);
 		   
 		if (initialize() && loadFirmware() && verifyFirmware()) {
 			if (D) Log.i(TAG, "Success");
@@ -363,7 +363,7 @@ public class Avr109 extends Thread {
 		}
 
 		byte[] version = read(2, 100);
-		if (version == null || version.length != 2)
+		if (version.length != 2)
 			return null;
 
 		
@@ -386,7 +386,7 @@ public class Avr109 extends Thread {
 		}
 
 		byte[] type = read(1, 100);
-		if (type == null || type.length != 1)
+		if (type.length != 1)
 			return null;
 
 		String result = new String(type);
@@ -453,7 +453,7 @@ public class Avr109 extends Thread {
 		byte[] result = read(3, 100);
 		if (result.length != 3 || result[0] != 'Y') return block_size;
 		
-		block_size = ((result[1] << 8) & 0xff00) | ((result[2] << 0) & 0xff);
+		block_size = ((result[1] << 8) & 0xff00) | (result[2] & 0xff);
 		
         if(D) Log.i(TAG, "Block size = " + Integer.toString(block_size));
 
@@ -548,7 +548,7 @@ public class Avr109 extends Thread {
 		
 		byte[] result = new byte[size];
 		int ah = (size >> 8) & 0xFF;
-		int al = (size >> 0) & 0xFF;
+		int al = size & 0xFF;
 		try {
 			mOutStream.write(CMD_READ_BLOCK);
 			mOutStream.write(ah);

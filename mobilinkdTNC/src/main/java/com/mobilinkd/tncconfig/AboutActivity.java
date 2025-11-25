@@ -30,6 +30,8 @@ import android.widget.Button;
 
 import com.mobilinkd.tncconfig.util.SystemUiHider;
 
+import java.util.Objects;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -64,10 +66,8 @@ public class AboutActivity extends Activity {
 	 * The instance of the {@link SystemUiHider} for this activity.
 	 */
 	private SystemUiHider mSystemUiHider;
-	
-	private Button mCloseButton;
 
-	@Override
+    @Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
@@ -89,31 +89,22 @@ public class AboutActivity extends Activity {
 					int mShortAnimTime;
 
 					@Override
-					@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 					public void onVisibilityChange(boolean visible) {
-						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-							// If the ViewPropertyAnimator API is available
-							// (Honeycomb MR2 and later), use it to animate the
-							// in-layout UI controls at the bottom of the
-							// screen.
-							if (mControlsHeight == 0) {
-								mControlsHeight = controlsView.getHeight();
-							}
-							if (mShortAnimTime == 0) {
-								mShortAnimTime = getResources().getInteger(
-										android.R.integer.config_shortAnimTime);
-							}
-							controlsView
-									.animate()
-									.translationY(visible ? 0 : mControlsHeight)
-									.setDuration(mShortAnimTime);
-						} else {
-							// If the ViewPropertyAnimator APIs aren't
-							// available, simply show or hide the in-layout UI
-							// controls.
-							controlsView.setVisibility(visible ? View.VISIBLE
-									: View.GONE);
-						}
+                        // If the ViewPropertyAnimator API is available
+                        // (Honeycomb MR2 and later), use it to animate the
+                        // in-layout UI controls at the bottom of the
+                        // screen.
+                        if (mControlsHeight == 0) {
+                            mControlsHeight = controlsView.getHeight();
+                        }
+                        if (mShortAnimTime == 0) {
+                            mShortAnimTime = getResources().getInteger(
+                                    android.R.integer.config_shortAnimTime);
+                        }
+                        controlsView
+                                .animate()
+                                .translationY(visible ? 0 : mControlsHeight)
+                                .setDuration(mShortAnimTime);
 
 						if (visible && AUTO_HIDE) {
 							// Schedule a hide().
@@ -141,8 +132,8 @@ public class AboutActivity extends Activity {
 		// while interacting with the UI.
 		findViewById(R.id.about_close_button).setOnTouchListener(
 				mDelayHideTouchListener);
-		
-        mCloseButton = (Button) findViewById(R.id.about_close_button);
+
+        Button mCloseButton = (Button) findViewById(R.id.about_close_button);
         mCloseButton.setOnClickListener(new OnClickListener() {
             public void onClick(View view) {
             	finish();
@@ -164,30 +155,25 @@ public class AboutActivity extends Activity {
 	/**
 	 * Set up the {@link android.app.ActionBar}, if the API is available.
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	private void setupActionBar() {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			// Show the Up button in the action bar.
-			getActionBar().setDisplayHomeAsUpEnabled(true);
-		}
+		Objects.requireNonNull(getActionBar()).setDisplayHomeAsUpEnabled(true);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			// TODO: If Settings has multiple levels, Up should navigate up
-			// that hierarchy.
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		}
+        if (item.getItemId() == android.R.id.home) {
+            // This ID represents the Home or Up button. In the case of this
+            // activity, the Up button is shown. Use NavUtils to allow users
+            // to navigate up one level in the application structure. For
+            // more details, see the Navigation pattern on Android Design:
+            //
+            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
+            //
+            // TODO: If Settings has multiple levels, Up should navigate up
+            // that hierarchy.
+            NavUtils.navigateUpFromSameTask(this);
+            return true;
+        }
 		return super.onOptionsItemSelected(item);
 	}
 

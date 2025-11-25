@@ -1,6 +1,8 @@
 package com.mobilinkd.tncconfig;
 
 import net.simonvt.numberpicker.NumberPicker;
+
+import androidx.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,33 +28,32 @@ public class NumberPickerFragment extends DialogFragment implements NumberPicker
         public void onDialogPositiveClick(NumberPickerFragment dialog);
         public void onDialogNegativeClick(NumberPickerFragment dialog);
     }
-	
-    private View mDialogView = null;
-	private Listener mListener = null;
+
+    private Listener mListener = null;
 
     private String mTitle = null;
     private Integer mMinValue = null;
     private Integer mMaxValue = null;
     private int mValue = 0;
-    private NumberPicker mPicker;
-	private Activity mActivity;
+    private Activity mActivity;
     
     @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
     	mValue = newVal;
     }
     
+    @NonNull
     @SuppressLint("InflateParams")
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
         
         // Get the layout inflater
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
 
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        mDialogView = inflater.inflate(R.layout.number_picker_fragment, null);
+        View mDialogView = inflater.inflate(R.layout.number_picker_fragment, null);
         builder.setView(mDialogView)
         // Add action buttons
                .setTitle(mTitle)
@@ -73,7 +74,7 @@ public class NumberPickerFragment extends DialogFragment implements NumberPicker
             	   }
                });
 
-        mPicker = (NumberPicker) mDialogView.findViewById(R.id.numberPicker1);
+        NumberPicker mPicker = (NumberPicker) mDialogView.findViewById(R.id.numberPicker1);
         mPicker.setOnValueChangedListener(this);
         mPicker.setMinValue(mMinValue);
         mPicker.setMaxValue(mMaxValue);

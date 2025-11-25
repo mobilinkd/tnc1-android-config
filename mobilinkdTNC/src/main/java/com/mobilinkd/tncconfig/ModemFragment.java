@@ -133,7 +133,7 @@ public class ModemFragment extends DialogFragment {
                 }
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    getContext(), android.R.layout.simple_spinner_item, items);
+                    requireContext(), android.R.layout.simple_spinner_item, items);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mModemSpinner.setAdapter(adapter);
             mModemLayout.setVisibility(View.VISIBLE);
@@ -265,7 +265,7 @@ public class ModemFragment extends DialogFragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@androidx.annotation.NonNull Bundle outState) {
         if(D) Log.d(TAG, "+++ ON SAVE INSTANCE STATE +++");
 
         super.onSaveInstanceState(outState);
@@ -344,7 +344,7 @@ public class ModemFragment extends DialogFragment {
         if (getShowsDialog()) {
             return super.onCreateView(inflater, container, savedInstanceState);
         } else {
-            View view = getActivity().getLayoutInflater().inflate(R.layout.modem_fragment, null);
+            View view = requireActivity().getLayoutInflater().inflate(R.layout.modem_fragment, null);
             return configureDialogView(view);
         }
     }
@@ -398,7 +398,7 @@ public class ModemFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");
@@ -475,7 +475,7 @@ public class ModemFragment extends DialogFragment {
                 }
             }
             ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    getContext(), android.R.layout.simple_spinner_item, items);
+                    requireContext(), android.R.layout.simple_spinner_item, items);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             mModemSpinner.setAdapter(adapter);
             if (mHasModemType) mModemSpinner.setSelection(getIndex(mModemSpinner, getString(ModemTypes.get(mModemType))));

@@ -81,18 +81,14 @@ public class AudioOutputFragment extends DialogFragment {
         mPttStyleGroup = view.findViewById(R.id.pttStyleGroup);
         mPttStyleGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
         	@Override
-        	public void onCheckedChanged(RadioGroup group, int selected) {
-        		switch (selected) {
-        		case R.id.pttStyleSimplexButton:
-        			mPttStyle = PTT_STYLE_SIMPLEX;
-        			break;
-        		case R.id.pttStyleMultiplexButton:
-        			mPttStyle = PTT_STYLE_MULTIPLEX;
-        			break;
-        		default:
-        			if(D) Log.e(TAG, "Invalid button ID");
-        			break;
-        		}
+        	public void onCheckedChanged(@androidx.annotation.NonNull RadioGroup group, int selected) {
+                if (selected == R.id.pttStyleSimplexButton) {
+                    mPttStyle = PTT_STYLE_SIMPLEX;
+                } else if (selected == R.id.pttStyleMultiplexButton) {
+                    mPttStyle = PTT_STYLE_MULTIPLEX;
+                } else {
+                    if (D) Log.e(TAG, "Invalid button ID");
+                }
         		mListener.onAudioOutputDialogPttStyleChanged(AudioOutputFragment.this);
         	}
         });
@@ -179,21 +175,16 @@ public class AudioOutputFragment extends DialogFragment {
         RadioGroup mToneGroup = view.findViewById(R.id.toneGroup);
         mToneGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
         	@Override
-        	public void onCheckedChanged(RadioGroup group, int selected) {
-        		switch (selected) {
-        		case R.id.markToneRadioButton:
-        			mTone = TncConfig.TONE_MARK;
-        			break;
-        		case R.id.spaceToneRadioButton:
-        			mTone = TncConfig.TONE_SPACE;
-        			break;
-        		case R.id.bothToneRadioButton:
-        			mTone = TncConfig.TONE_BOTH;
-        			break;
-        		default:
-        			if(D) Log.e(TAG, "Invalid button ID");
-        			break;
-        		}
+        	public void onCheckedChanged(@androidx.annotation.NonNull RadioGroup group, int selected) {
+                if (selected == R.id.markToneRadioButton) {
+                    mTone = TncConfig.TONE_MARK;
+                } else if (selected == R.id.spaceToneRadioButton) {
+                    mTone = TncConfig.TONE_SPACE;
+                } else if (selected == R.id.bothToneRadioButton) {
+                    mTone = TncConfig.TONE_BOTH;
+                } else {
+                    if (D) Log.e(TAG, "Invalid button ID");
+                }
         		if(D) Log.i(TAG, "Tone changed: " + mTone);
         		
         		if (mPtt) {
@@ -335,7 +326,7 @@ public class AudioOutputFragment extends DialogFragment {
     
     // Override the Fragment.onAttach() method to instantiate the NoticeDialogListener
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@androidx.annotation.NonNull Context context) {
         super.onAttach(context);
 
         if(D) Log.d(TAG, "++ ON ATTACH ++");
