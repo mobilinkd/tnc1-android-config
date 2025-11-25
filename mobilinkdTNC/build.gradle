@@ -13,7 +13,7 @@ android {
         versionCode 28
 
         // Defines a user-friendly version name for your app.
-        versionName "1.4.7"
+        versionName "1.4.8"
     }
 
 
