@@ -108,7 +108,7 @@ getFilesDir()/firmware/
 ```
 User uploads have `"source":"user"`.
 
-**Retention:** Keep all versions indefinitely (files are <100KB each; total storage is negligible).
+**Retention:** Keep all versions indefinitely. Firmware releases are rare (no releases for almost a decade); total storage is negligible.
 
 **Offline behavior:**
 - If no network: show cached official + user firmware only
