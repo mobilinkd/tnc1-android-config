@@ -37,15 +37,82 @@ We will extract the firmware programming code from `tnc1-android-config` into a 
 
 ### Firmware Source
 
-- Primary: Downloaded from the **Mobilinkd downloads site** (URL TBD -- see Open Questions)
+- Primary: Downloaded from the **Mobilinkd downloads site** via JSON manifest
 - Secondary: **User-uploaded firmware files** (local filesystem, `.hex` format)
 - No cryptographic signature verification required
+
+### Firmware Catalog (JSON Manifest)
+
+The manifest is a flat JSON file listing firmware for each supported model.
+
+**URL:** TBD (static file or WordPress-served -- see Open Questions)
+
+```json
+{
+  "version": 1,
+  "updated": "2026-05-30T14:22:00Z",
+  "firmwares": {
+    "TNC1": {
+      "model_name": "Mobilinkd TNC1",
+      "latest_version": "1.4.8",
+      "url": "https://www.mobilinkd.com/downloads/firmware/tnc1-1.4.8.hex",
+      "description": "Fixed squelch threshold bug"
+    },
+    "TNC2": {
+      "model_name": "Mobilinkd TNC2",
+      ...
+    },
+    "TNC2.1": {
+      "model_name": "Mobilinkd TNC2.1",
+      ...
+    },
+    "TNC2.2": {
+      "model_name": "Mobilinkd TNC2.2",
+      ...
+    }
+  }
+}
+```
+
+- `version` -- manifest schema version for future compatibility
+- `updated` -- ISO 8601 timestamp of last catalog change
+- `firmwares` -- keyed by model identifier (TNC1, TNC2, TNC2.1, TNC2.2)
 
 ### Offline Capability
 
 - Downloaded firmware files are **cached locally**
 - Cached firmware can be flashed without network connectivity
 - User can always flash a locally-stored `.hex` file
+
+### Caching Strategy
+
+**Storage:** `getFilesDir()/firmware/` (persistent across cache clears)
+
+**Manifest fetch:**
+- Fetched on app startup with `If-Modified-Since` / ETag to avoid re-download
+- Stored alongside firmware files for offline reference
+
+**Firmware file layout:**
+```
+getFilesDir()/firmware/
+  manifest.json              -- last known catalog
+  TNC1-1.4.8.hex             -- official firmware, keyed by model-version
+  TNC2-2.1.3.hex
+  user/
+    custom-firmware.hex        -- user-uploaded, any name
+```
+
+**Metadata:** Each cached file has a companion `.json`:
+```json
+{"model":"TNC1","version":"1.4.8","downloaded_at":"2026-05-30T...","source":"official"}
+```
+User uploads have `"source":"user"`.
+
+**Retention:** Keep all versions indefinitely (files are <100KB each; total storage is negligible).
+
+**Offline behavior:**
+- If no network: show cached official + user firmware only
+- If no cached firmware exists for selected model: disable flash, show "connect to internet to download"
 
 ### Release Order
 
@@ -82,7 +149,7 @@ We will extract the firmware programming code from `tnc1-android-config` into a 
 |---|----------|--------|-------|
 | 1 | App name | **Resolved** | "Mobilinkd AVR TNC Programmer" |
 | 2 | Package name | **Resolved** | `com.mobilinkd.avr.programmer` |
-| 3 | Firmware download mechanism | **In discussion** | JSON manifest from mobilinkd.com; 4 models; user must select model; in-app download preferred |
+| 3 | Firmware download mechanism | **In discussion** | JSON manifest from mobilinkd.com; 4 models (TNC1, TNC2, TNC2.1, TNC2.2); user must select model; in-app download preferred; no signature verification; offline caching with user-upload support; manifest URL TBD (static file or WordPress) |
 | 4 | Announcement plan | **Resolved** | Support groups, X/Twitter, Mastodon, Bluesky, Reddit, Facebook, website, support section |
 
 ## Related
