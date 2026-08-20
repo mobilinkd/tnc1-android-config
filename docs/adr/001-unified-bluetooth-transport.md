@@ -83,7 +83,7 @@ Use a cross-platform BLE+SPP library (e.g., via NDK or a JNI bridge).
 
 ## Related Work
 
-- **ADR-002:** Standalone TNC Firmware Programmer App (separation of `FirmwareUpdateActivity` / `Avr109` from tnc1-android-config into a new Play Store listing)
+- **ADR-002:** Standalone TNC Firmware Programmer App -- **IMPLEMENTED AND LIVE** (uploaded to Play 2026-07-27, current v1.0.3 / code 4). The release-order gate is satisfied, so this ADR is now unblocked. The firmware code still in tnc1-android-config is superseded.
 - **Issue #3:** tnc1-android-config -- check newer firmware (will migrate to new firmware app)
 - **Issue #6, #7:** tnc1-android-config NPEs (will be resolved by EOL'ing tnc1-android-config and using the unified app)
 

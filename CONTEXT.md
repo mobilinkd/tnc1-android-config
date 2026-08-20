@@ -53,6 +53,7 @@ An Android app that configures Mobilinkd TNC devices (TNC1, TNC2, TNC3) over Blu
 
 ## Current state
 
-- Published on Google Play Store
-- Supports TNC1, TNC2, TNC3
-- Needs modernization: target SDK bumps, permission model updates, and general cleanup
+- Published on Google Play Store (legacy; planned for EOL once the ADR-001 unified app ships)
+- Supports TNC1, TNC2, TNC3 (firmware flashing only needed for TNC1/TNC2)
+- Firmware programming has moved to the standalone **Mobilinkd AVR TNC Programmer** app (`com.mobilinkd.avr.programmer`, live on Play per ADR-002) -- this app's `FirmwareUpdateActivity`/`Avr109` are superseded but not yet removed from the tree
+- Needs modernization: target SDK bumps, permission model updates, and general cleanup; the configuration-only path is being replaced by ADR-001

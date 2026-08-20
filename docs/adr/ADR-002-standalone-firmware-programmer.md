@@ -2,7 +2,13 @@
 
 ## Status
 
-Proposed
+Accepted (implemented and live on Google Play)
+
+**Implementation status:** The Mobilinkd AVR TNC Programmer shipped and is live on Google Play
+(`com.mobilinkd.avr.programmer`) -- first AAB uploaded 2026-07-27, current release v1.0.3
+(versionCode 4). This satisfied the release-order gate in ADR-001: the legacy tnc1-android-config
+app can now be EOL'd once the unified config app (ADR-001) ships. The firmware code still present
+in tnc1-android-config (`FirmwareUpdateActivity`, `Avr109`) is superseded but not yet deleted.
 
 ## Context
 
@@ -116,7 +122,10 @@ User uploads have `"source":"user"`.
 
 ### Release Order
 
-**This app MUST be released BEFORE the unified TNC config app update** (ADR-001). Releasing the config app first would strip firmware programming capability from TNC1/TNC2 users before a replacement exists.
+**This app was released BEFORE the unified TNC config app update** (ADR-001), satisfying the
+release-order gate. The Mobilinkd AVR TNC Programmer went live on Google Play on 2026-07-27
+(current v1.0.3, code 4), so ADR-001 is now unblocked and the legacy tnc1-android-config app may
+be EOL'd once ADR-001 ships.
 
 ### Announcement Channels
 
